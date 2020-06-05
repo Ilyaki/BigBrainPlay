@@ -3,21 +3,11 @@
 
 #include <string>
 #include "ActionInput.hpp"
+#include "Voting.hpp"
 
 namespace TroubleBrewing
 {
 class ActionInput;
-
-/*class PlayerCommunication
-{
-	std::unique_ptr<ActionInput> actionInput;
-
-public:
-	explicit PlayerCommunication();
-
-	ActionInput* GetActionInput();
-	void SendMessage(std::string message);
-};*/
 
 class PlayerCommunication
 {
@@ -31,6 +21,12 @@ public:
 
 	//TODO: Message types for formatting?
 	virtual void SendMessage(std::string msg,  bool flush = true) = 0;
+
+	virtual void OpenCloseNominations(
+			bool open, GameState* gameState = nullptr, Voting* voting = nullptr, Player* sourcePlayer = nullptr) = 0;
+
+	virtual void OpenCloseVoting(bool open, bool ghostVote = false,
+			TroubleBrewing::Voting* voting = nullptr, Player* sourcePlayer = nullptr, int voteTimeSeconds = 0) = 0;
 };
 
 }

@@ -17,6 +17,8 @@ Player::Player(CharacterType characterType,
 	communication{_communication},
 	playerData{_playerData}
 {
+	assert(_playerData.playerID >= 0);
+
 	switch(characterType)
 	{
 		//TODO: cleanup somehow since all the constructors are similar?
@@ -79,8 +81,8 @@ bool Player::AttemptKill(bool isExecutionKill, bool isDemonKill, Player* sourceP
 
 	if (isDead)
 	{
-		std::cout << "Attempt to kill a dead player" << std::endl;
-		return false;
+		Communication()->SendMessage("You have died. Again")
+		return true;
 	}
 	else
 	{

@@ -5,10 +5,9 @@
 
 using namespace TroubleBrewing;
 
-
 int main()
 {
-	Discord::BbpDiscordClient client("NzE3NDI4MTQyODg0NzgyMTcx.XtaLSA.qrQhKNXCFvBbQ78nAB6CwG5pcIQ", 2);
+	Discord::BbpDiscordClient client("NzE3NDI4MTQyODg0NzgyMTcx.XtnPuQ.nRdj9zMkACdtAEjUf6Ge-atCTxs", 2);
 	client.run();
 
 	return 0;

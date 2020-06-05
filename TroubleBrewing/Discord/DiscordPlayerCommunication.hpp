@@ -20,9 +20,19 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 
 	std::stringstream messageBuf;
 
-	void TextSeparator();
+	// is nominations open, game state, voting interface, source player
+	std::tuple<bool, TroubleBrewing::GameState*, TroubleBrewing::Voting*, TroubleBrewing::Player*> nominationData;
 
+	// is voting open, is ghost vote, voting interface
+	std::tuple<bool, bool, TroubleBrewing::Voting*, TroubleBrewing::Player*> votingData;
+
+	void TextSeparator();
 	void FlushMessage();
+
+	void PrintPlayerIDs(TroubleBrewing::GameState* gameState);
+
+	void ProcessNomination(SleepyDiscord::Message message);
+	void ProcessVote(SleepyDiscord::Message message);
 
 public:
 	DiscordPlayerCommunication(
@@ -40,6 +50,14 @@ public:
 	) override;
 
 	void SendMessage(std::string msg, bool flush = true) override;
+
+	void OpenCloseNominations(bool open,
+			TroubleBrewing::GameState* gameState,
+			TroubleBrewing::Voting* voting,
+			TroubleBrewing::Player* sourcePlayer) override;
+
+	virtual void OpenCloseVoting(bool open, bool ghostVote,TroubleBrewing::Voting* voting,
+			Player* sourcePlayer, int voteTimeSeconds) override;
 };
 
 }
