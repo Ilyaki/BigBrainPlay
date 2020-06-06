@@ -81,7 +81,7 @@ bool Player::AttemptKill(bool isExecutionKill, bool isDemonKill, Player* sourceP
 
 	if (isDead)
 	{
-		Communication()->SendMessage("You have died. Again")
+		Communication()->SendMessage("You have died. Again");
 		return true;
 	}
 	else

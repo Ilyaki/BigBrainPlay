@@ -33,7 +33,10 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 //TODO: Should be inside constructor to enforce player vector not empty invariant
 void Storyteller::StartGame()
 {
-	AnnounceMessage("Game has begun...");//TODO: Fill in start message.
+	AnnounceMessage("_ _\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
+		"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
+	 	"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n_ _\\n"
+   		"Game has begun...");//TODO: Fill in start message.
 
 	// Zeroth night
 	NightPhase(zerothNightOrder, 0);
@@ -82,12 +85,50 @@ void Storyteller::DayPhase(int day)
 	AnnounceMessage("Day " + std::to_string(day) + " nominations are now open. " +
 		std::to_string(minMajority) + " votes are required for a majority");
 
-	OpenCloseNominations(true);
+	/*while (true)
+	{
+		if (!nominationsOpen) // Prevents message spam
+			OpenCloseNominations(true);
 
-	//TODO: change timings of nomination period
-	AnnounceMessage("Nominations closing in 5 seconds...");
+		//TODO: change timings of nomination period
+		AnnounceMessage("Nominations closing in 5 seconds...");
 
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+
+		// Block until availible
+		if (nominationOrVotingMutex.try_lock())
+		{
+			// It was unlocked, so no nominaions/voting is taking place.
+			nominationOrVotingMutex.unlock();
+			break;
+		}
+		else
+		{
+			// Nomination/voting is taking place. Wait until finished (and then restart loop, to wait again)
+			nominationOrVotingMutex.lock();
+			nominationOrVotingMutex.unlock();
+		}
+	}*/
+
+	while(true)
+	{
+		if (!nominationsOpen) // Prevents message spam
+			OpenCloseNominations(true);
+
+		AnnounceMessage("Nominations closing in 5 seconds...");
+
+		std::unique_lock<std::mutex> lock(informNominationCondMutex);
+		if (informNominationCond.wait_for(lock, std::chrono::seconds(5)) == std::cv_status::no_timeout)
+		{
+			// Must have a nomination
+			ProcessNomination(std::get<0>(informNominationData), std::get<1>(informNominationData));
+		}
+		else
+		{
+			// Timeout. End nomination phase
+			break;
+		}
+	}
 
 	AnnounceMessage("Nominations closing!");
 
@@ -124,10 +165,20 @@ void Storyteller::AnnounceMessage(std::string message, bool flush)
 
 void Storyteller::InformNomination(Player *nominee, Player *nominator)
 {
-	//TODO: Storyteller::InformNomination
-	std::cout << "Storyteller::InformNomination, nominee = "
-		<< nominee->PlayerName() << ", nominator = " << nominator->PlayerName() << std::endl;
+	// // Lock the mutex until InformNomination is returned from (ie this nomination and voting finished)
+	//const std::lock_guard<std::mutex> lock(nominationOrVotingMutex);
 
+	if (!nominationsOpen)
+	{
+		nominator->Communication()->SendMessage("Nominations are not currently open");
+	} else{
+		informNominationData = std::make_tuple(nominee, nominator);
+		informNominationCond.notify_one();
+	}
+}
+
+void Storyteller::ProcessNomination(Player *nominee, Player* nominator)
+{
 	//TODO: only allow 1 nomination & nominee from each player. Player must be alive.
 
 	OpenCloseNominations(false);
@@ -138,22 +189,27 @@ void Storyteller::InformNomination(Player *nominee, Player *nominator)
 	constexpr int voteTimeSeconds = 5;
 	OpenCloseVoting(true, voteTimeSeconds);
 
+	//FIXME: this blocks the onMessage stuff
 	std::this_thread::sleep_for(std::chrono::seconds(voteTimeSeconds));
 
 	OpenCloseVoting(false);
 
 	ManageVotes(votes, nominee, nominator);
+
+	OpenCloseNominations(true);
 }
 
 void Storyteller::InformVote(Player *sourcePlayer, bool vote)
 {
 	//assert(has ghost vote)
-	votes.insert(sourcePlayer, vote);
+	votes.insert(std::pair(sourcePlayer, vote));
 	//TODO: deduct ghost vote if necessary
 }
 
 void Storyteller::OpenCloseNominations(bool open)
 {
+	nominationsOpen = open;
+
 	for (Player* player : GetPlayers())
 	{
 		if (open)
@@ -166,7 +222,7 @@ void Storyteller::OpenCloseNominations(bool open)
 bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, Player* nominator)
 {
 	// Announce votes
-	string votesMsg = R"(```yaml\nVotes to execute )" + nominee->PlayerName() + ":";
+	std::string votesMsg = R"(```yaml\nVotes to execute )" + nominee->PlayerName() + ":\\n";
 	for (auto pair : votes)
 	{
 		votesMsg += "- " + pair.first->PlayerName() + ": " + (pair.second ? "yes" : "no");
@@ -174,7 +230,7 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 		if (pair.first->IsDead())
 			votesMsg += ". Used ghost vote";
 
-		votesMsg += R"(\n)";
+		votesMsg += "\\n";
 	}
 	votesMsg += R"(```)";
 

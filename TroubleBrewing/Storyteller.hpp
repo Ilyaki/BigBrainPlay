@@ -2,6 +2,9 @@
 #define BBP_CONSOLE_STORYTELLER_HPP
 
 #include <vector>
+#include <map>
+#include <mutex>
+#include <condition_variable>
 #include "Characters/CharacterType.hpp"
 #include "GameState.hpp"
 
@@ -46,6 +49,12 @@ class Storyteller : public GameState, Voting
 	std::map<Player*, bool> votes;
 	Player* choppingBlock;
 	int choppingBlockVotes;
+	//std::mutex nominationOrVotingMutex;
+	bool nominationsOpen;
+
+	std::condition_variable informNominationCond;
+	std::mutex informNominationCondMutex;
+	std::tuple<Player*, Player*> informNominationData; // nominee, nominator
 
 	// Implementation functions
 	void NightPhase(const std::vector<CharacterType> order, int night);
@@ -55,6 +64,8 @@ class Storyteller : public GameState, Voting
 
 	void OpenCloseNominations(bool open);
 	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);
+
+	void ProcessNomination(Player* nominee, Player* nominator);
 
 	void ExecuteChoppingBlock();
 	bool ManageVotes(std::map<Player*, bool> votes, Player* nominee, Player* nominator);

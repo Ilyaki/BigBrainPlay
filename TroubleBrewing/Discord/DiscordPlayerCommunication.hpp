@@ -18,13 +18,19 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 	std::mutex dmMessageConditionVarMutex;
 	SleepyDiscord::Message lastMessage;
 
+	std::thread flusherThread;
 	std::stringstream messageBuf;
+	std::condition_variable flushCondition;
+	std::mutex flushConditionMutex;
+	std::mutex messageBufMutex;
 
 	// is nominations open, game state, voting interface, source player
 	std::tuple<bool, TroubleBrewing::GameState*, TroubleBrewing::Voting*, TroubleBrewing::Player*> nominationData;
 
 	// is voting open, is ghost vote, voting interface
 	std::tuple<bool, bool, TroubleBrewing::Voting*, TroubleBrewing::Player*> votingData;
+
+	void FlusherStart();
 
 	void TextSeparator();
 	void FlushMessage();
@@ -57,7 +63,7 @@ public:
 			TroubleBrewing::Player* sourcePlayer) override;
 
 	virtual void OpenCloseVoting(bool open, bool ghostVote,TroubleBrewing::Voting* voting,
-			Player* sourcePlayer, int voteTimeSeconds) override;
+			TroubleBrewing::Player* sourcePlayer, int voteTimeSeconds) override;
 };
 
 }

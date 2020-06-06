@@ -15,10 +15,12 @@ DiscordPlayerCommunication::DiscordPlayerCommunication(
 	dmChannel{_dmChannel},
 	nominationData{std::make_tuple(false, nullptr, nullptr, nullptr)}
 {
+	flusherThread = std::thread([this]{this->FlusherStart();});
 }
 
 void DiscordPlayerCommunication::SendMessage(std::string msg, bool flush)
 {
+	const std::lock_guard<std::mutex> messageBufLock(messageBufMutex);
 	messageBuf << msg << "\\n";
 
 	if (flush)
@@ -27,26 +29,7 @@ void DiscordPlayerCommunication::SendMessage(std::string msg, bool flush)
 
 void DiscordPlayerCommunication::FlushMessage()
 {
-	std::string n = dmChannel.ID;
-	auto c = Snowflake<SleepyDiscord::Channel>{n};
-
-	bool sent = false;
-//TODO: replace all \n with \\n
-	while (!sent)
-	{
-		try
-		{
-			discordClient->sendMessage(c, messageBuf.str());
-			sent = true;
-		}
-		catch(...)
-		{
-			// Discord prevents sending messages too quickly.
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		}
-	}
-
-	messageBuf.str(std::string{});
+	flushCondition.notify_one();
 }
 
 TroubleBrewing::Player *
@@ -83,12 +66,12 @@ DiscordPlayerCommunication::InputPlayer(TroubleBrewing::GameState *gameState,
 			{
 				playerID = std::stoi(message.content);
 			}
-			catch(std::invalid_argument e)
+			catch(const std::invalid_argument& e)
 			{
 				SendMessage("Invalid ID");
 				continue;
 			}
-			catch(std::out_of_range e)
+			catch(const std::out_of_range& e)
 			{
 				SendMessage("Invalid ID");
 				continue;
@@ -126,7 +109,7 @@ void DiscordPlayerCommunication::OnDirectMessage(SleepyDiscord::Message message)
 
 	if (std::get<0>(nominationData)) // Are nominations open
 		ProcessNomination(message);
-	else if (std::get<0>(votingData))
+	else if (std::get<0>(votingData)) // Is voting open
 		ProcessVote(message);
 	else
 		dmMessageConditionVar.notify_one();
@@ -145,9 +128,12 @@ void DiscordPlayerCommunication::OpenCloseNominations(
 {
 	nominationData = std::make_tuple(open, gameState, voting, sourcePlayer);
 
-	PrintPlayerIDs(gameState);
+	if (open)
+	{
+		PrintPlayerIDs(gameState);
 
-	SendMessage("Nominate player X by writing `X`");
+		SendMessage("Nominate player X by writing `X`");
+	}
 }
 
 void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message message)
@@ -164,12 +150,12 @@ void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message messag
 	{
 		playerID = std::stoi(message.content);
 	}
-	catch(std::invalid_argument e)
+	catch(const std::invalid_argument& e)
 	{
 		SendMessage("Invalid ID");
 		return;
 	}
-	catch(std::out_of_range e)
+	catch(const std::out_of_range& e)
 	{
 		SendMessage("Invalid ID");
 		return;
@@ -201,23 +187,26 @@ void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message messag
 
 void DiscordPlayerCommunication::PrintPlayerIDs(GameState* gameState)
 {
-	SendMessage(">>> Player IDs:", false);
+	// Don't use the multiline quote >>> as it may include more messages if more messages are added before a flush
+	SendMessage("> Player IDs:", false);
 	for (Player* player : gameState->GetPlayers())
 	{
-		SendMessage(
-				player->PlayerName() +  ": " + std::to_string(player->PlayerID()), false);
+		SendMessage( "> " +	player->PlayerName() + (player->IsDead() ? " (Dead): " : ": ") + std::to_string(player->PlayerID()), false);
 	}
 	FlushMessage();
 }
 
 void DiscordPlayerCommunication::ProcessVote(SleepyDiscord::Message message)
 {
-	Voting* voting = std::get<2>(voteData);
-	Player* sourcePlayer = std::get<3>(voteData);
+	Voting* voting = std::get<2>(votingData);
+	Player* sourcePlayer = std::get<3>(votingData);
 
-	if (message.startsWith("1") || message.startsWith("yes") || message.startsWith("Yes"))
+	auto contents = message.content;
+	constexpr auto npos = std::string::npos;
+	if (contents.find("yes") != npos || contents.find("Yes") != npos ||
+		contents.find("vote") != npos || contents.find("Vote") != npos)
 	{
-		std::get<0>(voteData) = false; // Close voting
+		std::get<0>(votingData) = false; // Close voting
 		SendMessage("Vote cast");
 		voting->InformVote(sourcePlayer, true);
 	}
@@ -226,17 +215,52 @@ void DiscordPlayerCommunication::ProcessVote(SleepyDiscord::Message message)
 void DiscordPlayerCommunication::OpenCloseVoting(
 		bool open, bool ghostVote,TroubleBrewing::Voting* voting, Player* sourcePlayer, int voteTimeSeconds)
 {
-	if (!open && std::get<0>(voteData)) // Closing voting before player casted a vote.
+	if (!open && std::get<0>(votingData)) // Closing voting before player casted a vote.
 	{
-		SendMessage("Took to long to respond. Assuming no vote");
-		std::get<2>(voteData)->InformVote(sourcePlayer, false);
+		// Use the old votingData as the new arguments might be nullptr
+		SendMessage("Took too long to respond. Assuming no vote");
+		std::get<2>(votingData)->InformVote(std::get<3>(votingData), false);
 	}
 
 	votingData = std::make_tuple(open, ghostVote, voting, sourcePlayer);
 
-	SendMessage("Nominate player " + sourcePlayer->PlayerName() + " by writing `1` or `yes`." +
-		(ghostVote ? " This will use your ghost vote." : "") +
-		"You have " + std::to_string(voteTimeSeconds) + " seconds to vote");
+	if (open)
+	{
+		SendMessage("Vote for " + sourcePlayer->PlayerName() + " by writing `vote` or `yes`." +
+					(ghostVote ? " This will use your ghost vote." : "") +
+					" You have " + std::to_string(voteTimeSeconds) + " seconds to vote");
+	}
+}
+
+void DiscordPlayerCommunication::FlusherStart()
+{
+	while (true)
+	{
+		auto lock = std::unique_lock<std::mutex>{flushConditionMutex};
+		flushCondition.wait(lock);
+
+		const std::lock_guard<std::mutex> messageBufLock(messageBufMutex);
+
+		auto c = Snowflake<SleepyDiscord::Channel>{dmChannel.ID};
+
+		bool sent = false;
+
+		while (!sent)
+		{
+			try
+			{
+				discordClient->sendMessage(c, messageBuf.str());
+				sent = true;
+			}
+			catch(...)
+			{
+				// Discord prevents sending messages too quickly.
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+		}
+
+		messageBuf.str(std::string{});
+	}
 }
 
 }
