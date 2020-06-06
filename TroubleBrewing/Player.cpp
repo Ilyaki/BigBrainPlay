@@ -8,6 +8,9 @@
 #include "Characters/Chef.hpp"
 #include "Characters/Empath.hpp"
 #include "Characters/FortuneTeller.hpp"
+#include "Characters/Undertaker.hpp"
+#include "Characters/Monk.hpp"
+#include "Characters/Ravenkeeper.hpp"
 
 using namespace TroubleBrewing;
 
@@ -51,6 +54,18 @@ Player::Player(CharacterType characterType,
 			character = std::make_shared<FortuneTeller>(this);
 			break;
 
+		case CharacterType::UNDERTAKER:
+			character = std::make_shared<Undertaker>(this);
+			break;
+
+		case CharacterType::MONK:
+			character = std::make_shared<Monk>(this);
+			break;
+
+		case CharacterType::RAVENKEEPER:
+			character = std::make_shared<Ravenkeeper>(this);
+			break;
+
 		case CharacterType::NO_CHARACTER:
 		default:
 			//TODO: Give error
@@ -75,7 +90,7 @@ bool Player::IsDead() const
 	return isDead;
 }
 
-bool Player::AttemptKill(bool isExecutionKill, bool isDemonKill, Player* sourcePlayer)
+bool Player::AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer)
 {
 	assert((isExecutionKill != isDemonKill) && (isExecutionKill || isDemonKill));
 
@@ -88,8 +103,16 @@ bool Player::AttemptKill(bool isExecutionKill, bool isDemonKill, Player* sourceP
 	{
 		if (character->AllowCharacterDeath(isExecutionKill, isDemonKill, sourcePlayer))
 		{
-			isDead = true;
-			return true;
+			bool monkProtected = (monkProtectedUntil >= gameState->GetCurrentTime() &&
+									monkProtectedBy != nullptr && !monkProtectedBy->AbilityMalfunctions(gameState));
+
+			if (monkProtected)
+				return false;
+			else
+			{
+				Kill(gameState, isExecutionKill, isDemonKill, sourcePlayer);
+				return true;
+			}
 		}
 		else
 		{
@@ -113,7 +136,26 @@ int Player::PlayerID() const
 	return playerData.playerID;
 }
 
-bool Player::AbilityMalfunctions() const
+bool Player::AbilityMalfunctions(GameState* gameState) const
 {
-	return isPoisoned;
+	auto currentTime = gameState->GetCurrentTime();
+	return !(poisonedUntil >= currentTime && poisonedBy != nullptr && !poisonedBy->AbilityMalfunctions(gameState));
+}
+
+void Player::SetPoisoned(Time until, Player *fromWho)
+{
+	poisonedUntil = until;
+	poisonedBy = fromWho;
+}
+
+void Player::SetMonkProtection(Time until, Player *fromWho)
+{
+	monkProtectedUntil = until;
+	monkProtectedBy = fromWho;
+}
+
+void Player::Kill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer)
+{
+	isDead = true;
+	character->OnDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 }

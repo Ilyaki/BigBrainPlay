@@ -6,6 +6,7 @@
 #include "Characters/CharacterType.hpp"
 #include "PlayerCommunication.hpp"
 #include "PlayerData.hpp"
+#include "Time.hpp"
 
 namespace TroubleBrewing
 {
@@ -22,10 +23,15 @@ private:
 
 	bool isDead {false};
 
-	//TODO: add more detail, e.g. until when, etc..
-	//list of effects, then calculate if drunk/poisoned? (maybe overkill if just the Poisoner)
-	//maybe include other effects e.g. monk
-	bool isPoisoned{false};
+	// If adding more characters we may need an effects system (e.g. poisoned by poisoner, monk'd by monk, etc)
+	// Would also be required if we had multiple characters of the same role
+	Time poisonedUntil;
+	Player* poisonedBy;
+
+	Time monkProtectedUntil;
+	Player* monkProtectedBy;
+
+	void Kill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer);
 
 public:
 	Player(CharacterType characterType, PlayerData _playerData, std::shared_ptr<PlayerCommunication> _communication);
@@ -36,13 +42,17 @@ public:
 
 	bool IsDead() const;
 
-	bool AbilityMalfunctions() const;
+	bool AbilityMalfunctions(GameState* gameState) const;
 
 	/// AttemptKill: Tries to kill the player.
 	/// \param isExecutionKill If the player is killed by execution (e.g. voting or Virgin nomination).
 	/// \param isDemonKill If the player is killed by the demon.
+	/// \param sourcePlay The killer, if applicable.
 	/// \return Returns true if the player is killed.
-	bool AttemptKill(bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
+	bool AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
+
+	void SetPoisoned(Time until, Player* fromWho);
+	void SetMonkProtection(Time until, Player* fromWho);
 
 	std::shared_ptr<Character> GetCharacter();
 	std::shared_ptr<PlayerCommunication> Communication();

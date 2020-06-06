@@ -3,8 +3,10 @@
 
 #include <vector>
 #include <functional>
+#include "Time.hpp"
 #include "Player.hpp"
 #include "Characters/CharacterType.hpp"
+#include "GameLogging.hpp"
 
 namespace TroubleBrewing
 {
@@ -12,13 +14,20 @@ namespace TroubleBrewing
 class Player;
 
 //GameState: Holds all players and character info, etc.
-class GameState
+class GameState : public GameLogging
 {
 	// Player is on the free store so the pointer used in Player constructor is the same as inside the vector.
 	std::vector<std::shared_ptr<Player>> players{};
 
+	Time currentTime;
+
+protected:
+	void SetCurrentTime(Time newTime);
+
 public:
 	GameState();
+
+	Time GetCurrentTime();
 
 	std::vector<Player*> GetPlayers();
 

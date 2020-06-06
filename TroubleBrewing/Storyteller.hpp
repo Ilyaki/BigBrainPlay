@@ -28,13 +28,15 @@ class Storyteller : public GameState, Voting
 	const std::vector<CharacterType> nightOrder
 	{
 			CharacterType::TEST_CHARACTER,
+			CharacterType::MONK,
 			CharacterType::EMPATH,
-			CharacterType::FORTUNETELLER
+			CharacterType::FORTUNETELLER,
+			CharacterType::UNDERTAKER
 	};
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::TEST_CHARACTER,
+			CharacterType::RAVENKEEPER,
 		//	CharacterType::CHEF
 			/*CharacterType::TEST_CHARACTER,
 			CharacterType::WASHERWOMAN,
@@ -49,7 +51,6 @@ class Storyteller : public GameState, Voting
 	std::map<Player*, bool> votes;
 	Player* choppingBlock;
 	int choppingBlockVotes;
-	//std::mutex nominationOrVotingMutex;
 	bool nominationsOpen;
 
 	std::condition_variable informNominationCond;
@@ -76,7 +77,7 @@ public:
 
 	void StartGame();
 
-	bool GameFinished();
+	bool GameFinished() const;
 
 	void InformNomination(Player* nominee, Player* nominator) override;
 	void InformVote(Player* sourcePlayer, bool vote) override;

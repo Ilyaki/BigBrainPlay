@@ -33,19 +33,27 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 //TODO: Should be inside constructor to enforce player vector not empty invariant
 void Storyteller::StartGame()
 {
+	//TODO: make a function to clear chat?
+	// _ _ is invisible in Discord
 	AnnounceMessage("_ _\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
 		"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
 	 	"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n_ _\\n"
    		"Game has begun...");//TODO: Fill in start message.
 
 	// Zeroth night
+	SetCurrentTime(Time{false, 0});
 	NightPhase(zerothNightOrder, 0);
 
 	//TODO: win conditions
 	for (int dayNight = 1;; dayNight++)
 	{
+		SetCurrentTime(Time{true, dayNight});
 		DayPhase(dayNight);
+		AnnounceMessage("_ _\\n\\n_ _", false);
+
+		SetCurrentTime(Time{false, dayNight});
 		NightPhase(nightOrder, dayNight);
+		AnnounceMessage("_ _\\n\\n_ _", false);
 	}
 }
 
@@ -60,6 +68,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 	for (CharacterType targetChar : order)
 	{
 		//TODO: Search for the Drunk by the character they think they are. (or use 'perceived character/etc')
+		//TODO: if not dead
 		auto targetMatches = GetPlayersMatchingCharacter(targetChar);
 		for (Player* target : targetMatches)
 			//TODO: Log the action, test win conditions?
@@ -84,31 +93,6 @@ void Storyteller::DayPhase(int day)
 
 	AnnounceMessage("Day " + std::to_string(day) + " nominations are now open. " +
 		std::to_string(minMajority) + " votes are required for a majority");
-
-	/*while (true)
-	{
-		if (!nominationsOpen) // Prevents message spam
-			OpenCloseNominations(true);
-
-		//TODO: change timings of nomination period
-		AnnounceMessage("Nominations closing in 5 seconds...");
-
-		std::this_thread::sleep_for(std::chrono::seconds(5));
-
-		// Block until availible
-		if (nominationOrVotingMutex.try_lock())
-		{
-			// It was unlocked, so no nominaions/voting is taking place.
-			nominationOrVotingMutex.unlock();
-			break;
-		}
-		else
-		{
-			// Nomination/voting is taking place. Wait until finished (and then restart loop, to wait again)
-			nominationOrVotingMutex.lock();
-			nominationOrVotingMutex.unlock();
-		}
-	}*/
 
 	while(true)
 	{
@@ -142,15 +126,18 @@ void Storyteller::ExecuteChoppingBlock()
 	if (choppingBlock == nullptr)
 	{
 		AnnounceMessage("Nobody was executed");
+		SetLastExecutionDeath(nullptr);
 	} else {
-		bool wasKilled = choppingBlock->AttemptKill(true, false);
+		bool wasKilled = choppingBlock->AttemptKill(this, true, false);
 
 		if (wasKilled)
 		{
 			//TODO: spectacular execution messages?
 			AnnounceMessage(choppingBlock->PlayerName() + " was executed and killed");
+			SetLastExecutionDeath(choppingBlock);
 		} else {
 			AnnounceMessage(choppingBlock->PlayerName() + " was executed but did not die");
+			SetLastExecutionDeath(nullptr);
 		}
 	}
 }
@@ -314,7 +301,7 @@ void Storyteller::OpenCloseVoting(bool open, int voteTimeSeconds)
 	}
 }
 
-bool Storyteller::GameFinished()
+bool Storyteller::GameFinished() const
 {
 	//TODO: Storyteller::GameFinished
 	return false;

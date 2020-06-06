@@ -117,5 +117,15 @@ bool GameState::PlayersAreNeighbours(Player* first, Player* second, bool allowDe
 	return second == neighbours.first || second == neighbours.second;
 }
 
+Time GameState::GetCurrentTime()
+{
+	return currentTime;
+}
+
+void GameState::SetCurrentTime(Time newTime)
+{
+	currentTime = newTime;
+}
+
 #pragma endregion
 

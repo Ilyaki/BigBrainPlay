@@ -9,6 +9,16 @@ FortuneTeller::FortuneTeller(Player *_player) : Character(_player, CharacterTrai
 {
 }
 
+std::string FortuneTeller::GetCharacterName()
+{
+	return "Fortune Teller";
+}
+
+CharacterType FortuneTeller::GetCharacterType()
+{
+	return CharacterType::FORTUNETELLER;
+}
+
 void FortuneTeller::InitialSetup(GameState *gameState)
 {
 	// Choose a Red Herring
@@ -39,10 +49,12 @@ void FortuneTeller::NightAction(bool zerothNight, GameState *gameState)
 {
 	// TODO: drunk/poisoned
 
-	auto firstPlayer = player->Communication()->InputPlayer(gameState, player, "Choose the first player to check.");
+	auto firstPlayer = player->Communication()->InputPlayer(gameState, player,
+			GetCharacterName() + ": Choose the first player to check");
 
 	//TODO: Allow the same player if there is only 1 player? (Can't actually happen in game, only useful in testing)
-	auto secondPlayer = player->Communication()->InputPlayer(gameState, player, "Choose the second player to check.",
+	auto secondPlayer = player->Communication()->InputPlayer(gameState, player,
+			GetCharacterName() + ": Choose the second player to check",
 			{[firstPlayer](Player* p){ return p != firstPlayer; },
 					"You must choose different players"});
 
@@ -51,16 +63,6 @@ void FortuneTeller::NightAction(bool zerothNight, GameState *gameState)
 
 	std::string msg = GetCharacterName() + ": Your reading is " + (fortuneTellerReading ? "true" : "false");
 	player->Communication()->SendMessage(msg);
-}
-
-std::string FortuneTeller::GetCharacterName()
-{
-	return "Fortune Teller";
-}
-
-CharacterType FortuneTeller::GetCharacterType()
-{
-	return CharacterType::FORTUNETELLER;
 }
 
 }
