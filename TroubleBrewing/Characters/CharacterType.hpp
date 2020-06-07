@@ -12,7 +12,8 @@ enum class CharacterType {
 	FORTUNETELLER,
 	UNDERTAKER,
 	MONK,
-	RAVENKEEPER
+	RAVENKEEPER,
+	VIRGIN
 	};
 
 //TODO: May need template for getting class type from CharacterType

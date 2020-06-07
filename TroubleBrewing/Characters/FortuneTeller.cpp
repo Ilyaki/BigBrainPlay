@@ -21,6 +21,8 @@ CharacterType FortuneTeller::GetCharacterType()
 
 void FortuneTeller::InitialSetup(GameState *gameState)
 {
+	Character::InitialSetup(gameState);
+
 	// Choose a Red Herring
 	std::vector<Player*> redHerringCandidates;
 	if (RandomBetweenInc(1, 5) == 1) // TODO: maybe don't hard code red herring chance?

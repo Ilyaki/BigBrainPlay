@@ -10,11 +10,6 @@ CharacterKnowerBase::CharacterKnowerBase(Player *_player, CharacterTraits traits
 
 }
 
-void CharacterKnowerBase::InitialSetup(GameState *gameState)
-{
-
-}
-
 void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 {
 	//TODO: drunk/poisoned

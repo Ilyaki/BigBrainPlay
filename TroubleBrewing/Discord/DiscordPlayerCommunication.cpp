@@ -187,13 +187,16 @@ void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message messag
 
 void DiscordPlayerCommunication::PrintPlayerIDs(GameState* gameState)
 {
-	// Don't use the multiline quote >>> as it may include more messages if more messages are added before a flush
-	SendMessage("> Player IDs:", false);
+	std::string msg = R"(```yaml\nIDs:\n)";
 	for (Player* player : gameState->GetPlayers())
 	{
-		SendMessage( "> " +	player->PlayerName() + (player->IsDead() ? " (Dead): " : ": ") + std::to_string(player->PlayerID()), false);
+		msg += "- " + player->PlayerName() + ": " +
+				std::to_string(player->PlayerID()) +
+				(player->IsDead() ? " (Dead)\\n" : "\\n");
 	}
-	FlushMessage();
+	msg += R"(```)";
+
+	SendMessage(msg);
 }
 
 void DiscordPlayerCommunication::ProcessVote(SleepyDiscord::Message message)

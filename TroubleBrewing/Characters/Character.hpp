@@ -30,7 +30,7 @@ public:
 	/// OnDeath: Call when the player of this character has died
 	virtual void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer){};
 
-	virtual void InitialSetup(GameState* gameState){};
+	virtual void InitialSetup(GameState* gameState);
 
 	virtual void NightAction(bool zerothNight, GameState* gameState){};
 

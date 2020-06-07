@@ -11,6 +11,7 @@
 #include "Characters/Undertaker.hpp"
 #include "Characters/Monk.hpp"
 #include "Characters/Ravenkeeper.hpp"
+#include "Characters/Virgin.hpp"
 
 using namespace TroubleBrewing;
 
@@ -66,6 +67,10 @@ Player::Player(CharacterType characterType,
 			character = std::make_shared<Ravenkeeper>(this);
 			break;
 
+		case CharacterType::VIRGIN:
+			character = std::make_shared<Virgin>(this);
+			break;
+
 		case CharacterType::NO_CHARACTER:
 		default:
 			//TODO: Give error
@@ -103,7 +108,7 @@ bool Player::AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemo
 	{
 		if (character->AllowCharacterDeath(isExecutionKill, isDemonKill, sourcePlayer))
 		{
-			bool monkProtected = (monkProtectedUntil >= gameState->GetCurrentTime() &&
+			bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
 									monkProtectedBy != nullptr && !monkProtectedBy->AbilityMalfunctions(gameState));
 
 			if (monkProtected)

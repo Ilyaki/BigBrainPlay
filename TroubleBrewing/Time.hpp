@@ -64,7 +64,7 @@ inline bool operator>=(Time a, Time b)
 
 inline std::ostream& operator<<(std::ostream& stream, Time a)
 {
-	stream << (a.IsDay() ? "Day " : "Night ") << a.DayOrNightCount();
+	return stream << (a.IsDay() ? "Day " : "Night ") << a.DayOrNightCount();
 }
 
 }

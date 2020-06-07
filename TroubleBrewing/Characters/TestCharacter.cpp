@@ -9,6 +9,8 @@ TestCharacter::TestCharacter(Player* _player) : Character{_player, CharacterTrai
 
 void TestCharacter::InitialSetup(GameState* gameState)
 {
+	Character::InitialSetup(gameState);
+
 	std::cout << "TestCharacter InitialSetup" << std::endl;
 }
 

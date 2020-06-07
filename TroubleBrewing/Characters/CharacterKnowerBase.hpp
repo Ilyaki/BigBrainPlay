@@ -21,7 +21,6 @@ public:
 
 	constexpr virtual CharacterTraits TargetTraits() = 0;
 
-	void InitialSetup(GameState* gameState) final;
 	void NightAction(bool zerothNight, GameState* gameState) final;
 
 	std::string GetCharacterName() override = 0;

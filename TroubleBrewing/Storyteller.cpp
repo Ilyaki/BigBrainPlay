@@ -5,6 +5,7 @@
 #include "Storyteller.hpp"
 #include "Player.hpp"
 #include "Characters/TestCharacter.hpp"
+#include "Characters/Virgin.hpp"
 
 using namespace TroubleBrewing;
 
@@ -22,6 +23,13 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 		++playerI;
 	}
 
+	//TODO: make a function to clear chat?
+	// _ _ is invisible in Discord
+	AnnounceMessage("_ _\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
+					"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
+					"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n_ _\\n"
+					"Game has begun...");//TODO: Fill in start message.
+
 	// Perform initial player setup
 	for (Player* player : GetPlayers())
 	{
@@ -33,13 +41,6 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 //TODO: Should be inside constructor to enforce player vector not empty invariant
 void Storyteller::StartGame()
 {
-	//TODO: make a function to clear chat?
-	// _ _ is invisible in Discord
-	AnnounceMessage("_ _\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
-		"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
-	 	"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n_ _\\n"
-   		"Game has begun...");//TODO: Fill in start message.
-
 	// Zeroth night
 	SetCurrentTime(Time{false, 0});
 	NightPhase(zerothNightOrder, 0);
@@ -49,7 +50,7 @@ void Storyteller::StartGame()
 	{
 		SetCurrentTime(Time{true, dayNight});
 		DayPhase(dayNight);
-		AnnounceMessage("_ _\\n\\n_ _", false);
+		AnnounceMessage("_ _\\n\\n_ _", false);// TODO: don't hard code this here
 
 		SetCurrentTime(Time{false, dayNight});
 		NightPhase(nightOrder, dayNight);
@@ -89,7 +90,7 @@ void Storyteller::DayPhase(int day)
 	choppingBlock = nullptr;
 	choppingBlockVotes = 0;
 
-	int minMajority = (GetAlive().size()/2) + 1;
+	int minMajority = (GetAlive().size() / 2) + (GetAlive().size() % 2);
 
 	AnnounceMessage("Day " + std::to_string(day) + " nominations are now open. " +
 		std::to_string(minMajority) + " votes are required for a majority");
@@ -105,7 +106,9 @@ void Storyteller::DayPhase(int day)
 		if (informNominationCond.wait_for(lock, std::chrono::seconds(5)) == std::cv_status::no_timeout)
 		{
 			// Must have a nomination
-			ProcessNomination(std::get<0>(informNominationData), std::get<1>(informNominationData));
+			bool abruptEnd = ProcessNomination(std::get<0>(informNominationData), std::get<1>(informNominationData));
+			if (abruptEnd)
+				break;
 		}
 		else
 		{
@@ -164,12 +167,25 @@ void Storyteller::InformNomination(Player *nominee, Player *nominator)
 	}
 }
 
-void Storyteller::ProcessNomination(Player *nominee, Player* nominator)
+bool Storyteller::ProcessNomination(Player *nominee, Player* nominator)
 {
 	//TODO: only allow 1 nomination & nominee from each player. Player must be alive.
 
 	OpenCloseNominations(false);
 	AnnounceMessage(nominee->PlayerName() + " has been nominated by " + nominator->PlayerName());
+
+	if (nominee->GetCharacter()->GetCharacterType() == CharacterType::VIRGIN)
+	{
+		bool shouldNominatorBeKilled = dynamic_cast<Virgin*>(nominee->GetCharacter().get())->VirginAbility(nominator);
+		if (shouldNominatorBeKilled)
+		{
+			// Virgin ability should execute nominator immediately.
+			// Only one execution in a day, so move to next day immediately.
+			choppingBlock = nominator;
+			choppingBlockVotes = 0;
+			return true;
+		}
+	}
 
 	// TODO: allow time for players to defend themselves
 
@@ -184,6 +200,8 @@ void Storyteller::ProcessNomination(Player *nominee, Player* nominator)
 	ManageVotes(votes, nominee, nominator);
 
 	OpenCloseNominations(true);
+
+	return false;
 }
 
 void Storyteller::InformVote(Player *sourcePlayer, bool vote)
@@ -209,6 +227,7 @@ void Storyteller::OpenCloseNominations(bool open)
 bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, Player* nominator)
 {
 	// Announce votes
+	//TODO: should be moved to discord
 	std::string votesMsg = R"(```yaml\nVotes to execute )" + nominee->PlayerName() + ":\\n";
 	for (auto pair : votes)
 	{
@@ -226,6 +245,7 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 	// Count votes
 	int numAlive = GetAlive().size();
 	int numVotes = 0;
+	int minMajority = (numAlive/ 2) + (numAlive % 2);
 	for (auto pair : votes)
 	{
 		if (pair.second)
@@ -233,7 +253,7 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 	}
 
 	// Test majority
-	if (numVotes > (numAlive / 2))
+	if (numVotes >= minMajority)
 	{
 		if (numVotes > choppingBlockVotes)
 		{

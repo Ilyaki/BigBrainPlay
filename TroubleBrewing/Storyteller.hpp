@@ -36,7 +36,9 @@ class Storyteller : public GameState, Voting
 
 	const std::vector<CharacterType> charactersInPlay
 	{
+			CharacterType::VIRGIN,
 			CharacterType::RAVENKEEPER,
+			CharacterType::UNDERTAKER
 		//	CharacterType::CHEF
 			/*CharacterType::TEST_CHARACTER,
 			CharacterType::WASHERWOMAN,
@@ -66,7 +68,8 @@ class Storyteller : public GameState, Voting
 	void OpenCloseNominations(bool open);
 	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);
 
-	void ProcessNomination(Player* nominee, Player* nominator);
+	/// \return true if the nomination phase should end abruptly (e.g. because Virgin was nominated)
+	bool ProcessNomination(Player* nominee, Player* nominator);
 
 	void ExecuteChoppingBlock();
 	bool ManageVotes(std::map<Player*, bool> votes, Player* nominee, Player* nominator);

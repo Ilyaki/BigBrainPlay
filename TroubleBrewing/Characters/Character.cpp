@@ -8,4 +8,10 @@ bool Character::AllowCharacterDeath(bool isExecutionKill, bool isDemonKill, Play
 	return true;
 }
 
+void Character::InitialSetup(GameState *gameState)
+{
+	player->Communication()->SendMessage("You are the " + GetCharacterName() +
+		", your alignment is " + (traits.isEvil ? "Evil" : "Good"));
+}
+
 }
