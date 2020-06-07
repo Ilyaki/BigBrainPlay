@@ -5,7 +5,9 @@
 namespace TroubleBrewing
 {
 
-CharacterKnowerBase::CharacterKnowerBase(Player *_player, CharacterTraits traits) : Character(_player, traits)
+CharacterKnowerBase::CharacterKnowerBase(
+		Player* _player, std::string characterName, CharacterType characterType, CharacterTraits traits) :
+	Character(_player, characterName, characterType, traits)
 {
 
 }

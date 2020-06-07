@@ -15,9 +15,6 @@ public:
 	{
 		return CharacterTraits::Minion();
 	}
-
-	std::string GetCharacterName() override;
-	CharacterType GetCharacterType() override;
 };
 
 }

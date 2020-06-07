@@ -11,7 +11,7 @@
 namespace TroubleBrewing
 {
 
-class Storyteller : public GameState, Voting
+class Storyteller : public GameState, Voting, DayActions
 {
 	// Orders
 	const std::vector<CharacterType> zerothNightOrder
@@ -36,9 +36,9 @@ class Storyteller : public GameState, Voting
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::VIRGIN,
+			CharacterType::SLAYER,
 			CharacterType::RAVENKEEPER,
-			CharacterType::UNDERTAKER
+			CharacterType::TEST_CHARACTER
 		//	CharacterType::CHEF
 			/*CharacterType::TEST_CHARACTER,
 			CharacterType::WASHERWOMAN,
@@ -55,11 +55,17 @@ class Storyteller : public GameState, Voting
 	int choppingBlockVotes;
 	bool nominationsOpen;
 
+	// Inform nomination
 	std::condition_variable informNominationCond;
 	std::mutex informNominationCondMutex;
 	std::tuple<Player*, Player*> informNominationData; // nominee, nominator
 
-	// Implementation functions
+	// Inform slay
+	// If we need to add more day actions, should change this to dayActionData, etc
+	std::condition_variable slayActionCond;
+	std::mutex slayActionCondMutex;
+	std::tuple<Player*, Player*> slayActionData; // target, slayer
+
 	void NightPhase(const std::vector<CharacterType> order, int night);
 	void DayPhase(int day);
 
@@ -67,13 +73,16 @@ class Storyteller : public GameState, Voting
 
 	void OpenCloseNominations(bool open);
 	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);
+	void OpenCloseDayActions(bool open);
 
 	/// \return true if the nomination phase should end abruptly (e.g. because Virgin was nominated)
 	bool ProcessNomination(Player* nominee, Player* nominator);
 
+	/// \return true if someone was killed
+	bool ProcessSlayAction(Player* target, Player* sourcePlayer);
+
 	void ExecuteChoppingBlock();
 	bool ManageVotes(std::map<Player*, bool> votes, Player* nominee, Player* nominator);
-
 
 public:
 	Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>> playerDatas);
@@ -84,6 +93,8 @@ public:
 
 	void InformNomination(Player* nominee, Player* nominator) override;
 	void InformVote(Player* sourcePlayer, bool vote) override;
+
+	void InformSlayerAttempt(Player* target, Player* sourcePlayer);
 };
 
 }

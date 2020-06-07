@@ -17,14 +17,12 @@ class CharacterKnowerBase : public Character
 	CharacterType knownCharacter{};
 
 public:
-	explicit CharacterKnowerBase(Player* _player, CharacterTraits traits = CharacterTraits::Townsfolk());
+	explicit CharacterKnowerBase(Player* _player, std::string characterName, CharacterType characterType,
+			CharacterTraits traits = CharacterTraits::Townsfolk());
 
 	constexpr virtual CharacterTraits TargetTraits() = 0;
 
 	void NightAction(bool zerothNight, GameState* gameState) final;
-
-	std::string GetCharacterName() override = 0;
-	CharacterType GetCharacterType() override = 0;
 };
 
 }

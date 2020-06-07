@@ -12,6 +12,8 @@
 #include "Characters/Monk.hpp"
 #include "Characters/Ravenkeeper.hpp"
 #include "Characters/Virgin.hpp"
+#include "Characters/Soldier.hpp"
+#include "Characters/Slayer.hpp"
 
 using namespace TroubleBrewing;
 
@@ -71,6 +73,14 @@ Player::Player(CharacterType characterType,
 			character = std::make_shared<Virgin>(this);
 			break;
 
+		case CharacterType::SOLDIER:
+			character = std::make_shared<Soldier>(this);
+			break;
+
+		case CharacterType::SLAYER:
+			character = std::make_shared<Slayer>(this);
+			break;
+
 		case CharacterType::NO_CHARACTER:
 		default:
 			//TODO: Give error
@@ -97,8 +107,6 @@ bool Player::IsDead() const
 
 bool Player::AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer)
 {
-	assert((isExecutionKill != isDemonKill) && (isExecutionKill || isDemonKill));
-
 	if (isDead)
 	{
 		Communication()->SendMessage("You have died. Again");
@@ -106,7 +114,7 @@ bool Player::AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemo
 	}
 	else
 	{
-		if (character->AllowCharacterDeath(isExecutionKill, isDemonKill, sourcePlayer))
+		if (character->AllowCharacterDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer))
 		{
 			bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
 									monkProtectedBy != nullptr && !monkProtectedBy->AbilityMalfunctions(gameState));

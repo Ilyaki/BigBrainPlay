@@ -15,9 +15,6 @@ public:
 
 	void InitialSetup(GameState* gameState) override;
 	void NightAction(bool zerothNight, GameState* gameState) override;
-
-	std::string GetCharacterName() override;
-	CharacterType GetCharacterType() override;
 };
 
 }

@@ -3,18 +3,9 @@
 namespace TroubleBrewing
 {
 
-Ravenkeeper::Ravenkeeper(Player *_player) : Character(_player, CharacterTraits::Townsfolk())
+Ravenkeeper::Ravenkeeper(Player *_player) :
+	Character(_player, "Ravenkeeper", CharacterType::RAVENKEEPER, CharacterTraits::Townsfolk())
 {
-}
-
-std::string Ravenkeeper::GetCharacterName()
-{
-	return "Ravenkeeper";
-}
-
-CharacterType Ravenkeeper::GetCharacterType()
-{
-	return CharacterType::RAVENKEEPER;
 }
 
 void Ravenkeeper::OnDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)

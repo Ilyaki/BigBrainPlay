@@ -4,6 +4,7 @@
 #include <string>
 #include "ActionInput.hpp"
 #include "Voting.hpp"
+#include "DayActions.hpp"
 
 namespace TroubleBrewing
 {
@@ -27,6 +28,9 @@ public:
 
 	virtual void OpenCloseVoting(bool open, bool ghostVote = false,
 			TroubleBrewing::Voting* voting = nullptr, Player* sourcePlayer = nullptr, int voteTimeSeconds = 0) = 0;
+
+	virtual void OpenCloseDayActions(bool open, DayActions* dayActions = nullptr,
+			GameState* gameState = nullptr, Player* sourcePlayer = nullptr) = 0;
 };
 
 }

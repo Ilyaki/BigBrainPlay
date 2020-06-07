@@ -15,9 +15,6 @@ public:
 	{
 		return CharacterTraits::Townsfolk();
 	}
-
-	std::string GetCharacterName() override;
-	CharacterType GetCharacterType() override;
 };
 
 }

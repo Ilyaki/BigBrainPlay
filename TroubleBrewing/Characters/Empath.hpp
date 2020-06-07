@@ -12,9 +12,6 @@ public:
 	explicit Empath(Player* _player);
 
 	void NightAction(bool zerothNight, GameState* gameState) override;
-
-	std::string GetCharacterName() override;
-	CharacterType GetCharacterType() override;
 };
 
 }

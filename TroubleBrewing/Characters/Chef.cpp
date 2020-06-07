@@ -4,7 +4,7 @@
 namespace TroubleBrewing
 {
 
-Chef::Chef(Player *_player) : Character(_player, CharacterTraits::Townsfolk())
+Chef::Chef(Player *_player) : Character(_player, "Chef", CharacterType::CHEF, CharacterTraits::Townsfolk())
 {
 
 }
@@ -47,16 +47,6 @@ void Chef::NightAction(bool zerothNight, GameState *gameState)
 	msg += std::to_string(totalPairs);
 	msg += " evil pairs";
 	player->Communication()->SendMessage(msg);
-}
-
-std::string Chef::GetCharacterName()
-{
-	return "Chef";
-}
-
-CharacterType Chef::GetCharacterType()
-{
-	return CharacterType::CHEF;
 }
 
 }

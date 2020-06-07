@@ -1,7 +1,7 @@
 #include "Undertaker.hpp"
 
 TroubleBrewing::Undertaker::Undertaker(TroubleBrewing::Player *_player) :
-	Character(_player, CharacterTraits::Townsfolk())
+	Character(_player, "Undertaker", CharacterType::UNDERTAKER, CharacterTraits::Townsfolk())
 {
 }
 
@@ -20,14 +20,4 @@ void TroubleBrewing::Undertaker::NightAction(bool zerothNight, TroubleBrewing::G
 		player->Communication()->SendMessage(
 				GetCharacterName() + ": The " + exec->GetCharacter()->GetCharacterName() + " was executed last night");
 	}
-}
-
-std::string TroubleBrewing::Undertaker::GetCharacterName()
-{
-	return "Undertaker";
-}
-
-CharacterType TroubleBrewing::Undertaker::GetCharacterType()
-{
-	return CharacterType::UNDERTAKER;
 }

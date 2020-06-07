@@ -13,9 +13,6 @@ class Virgin : public Character
 public:
 	explicit Virgin(Player* _player);
 
-	std::string GetCharacterName() override;
-	CharacterType GetCharacterType() override;
-
 	/// VirginAbility: Should be called whenever the Virgin is nominated.
 	/// \returns True if the nominator should be executed
 	bool VirginAbility(Player* nominator);

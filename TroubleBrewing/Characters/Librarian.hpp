@@ -16,9 +16,6 @@ public:
 	{
 		return CharacterTraits::Outsider();
 	}
-
-	std::string GetCharacterName() override;
-	CharacterType GetCharacterType() override;
 };
 
 }

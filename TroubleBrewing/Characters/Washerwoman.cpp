@@ -2,16 +2,7 @@
 
 using namespace TroubleBrewing;
 
-Washerwoman::Washerwoman(Player* _player) : CharacterKnowerBase(_player, CharacterTraits::Townsfolk())
+Washerwoman::Washerwoman(Player* _player) :
+	CharacterKnowerBase(_player, "Washerwoman", CharacterType::WASHERWOMAN, CharacterTraits::Townsfolk())
 {
-}
-
-std::string Washerwoman::GetCharacterName()
-{
-	return "Washerwoman";
-}
-
-CharacterType Washerwoman::GetCharacterType()
-{
-	return CharacterType::WASHERWOMAN;
 }

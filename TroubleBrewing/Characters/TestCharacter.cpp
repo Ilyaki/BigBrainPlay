@@ -3,7 +3,8 @@
 
 using namespace TroubleBrewing;
 
-TestCharacter::TestCharacter(Player* _player) : Character{_player, CharacterTraits::Demon()}
+TestCharacter::TestCharacter(Player* _player) :
+	Character{_player, "Test Character", CharacterType::TEST_CHARACTER, CharacterTraits::Demon()}
 {
 }
 
@@ -18,15 +19,4 @@ void TestCharacter::NightAction(bool zerothNight, GameState* gameState)
 {
 	std::cout << "TestCharacter night action, zerothNight = " << zerothNight << std::endl;
 }
-
-std::string TestCharacter::GetCharacterName()
-{
-	return "Test Character";
-}
-
-CharacterType TestCharacter::GetCharacterType()
-{
-	return CharacterType::TEST_CHARACTER;
-}
-
 

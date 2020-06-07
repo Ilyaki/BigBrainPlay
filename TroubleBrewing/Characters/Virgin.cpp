@@ -1,17 +1,8 @@
 #include "Virgin.hpp"
 
-TroubleBrewing::Virgin::Virgin(TroubleBrewing::Player *_player) : Character(_player, CharacterTraits::Townsfolk())
+TroubleBrewing::Virgin::Virgin(TroubleBrewing::Player *_player) :
+	Character(_player, "Virgin", CharacterType::VIRGIN, CharacterTraits::Townsfolk())
 {
-}
-
-std::string TroubleBrewing::Virgin::GetCharacterName()
-{
-	return "Virgin";
-}
-
-CharacterType TroubleBrewing::Virgin::GetCharacterType()
-{
-	return CharacterType::VIRGIN;
 }
 
 bool TroubleBrewing::Virgin::VirginAbility(Player* nominator)

@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <sleepy_discord/websocketpp_websocket.h>
 #include "../PlayerCommunication.hpp"
+#include "../DayActions.hpp"
 
 namespace Discord
 {
@@ -30,6 +31,9 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 	// is voting open, is ghost vote, voting interface
 	std::tuple<bool, bool, TroubleBrewing::Voting*, TroubleBrewing::Player*> votingData;
 
+	// is day actions open, day actions interface, game state, source player
+	std::tuple<bool, TroubleBrewing::DayActions*, TroubleBrewing::GameState*, TroubleBrewing::Player*> dayActionsData;
+
 	void FlusherStart();
 
 	void TextSeparator();
@@ -39,6 +43,7 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 
 	void ProcessNomination(SleepyDiscord::Message message);
 	void ProcessVote(SleepyDiscord::Message message);
+	void ProcessDayAction(SleepyDiscord::Message message);
 
 public:
 	DiscordPlayerCommunication(
@@ -64,6 +69,9 @@ public:
 
 	virtual void OpenCloseVoting(bool open, bool ghostVote,TroubleBrewing::Voting* voting,
 			TroubleBrewing::Player* sourcePlayer, int voteTimeSeconds) override;
+
+	void OpenCloseDayActions(bool open, TroubleBrewing::DayActions* dayActions,
+			TroubleBrewing::GameState* gameState, TroubleBrewing::Player* sourcePlayer) override;
 };
 
 }

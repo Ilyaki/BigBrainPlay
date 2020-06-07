@@ -5,18 +5,9 @@
 namespace TroubleBrewing
 {
 
-FortuneTeller::FortuneTeller(Player *_player) : Character(_player, CharacterTraits::Townsfolk())
+FortuneTeller::FortuneTeller(Player *_player) :
+	Character(_player, "Fortune Teller", CharacterType::FORTUNETELLER, CharacterTraits::Townsfolk())
 {
-}
-
-std::string FortuneTeller::GetCharacterName()
-{
-	return "Fortune Teller";
-}
-
-CharacterType FortuneTeller::GetCharacterType()
-{
-	return CharacterType::FORTUNETELLER;
 }
 
 void FortuneTeller::InitialSetup(GameState *gameState)

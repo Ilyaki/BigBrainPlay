@@ -3,7 +3,7 @@
 namespace TroubleBrewing
 {
 
-Empath::Empath(Player *_player) : Character(_player, CharacterTraits::Townsfolk())
+Empath::Empath(Player *_player) : Character(_player, "Empath", CharacterType::EMPATH, CharacterTraits::Townsfolk())
 {
 }
 
@@ -23,21 +23,10 @@ void Empath::NightAction(bool zerothNight, GameState *gameState)
 		++evilNeighbours;
 
 	// Communicate to player
-	//TODO: proper message.
-	std::string msg = GetCharacterName() + " ability: You have ";
+	std::string msg = GetCharacterName() + ": You have ";
 	msg += std::to_string(evilNeighbours);
 	msg += " evil neighbours";
 	player->Communication()->SendMessage(msg);
-}
-
-std::string Empath::GetCharacterName()
-{
-	return "Empath";
-}
-
-CharacterType Empath::GetCharacterType()
-{
-	return CharacterType::EMPATH;
 }
 
 }

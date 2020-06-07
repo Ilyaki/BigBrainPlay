@@ -2,16 +2,7 @@
 
 using namespace TroubleBrewing;
 
-Investigator::Investigator(Player* _player) : CharacterKnowerBase(_player, CharacterTraits::Townsfolk())
+Investigator::Investigator(Player* _player) :
+	CharacterKnowerBase(_player, "Investigator", CharacterType::INVESTIGATOR, CharacterTraits::Townsfolk())
 {
-}
-
-std::string Investigator::GetCharacterName()
-{
-	return "Investigator";
-}
-
-CharacterType Investigator::GetCharacterType()
-{
-	return CharacterType::INVESTIGATOR;
 }

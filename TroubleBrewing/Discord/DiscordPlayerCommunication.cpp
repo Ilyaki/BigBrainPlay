@@ -111,6 +111,8 @@ void DiscordPlayerCommunication::OnDirectMessage(SleepyDiscord::Message message)
 		ProcessNomination(message);
 	else if (std::get<0>(votingData)) // Is voting open
 		ProcessVote(message);
+	else if (std::get<0>(dayActionsData)) // Are day actions open
+		ProcessDayAction(message);
 	else
 		dmMessageConditionVar.notify_one();
 }
@@ -263,6 +265,70 @@ void DiscordPlayerCommunication::FlusherStart()
 		}
 
 		messageBuf.str(std::string{});
+	}
+}
+
+void DiscordPlayerCommunication::OpenCloseDayActions(
+		bool open, DayActions* dayActions, GameState* gameState, Player* sourcePlayer)
+{
+	dayActionsData = std::make_tuple(open, dayActions, gameState, sourcePlayer);
+
+	if (open)
+		SendMessage("Day actions are now open. Write `slay X` to announce slaying player X");
+	else
+		SendMessage("Day actions are now closed");
+}
+
+void DiscordPlayerCommunication::ProcessDayAction(SleepyDiscord::Message message)
+{
+	DayActions* dayActions = std::get<1>(dayActionsData);
+	GameState* gameState = std::get<2>(dayActionsData);
+	Player* sourcePlayer = std::get<3>(dayActionsData);
+	std::string content = message.content;
+
+std::cout << "TEST" << std::endl;
+	constexpr auto npos = std::string::npos;
+	if (content.find("slay ") != npos)
+	{
+		std::string targetString = content.substr(5); // "slay " is 5 characters
+
+		//TODO: could move this into helper function
+		auto players = gameState->GetPlayers();
+
+		int playerID = -1;
+
+		try
+		{
+			playerID = std::stoi(message.content);
+		}
+		catch(const std::invalid_argument& e)
+		{
+			SendMessage("Invalid ID");
+			return;
+		}
+		catch(const std::out_of_range& e)
+		{
+			SendMessage("Invalid ID");
+			return;
+		}
+
+		if (playerID != -1)
+		{
+			auto index = std::find_if(players.begin(), players.end(),
+									  [playerID](Player *p) { return p->MatchesPlayerID(playerID); });
+
+			if (index == players.end()) // No player with player ID
+			{
+				SendMessage("No matching player found");
+				return;
+			} else // Found target
+			{
+				if (std::get<0>(dayActionsData)) // Check if day actions are still open (just in case)
+					dayActions->InformSlayerAttempt(*index, sourcePlayer);
+
+				return;
+			}
+		}
 	}
 }
 

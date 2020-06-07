@@ -3,18 +3,9 @@
 namespace TroubleBrewing
 {
 
-Monk::Monk(Player *_player) : Character(_player, CharacterTraits::Townsfolk())
+Monk::Monk(Player *_player) :
+	Character(_player, "Monk", CharacterType::MONK, CharacterTraits::Townsfolk())
 {
-}
-
-std::string Monk::GetCharacterName()
-{
-	return "Monk";
-}
-
-CharacterType Monk::GetCharacterType()
-{
-	return CharacterType::MONK;
 }
 
 void Monk::NightAction(bool zerothNight, GameState *gameState)

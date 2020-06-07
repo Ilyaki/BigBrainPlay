@@ -47,7 +47,7 @@ public:
 	/// AttemptKill: Tries to kill the player.
 	/// \param isExecutionKill If the player is killed by execution (e.g. voting or Virgin nomination).
 	/// \param isDemonKill If the player is killed by the demon.
-	/// \param sourcePlay The killer, if applicable.
+	/// \param sourcePlayer The killer, if applicable.
 	/// \return Returns true if the player is killed.
 	bool AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
 
