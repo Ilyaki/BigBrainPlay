@@ -1,14 +1,28 @@
+#include <cassert>
 #include "Random.hpp"
 
-int TroubleBrewing::RandomBetweenInc(int a, int b)
+namespace TroubleBrewing
 {
+
+int RandomBetween(int a, int b)
+{
+	assert(a <= b);
 	static std::random_device device;
 	static std::mt19937 engine{device()};
-	std::uniform_int_distribution<decltype(engine)::result_type> distribution(a,b);
+	std::uniform_int_distribution<decltype(engine)::result_type> distribution(a, b);
 	return distribution(engine);
 }
 
-bool TroubleBrewing::RandomBool()
+int RandomBetweenExclude(int a, int b, int exclude)
 {
-	return RandomBetweenInc(0,1) == 0;
+	assert(a <= exclude && exclude <= b && a <= b);
+	int x = RandomBetween(a, b - 1);
+	return (x >= exclude) ? (x+1) : x;
+}
+
+bool RandomBool()
+{
+	return RandomBetween(0, 1) == 0;
+}
+
 }

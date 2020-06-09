@@ -12,7 +12,12 @@ class FortuneTeller : public Character
 	Player* redHerring;
 
 public:
-	explicit FortuneTeller(Player* _player);
+	FortuneTeller(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::FORTUNETELLER;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Fortune Teller";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	void InitialSetup(GameState* gameState) override;
 	void NightAction(bool zerothNight, GameState* gameState) override;

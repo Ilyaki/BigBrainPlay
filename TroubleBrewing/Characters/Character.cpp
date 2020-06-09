@@ -10,18 +10,13 @@ bool Character::AllowCharacterDeath(GameState* gameState, bool isExecutionKill, 
 
 void Character::InitialSetup(GameState *gameState)
 {
-	player->Communication()->SendMessage("You are the " + GetCharacterName() +
-		", your alignment is " + (traits.isEvil ? "Evil" : "Good"));
+	player->Communication()->SendMessage("You are the " + GetCharacterNameString() +
+		", your alignment is " + (GetCharacterTraits().isEvil ? "Evil" : "Good"));
 }
 
-std::string Character::GetCharacterName() const
+CharacterTraits Character::GeneratePerceivedTraits()
 {
-	return characterName;
-}
-
-CharacterType Character::GetCharacterType() const
-{
-	return characterType;
+	return GetCharacterTraits();
 }
 
 }

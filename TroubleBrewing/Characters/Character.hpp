@@ -14,20 +14,19 @@ class Player;
 
 class Character
 {
-	const std::string characterName;
-	const CharacterType characterType;
-
 protected:
-	Character(Player* _player, std::string _characterName, CharacterType _characterType, CharacterTraits _traits) :
-			player{_player}, traits{_traits}, characterName{_characterName}, characterType{_characterType} {};
+	Player* player;
 
-    Player* player;
+	Character(Player* _player) : player{_player}{}
 
 public:
-	const CharacterTraits traits;// TODO: make getter
+	inline std::string GetCharacterNameString() const { return std::string { GetCharacterName() }; }
+	constexpr virtual std::string_view GetCharacterName() const = 0;
+	constexpr virtual CharacterType GetCharacterType() = 0;
+	[[deprecated]] constexpr virtual CharacterTraits GetCharacterTraits() = 0;
 
-	std::string GetCharacterName() const;
-	CharacterType GetCharacterType() const;
+	/// Characters like Recluse & Spy can register as different characters.
+	virtual CharacterTraits GeneratePerceivedTraits();
 
 	/// AllowCharacterDeath: Returns false if a death should be prevented, (e.g. Soldier), otherwise false.
 	virtual bool AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
@@ -41,6 +40,10 @@ public:
 
 	virtual ~Character(){};
 };
+
+#define TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS constexpr std::string_view GetCharacterName() const override { return CharName; }; \
+constexpr CharacterType GetCharacterType() override { return CharType; }; \
+constexpr CharacterTraits GetCharacterTraits() override { return CharTraits; }
 
 }
 

@@ -73,8 +73,11 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 	{
 		//TODO: Search for the Drunk by the character they think they are. (or use 'perceived character/etc')
 		//TODO: if not dead
-		auto targetMatches = GetPlayersMatchingCharacter(targetChar);
-		for (Player *target : targetMatches)
+		//auto targetMatches = GetPlayersMatchingCharacter(targetChar);
+		//for (Player *target : targetMatches)
+		auto pl = GetPlayers();
+		for (auto target : pl | std::views::filter([targetChar](Player* p)
+			{ return p->GetCharacter()->GetCharacterType() == targetChar; }))
 			//TODO: Log the action, test win conditions?
 			target->GetCharacter()->NightAction(zerothNight, this);
 	}
@@ -108,7 +111,8 @@ void Storyteller::DayPhase(int day)
 	choppingBlock = nullptr;
 	choppingBlockVotes = 0;
 
-	int minMajority = (GetAlive().size() / 2) + (GetAlive().size() % 2);
+	const auto numAlive = GetNumPlayersAlive();
+	int minMajority = (numAlive / 2) + (numAlive % 2);
 
 	AnnounceMessage("Day " + std::to_string(day) + " nominations are now open. " +
 					std::to_string(minMajority) + " votes are required for a majority");
@@ -263,7 +267,7 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 	AnnounceMessage(votesMsg);
 
 	// Count votes
-	int numAlive = GetAlive().size();
+	int numAlive = GetNumPlayersAlive();
 	int numVotes = 0;
 	int minMajority = (numAlive / 2) + (numAlive % 2);
 	for (auto pair : votes)
@@ -388,6 +392,11 @@ bool Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
 	);
 
 	return targetKilled;
+}
+
+const CharacterTypeTraitsMap &Storyteller::GetCharacterTypeTraitsMap() const
+{
+	return characterTypeTraitsMap;
 }
 
 }

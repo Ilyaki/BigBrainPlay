@@ -1,6 +1,9 @@
 #ifndef BBP_CONSOLE_CHARACTERTRAITS_HPP
 #define BBP_CONSOLE_CHARACTERTRAITS_HPP
 
+#include <map>
+#include "CharacterTypeGetter.hpp"
+
 namespace TroubleBrewing
 {
 
@@ -16,34 +19,81 @@ struct CharacterTraits
 
 	static constexpr CharacterTraits Demon()
 	{
-		return CharacterTraits {.isEvil =  true, .isTownsfolk =  false, .isOutsider = false, .isMinion = false, .isDemon = true};
+		return CharacterTraits
+			{.isEvil =  true, .isTownsfolk =  false, .isOutsider = false, .isMinion = false, .isDemon = true};
 	}
 
 	static constexpr CharacterTraits Minion()
 	{
-		return CharacterTraits {.isEvil =  true, .isTownsfolk =  false, .isOutsider = false, .isMinion = true, .isDemon = false};
+		return CharacterTraits
+			{.isEvil =  true, .isTownsfolk =  false, .isOutsider = false, .isMinion = true, .isDemon = false};
 	}
 
 	static constexpr CharacterTraits Outsider()
 	{
-		return CharacterTraits {.isEvil =  false, .isTownsfolk =  false, .isOutsider = true, .isMinion = false, .isDemon = false};
+		return CharacterTraits
+			{.isEvil =  false, .isTownsfolk =  false, .isOutsider = true, .isMinion = false, .isDemon = false};
 	}
 
 	static constexpr CharacterTraits Townsfolk()
 	{
-		return CharacterTraits {.isEvil =  false, .isTownsfolk =  true, .isOutsider = false, .isMinion = false, .isDemon = false};
+		return CharacterTraits
+			{.isEvil =  false, .isTownsfolk =  true, .isOutsider = false, .isMinion = false, .isDemon = false};
 	}
 };
 
-// Default == works with C++20. Need this is C++20 doesn't work.
-/*bool operator==(const CharacterTraits &first, const CharacterTraits &second)
+template<CharacterType C>
+struct GetCharacterTraitsT
 {
-	return	(first.isEvil == second.isEvil) &&
-			(first.isTownsfolk == second.isTownsfolk) &&
-			(first.isOutsider == second.isOutsider) &&
-			(first.isMinion == second.isMinion) &&
-			(first.isDemon == second.isDemon);
-}*/
+	static constexpr CharacterTraits value = GetCharacterType<C>::CharTraits;
+};
+
+template<CharacterType C>
+static constexpr CharacterTraits GetCharacterTraits() { return GetCharacterTraitsT<C>::value; }
+
+template<typename T>
+struct CharacterTypeTraitsPair
+{
+	using type = T;
+	static constexpr CharacterTraits traits = T::CharTraits;
+	static constexpr CharacterType characterType = T::CharType;
+	static constexpr std::string_view charName = T::CharName;
+	static_assert(GetCharacterTraits<characterType>() == traits);
+};
+
+using CharacterTypeTraitsMap = std::map<CharacterType, std::pair<CharacterTraits, std::string_view>>;
+
+template<typename... T>
+struct GetCharacterTypeTraitMapStruct;
+
+template<typename H, typename... T>
+struct GetCharacterTypeTraitMapStruct<H, T...> : public GetCharacterTypeTraitMapStruct<T...>
+{
+	virtual CharacterTypeTraitsMap GetMap() override
+	{
+		auto prev = GetCharacterTypeTraitMapStruct<T...>::GetMap();
+		using x = CharacterTypeTraitsPair<H>;
+		prev.insert({ x::characterType, {x::traits, x::charName} } );
+		return prev;
+	}
+};
+
+template<>
+struct GetCharacterTypeTraitMapStruct<>
+{
+	virtual CharacterTypeTraitsMap GetMap()
+	{
+		return CharacterTypeTraitsMap{};
+	}
+};
+
+template<typename... T>
+CharacterTypeTraitsMap GetCharacterTypeTraitMap()
+{
+	return GetCharacterTypeTraitMapStruct<T...>{}.GetMap();
+}
+
+
 
 }
 

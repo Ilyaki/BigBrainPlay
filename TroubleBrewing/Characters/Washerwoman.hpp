@@ -9,7 +9,12 @@ namespace TroubleBrewing
 class Washerwoman : public CharacterKnowerBase
 {
 public:
-	explicit Washerwoman(Player* _player);
+	Washerwoman(Player* player) : CharacterKnowerBase(player){}
+
+	static constexpr CharacterType CharType = CharacterType::WASHERWOMAN;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Washerwoman";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	constexpr CharacterTraits TargetTraits() override
 	{

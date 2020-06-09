@@ -14,6 +14,7 @@
 #include "Characters/Virgin.hpp"
 #include "Characters/Soldier.hpp"
 #include "Characters/Slayer.hpp"
+#include "Characters/Poisoner.hpp"
 
 using namespace TroubleBrewing;
 
@@ -79,6 +80,10 @@ Player::Player(CharacterType characterType,
 
 		case CharacterType::SLAYER:
 			character = std::make_shared<Slayer>(this);
+			break;
+
+		case CharacterType::POISONER:
+			character = std::make_shared<Poisoner>(this);
 			break;
 
 		case CharacterType::NO_CHARACTER:

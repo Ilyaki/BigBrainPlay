@@ -6,7 +6,11 @@
 namespace TroubleBrewing
 {
 
-int RandomBetweenInc(int a, int b);
+/// \return Random integer a <= x <= b
+int RandomBetween(int a, int b);
+
+/// \return Random integer a <= x <= b, x =/= exclude
+int RandomBetweenExclude(int a, int b, int exclude);
 
 bool RandomBool();
 

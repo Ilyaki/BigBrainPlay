@@ -1,32 +1,33 @@
 #include "Empath.hpp"
+#include "../Random.hpp"
 
 namespace TroubleBrewing
 {
 
-Empath::Empath(Player *_player) : Character(_player, "Empath", CharacterType::EMPATH, CharacterTraits::Townsfolk())
-{
-}
-
 void Empath::NightAction(bool zerothNight, GameState *gameState)
 {
-	// TODO: drunk/poisoned
-
 	// Counts how many neighbours are evil
 
 	int evilNeighbours = 0;
-	auto neighbours = gameState->GetNeighbours(player, false);
 
-	if (neighbours.first != nullptr && neighbours.first->GetCharacter()->traits.isEvil) //TODO: recluse 'perceived character'/etc
-		++evilNeighbours;
+	if (player->AbilityMalfunctions(gameState))
+	{
+		evilNeighbours = RandomBool() ? (RandomBool() ? 2 : 1) : 0;
+	}
+	else
+	{
+		auto neighbours = gameState->GetNeighbours(player, false);
 
-	if (neighbours.second != nullptr && neighbours.second->GetCharacter()->traits.isEvil)
-		++evilNeighbours;
+		if (neighbours.first != nullptr && neighbours.first->GetCharacter()->GeneratePerceivedTraits().isEvil)
+			++evilNeighbours;
+
+		if (neighbours.second != nullptr && neighbours.second->GetCharacter()->GeneratePerceivedTraits().isEvil)
+			++evilNeighbours;
+	}
 
 	// Communicate to player
-	std::string msg = GetCharacterName() + ": You have ";
-	msg += std::to_string(evilNeighbours);
-	msg += " evil neighbours";
-	player->Communication()->SendMessage(msg);
+	player->Communication()->SendMessage(GetCharacterNameString() + ": You have " +
+		std::to_string(evilNeighbours) + " evil neighbours");
 }
 
 }

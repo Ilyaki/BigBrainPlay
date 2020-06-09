@@ -9,7 +9,12 @@ namespace TroubleBrewing
 class Monk : public Character
 {
 public:
-	explicit Monk(Player* _player);
+	Monk(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::MONK;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Monk";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	void NightAction(bool zerothNight, GameState* gameState) override;
 };

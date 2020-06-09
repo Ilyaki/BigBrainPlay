@@ -15,9 +15,10 @@ enum class CharacterType {
 	RAVENKEEPER,
 	VIRGIN,
 	SOLDIER,
-	SLAYER
+	SLAYER,
+	POISONER
 	};
 
-//TODO: May need template for getting class type from CharacterType
+//NOTE: Remember to add to CharacterTypeGetter.hpp and Storyteller.hpp
 
 #endif //BBP_CONSOLE_CHARACTERTYPE_HPP

@@ -10,7 +10,12 @@ namespace TroubleBrewing
 class Librarian : public CharacterKnowerBase
 {
 public:
-	explicit Librarian(Player* _player);
+	Librarian(Player* player) : CharacterKnowerBase(player){}
+
+	static constexpr CharacterType CharType = CharacterType::LIBRARIAN;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Librarian";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	constexpr CharacterTraits TargetTraits() override
 	{

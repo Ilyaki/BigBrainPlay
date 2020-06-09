@@ -9,7 +9,12 @@ namespace TroubleBrewing
 class Empath : public Character
 {
 public:
-	explicit Empath(Player* _player);
+	Empath(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::EMPATH;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Empath";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	void NightAction(bool zerothNight, GameState* gameState) override;
 };

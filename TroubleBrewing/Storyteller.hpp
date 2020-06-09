@@ -7,6 +7,20 @@
 #include <condition_variable>
 #include "Characters/CharacterType.hpp"
 #include "GameState.hpp"
+#include "Characters/Washerwoman.hpp"
+#include "Characters/Librarian.hpp"
+#include "Characters/Investigator.hpp"
+#include "Characters/Chef.hpp"
+#include "Characters/Empath.hpp"
+#include "Characters/FortuneTeller.hpp"
+#include "Characters/Undertaker.hpp"
+#include "Characters/Monk.hpp"
+#include "Characters/Ravenkeeper.hpp"
+#include "Characters/Virgin.hpp"
+#include "Characters/Slayer.hpp"
+#include "Characters/Soldier.hpp"
+#include "Characters/TestCharacter.hpp"
+#include "Characters/Poisoner.hpp"
 
 namespace TroubleBrewing
 {
@@ -17,6 +31,7 @@ class Storyteller : public GameState, Voting, DayActions
 	const std::vector<CharacterType> zerothNightOrder
 	{
 		CharacterType::TEST_CHARACTER,
+		CharacterType::POISONER,
 		CharacterType::WASHERWOMAN,
 		CharacterType::LIBRARIAN,
 		CharacterType::INVESTIGATOR,
@@ -28,6 +43,7 @@ class Storyteller : public GameState, Voting, DayActions
 	const std::vector<CharacterType> nightOrder
 	{
 			CharacterType::TEST_CHARACTER,
+			CharacterType::POISONER,
 			CharacterType::MONK,
 			CharacterType::EMPATH,
 			CharacterType::FORTUNETELLER,
@@ -36,7 +52,7 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::SLAYER,
+			CharacterType::POISONER,
 			CharacterType::RAVENKEEPER,
 			CharacterType::TEST_CHARACTER
 		//	CharacterType::CHEF
@@ -48,6 +64,24 @@ class Storyteller : public GameState, Voting, DayActions
 			CharacterType::INVESTIGATOR,
 			CharacterType::FORTUNETELLER,*/
 	};
+
+	CharacterTypeTraitsMap characterTypeTraitsMap { GetCharacterTypeTraitMap<
+		TestCharacter,
+		Washerwoman,
+		Librarian,
+		Investigator,
+		Chef,
+		Empath,
+		FortuneTeller,
+		Undertaker,
+		Monk,
+		Ravenkeeper,
+		Virgin,
+		Slayer,
+		Soldier,
+		Poisoner
+	>()};
+
 
 	// Voting system
 	std::map<Player*, bool> votes;
@@ -95,6 +129,8 @@ public:
 	void InformVote(Player* sourcePlayer, bool vote) override;
 
 	void InformSlayerAttempt(Player* target, Player* sourcePlayer);
+
+	const CharacterTypeTraitsMap& GetCharacterTypeTraitsMap() const override;
 };
 
 }

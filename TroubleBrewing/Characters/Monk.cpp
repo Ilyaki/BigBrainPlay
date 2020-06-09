@@ -3,20 +3,16 @@
 namespace TroubleBrewing
 {
 
-Monk::Monk(Player *_player) :
-	Character(_player, "Monk", CharacterType::MONK, CharacterTraits::Townsfolk())
-{
-}
-
 void Monk::NightAction(bool zerothNight, GameState *gameState)
 {
-	//TODO: drunk/poisoned
-
 	if (zerothNight)
 		return;
 
+	if (player->AbilityMalfunctions(gameState)) // In case Drunk, don't override the actual Monk protection
+		return;
+
 	Player* target = player->Communication()->InputPlayer(gameState, player,
-			GetCharacterName() + ": Choose a player to protect from the demon",
+			GetCharacterNameString() + ": Choose a player to protect from the demon",
 			{
 				[this](Player* selection){ return selection != this->player; },
 				"You cannot choose yourself"

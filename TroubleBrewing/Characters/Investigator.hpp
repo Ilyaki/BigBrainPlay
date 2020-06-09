@@ -9,7 +9,12 @@ namespace TroubleBrewing
 class Investigator : public CharacterKnowerBase
 {
 public:
-	explicit Investigator(Player* _player);
+	Investigator(Player* player) : CharacterKnowerBase(player){}
+
+	static constexpr CharacterType CharType = CharacterType::INVESTIGATOR;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Investigator";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	constexpr CharacterTraits TargetTraits() override
 	{

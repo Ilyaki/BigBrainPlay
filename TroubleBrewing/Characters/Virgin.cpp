@@ -1,11 +1,9 @@
 #include "Virgin.hpp"
 
-TroubleBrewing::Virgin::Virgin(TroubleBrewing::Player *_player) :
-	Character(_player, "Virgin", CharacterType::VIRGIN, CharacterTraits::Townsfolk())
+namespace TroubleBrewing
 {
-}
 
-bool TroubleBrewing::Virgin::VirginAbility(Player* nominator)
+bool Virgin::VirginAbility(Player *nominator)
 {
 	if (usedVirginAbility)
 		return false;
@@ -13,6 +11,8 @@ bool TroubleBrewing::Virgin::VirginAbility(Player* nominator)
 	{
 		//TODO: need 'perceived' as townsfolk for the Spy ability
 		usedVirginAbility = true;
-		return player->GetCharacter()->traits.isTownsfolk;
+		return player->GetCharacter()->GetCharacterTraits().isTownsfolk;
 	}
+}
+
 }

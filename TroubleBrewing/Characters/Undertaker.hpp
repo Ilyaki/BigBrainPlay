@@ -9,7 +9,12 @@ namespace TroubleBrewing
 class Undertaker : public Character
 {
 public:
-	explicit Undertaker(Player* _player);
+	Undertaker(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::UNDERTAKER;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Undertaker";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	void NightAction(bool zerothNight, GameState* gameState) override;
 };

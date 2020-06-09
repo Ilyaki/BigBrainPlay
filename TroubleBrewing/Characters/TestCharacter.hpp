@@ -11,7 +11,13 @@ namespace TroubleBrewing
 class TestCharacter : public Character
 {
 public:
-	explicit TestCharacter(Player* _player);
+	TestCharacter(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::TEST_CHARACTER;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Demon();
+	static constexpr std::string_view CharName  = "Test Character";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
+
 
 	void InitialSetup(GameState* gameState) override;
 	void NightAction(bool zerothNight, GameState* gameState) override;

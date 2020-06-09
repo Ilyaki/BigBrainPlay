@@ -12,13 +12,8 @@ namespace TroubleBrewing
 // Base class to not repeat code.
 class CharacterKnowerBase : public Character
 {
-	Player* firstPlayer;
-	Player* secondPlayer;
-	CharacterType knownCharacter{};
-
 public:
-	explicit CharacterKnowerBase(Player* _player, std::string characterName, CharacterType characterType,
-			CharacterTraits traits = CharacterTraits::Townsfolk());
+	CharacterKnowerBase(Player* player) : Character(player){}
 
 	constexpr virtual CharacterTraits TargetTraits() = 0;
 

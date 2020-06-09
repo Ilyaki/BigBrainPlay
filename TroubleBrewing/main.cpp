@@ -1,9 +1,4 @@
-#include <iostream>
-#include "sleepy_discord/websocketpp_websocket.h"
-#include "Discord/DiscordPlayerCommunication.hpp"
 #include "Discord/BbpDiscordClient.hpp"
-
-using namespace TroubleBrewing;
 
 int main()
 {

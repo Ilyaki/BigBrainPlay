@@ -9,7 +9,12 @@ namespace TroubleBrewing
 class Chef : public Character
 {
 public:
-	explicit Chef(Player* _player);
+	Chef(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::CHEF;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Chef";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	void NightAction(bool zerothNight, GameState* gameState) override;
 };

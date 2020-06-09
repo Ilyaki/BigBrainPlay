@@ -10,8 +10,12 @@ namespace TroubleBrewing
 class Slayer : public Character
 {
 public:
-	explicit Slayer(Player *_player) :
-			Character(_player, "Slayer", CharacterType::SLAYER, CharacterTraits::Townsfolk()) {};
+	Slayer(Player* player) : Character(player){}
+
+	static constexpr CharacterType CharType = CharacterType::SLAYER;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
+	static constexpr std::string_view CharName  = "Slayer";
+	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	/// \return true if the target was slain
 	bool AttemptSlay(Player *target, GameState *gameState);

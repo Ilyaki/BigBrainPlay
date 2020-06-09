@@ -7,6 +7,7 @@
 #include "Player.hpp"
 #include "Characters/CharacterType.hpp"
 #include "GameLogging.hpp"
+#include "Characters/CharacterTraits.hpp"
 
 namespace TroubleBrewing
 {
@@ -33,22 +34,27 @@ public:
 
 	int NumberOfPlayers();
 
-	std::vector<Player*> MatchingPlayers(std::function<bool(Player* player)> predicate);
+	virtual const CharacterTypeTraitsMap& GetCharacterTypeTraitsMap() const = 0;
 
-	std::vector<Player*> GetPlayersMatchingCharacter(CharacterType characterType);
+//	std::vector<Player*> MatchingPlayers(std::function<bool(Player* player)> predicate);
+
+	//TODO: Drunk/Recluse don't work well with these functions
+	/*std::vector<Player*> GetPlayersMatchingCharacter(CharacterType characterType);
 	std::vector<Player*> GetAlive();
 	std::vector<Player*> GetEvil();
 	std::vector<Player*> GetGood();
 	std::vector<Player*> GetTownsfolk();
 	std::vector<Player*> GetMinions();
 	std::vector<Player*> GetOutsiders();
-	std::vector<Player*> GetDemons();
+	std::vector<Player*> GetDemons();*/
 
 	std::pair<Player*, Player*> GetNeighbours(Player* player, bool allowDead);
 
 	bool PlayersAreNeighbours(Player* first, Player* second, bool allowDead = false);
 
 	void AddPlayer(std::shared_ptr<Player> player);
+
+	int GetNumPlayersAlive();
 };
 
 }
