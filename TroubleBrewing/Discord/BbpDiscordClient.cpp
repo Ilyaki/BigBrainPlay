@@ -1,3 +1,4 @@
+#include <ranges>
 #include "BbpDiscordClient.hpp"
 #include "../Storyteller.hpp"
 
@@ -14,54 +15,42 @@ void BbpDiscordClient::onMessage(SleepyDiscord::Message message)
 		communicationMap.at(channelIdString)->OnDirectMessage(message);
 	}
 
-	//try
-	//{
-		if (!message.author.bot && message.startsWith("BBP start"))
+	if (!message.author.bot && message.startsWith("BBP start"))
+	{
+		auto c = message.channelID;
+		auto mentions = message.mentions | std::views::filter([](const SleepyDiscord::User& u){return !u.bot; });
+
+		if (std::ranges::distance(mentions) != 0)
 		{
-			auto c = message.channelID;
-			auto mentions = message.mentions;
+			std::string startMsg = "Starting with: ";
 
-			if (mentions.size() > 0)
+			std::vector<std::pair<PlayerData,
+					std::shared_ptr<PlayerCommunication>>> playerDatas;
+
+			int playerID = 1;
+			for (SleepyDiscord::User user : mentions)
 			{
-				//TODO: don't allow bots
+				startMsg += user.username + " ";
 
-				std::string startMsg = "Starting with: ";
+				auto dm = createDirectMessageChannel(user.ID);
+				assert(!dm.error());//TODO: make dm.error() prettier
+				SleepyDiscord::DMChannel dmChannel = dm.cast();
 
-				std::vector<std::pair<PlayerData,
-						std::shared_ptr<PlayerCommunication>>> playerDatas;
+				PlayerData playerData{user.username, playerID};
+				auto comm = std::make_shared<DiscordPlayerCommunication>(this, user, dmChannel);
 
-				int playerID = 1;
-				for (SleepyDiscord::User user : mentions)
-				{
-					startMsg += user.username + " ";
+				playerDatas.push_back({playerData, comm});
 
-					auto dm = createDirectMessageChannel(user.ID);
-					assert(!dm.error());//TODO: make dm.error() prettier
-					SleepyDiscord::DMChannel dmChannel = dm.cast();
+				communicationMap.insert({dmChannel.ID.string(), comm});
 
-					PlayerData playerData{user.username, playerID};
-					auto comm = std::make_shared<DiscordPlayerCommunication>(this, user, dmChannel);
-
-					auto pair = std::make_pair(playerData, comm);
-
-					playerDatas.push_back(pair);
-
-					communicationMap.insert(std::make_pair(dmChannel.ID.string(), comm));
-
-					++playerID;
-				}
-
-				sendMessage(c, startMsg);
-
-				//TODO: new thread, clear the comm map.
-				storytellerThread = std::thread(StartStorytellerThread, playerDatas);
+				++playerID;
 			}
+
+			sendMessage(c, startMsg);
+
+			storytellerThread = std::thread(StartStorytellerThread, playerDatas);
 		}
-	//}
-	//catch (...)
-	//{
-	//	std::cout << "Oops!" << std::endl;
-	//}
+	}
 }
 
 void BbpDiscordClient::StartStorytellerThread(std::vector<std::pair<PlayerData,

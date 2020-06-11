@@ -12,82 +12,29 @@ GameState::GameState()
 
 void GameState::AddPlayer(std::shared_ptr<Player> player)
 {
-	std::cout << "GameState: Adding " << player->GetCharacter()->GetCharacterName() << std::endl;
+	cacheValid = false;
 	players.push_back(player);
 }
 
-std::vector<Player*> GameState::GetPlayers()
+const std::vector<Player*>& GameState::GetPlayers()
 {
-	//TODO: This should be cached.
-	std::vector<Player*> playerPointers;
-	for (decltype(players)::size_type i = 0; i < players.size(); ++i)
+	if (!cacheValid)
 	{
-		playerPointers.push_back(players.at(i).get());
+		playerCache.clear();
+		for (decltype(players)::size_type i = 0; i < players.size(); ++i)
+		{
+			playerCache.push_back(players.at(i).get());
+		}
+		cacheValid = true;
 	}
 
-	return playerPointers;
+	return playerCache;
 }
 
 int GameState::NumberOfPlayers()
 {
 	return players.size();
 }
-
-/*std::vector<Player*> GameState::MatchingPlayers(std::function<bool(Player* player)> predicate)
-{
-	std::vector<Player*> matches;
-	for (Player* p : GetPlayers())
-	{
-		if (predicate(p))
-			matches.push_back(p);
-	}
-
-	return matches;
-}
-
-std::vector<Player*> GameState::GetPlayersMatchingCharacter(CharacterType characterType)
-{
-	//TODO: We may need to sort these in a consistent order.
-	return MatchingPlayers([characterType](Player* p)
-		{ return p->GetCharacter()->GetCharacterType() == characterType; });
-}
-
-std::vector<Player*> GameState::GetAlive()
-{
-	return MatchingPlayers([](Player* p){ return !p->IsDead(); });
-}
-
-std::vector<Player*> GameState::GetTownsfolk()
-{
-	return MatchingPlayers([](Player* p){ return p->GetCharacter()->GetCharacterTraits().isTownsfolk; });
-}
-
-std::vector<Player*> GameState::GetEvil()
-{
-	return MatchingPlayers([](Player* p){ return p->GetCharacter()->GetCharacterTraits().isEvil; });
-}
-
-std::vector<Player *> GameState::GetGood()
-{
-	return MatchingPlayers([](Player* p)
-		{ return	p->GetCharacter()->GetCharacterTraits().isTownsfolk ||
-					p->GetCharacter()->GetCharacterTraits().isOutsider; });
-}
-
-std::vector<Player*> GameState::GetMinions()
-{
-	return MatchingPlayers([](Player* p){ return p->GetCharacter()->GetCharacterTraits().isMinion; });
-}
-
-std::vector<Player*> GameState::GetOutsiders()
-{
-	return MatchingPlayers([](Player* p){ return p->GetCharacter()->GetCharacterTraits().isOutsider; });
-}
-
-std::vector<Player*> GameState::GetDemons()
-{
-	return MatchingPlayers([](Player* p){ return p->GetCharacter()->GetCharacterTraits().isDemon; });
-}*/
 
 std::pair<Player*, Player*> GameState::GetNeighbours(Player* player, bool allowDead)
 {
@@ -137,4 +84,10 @@ int GameState::GetNumPlayersAlive()
 {
 	auto aliveView = players | std::views::filter([](auto p){ return !p->IsDead(); } );
 	return std::ranges::distance(aliveView);
+}
+
+bool GameState::AbilityMalfunctions(Player *player)
+{
+	return	player->PlayerPartialCheckAbilityMalfunctions(this) ||
+			player->GetCharacter()->IsDrunk();
 }

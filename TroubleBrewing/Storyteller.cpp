@@ -22,26 +22,19 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 	for (auto pd : playerDatas)
 	{
 		auto charInPlay = charactersInPlay.at(playerI);
-		AddPlayer(std::make_shared<Player>(charInPlay, pd.first, pd.second));
+		AddPlayer(std::make_shared<Player>(charInPlay, pd.first, pd.second, this));
 		++playerI;
 	}
-
-	//TODO: make a function to clear chat?
-	// _ _ is invisible in Discord
-	AnnounceMessage("_ _\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
-					"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
-					"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n_ _\\n"
-					"Game has begun...");//TODO: Fill in start message.
 
 	// Perform initial player setup
 	for (Player *player : GetPlayers())
 	{
+		player->Communication()->BlankPage();
+		player->Communication()->SendMessage("Game has begun...");
 		player->GetCharacter()->InitialSetup(this);
 	}
 }
 
-//TODO: Take player ids/etc as arguments.
-//TODO: Should be inside constructor to enforce player vector not empty invariant
 void Storyteller::StartGame()
 {
 	// Zeroth night
@@ -51,13 +44,17 @@ void Storyteller::StartGame()
 	//TODO: win conditions
 	for (int dayNight = 1;; dayNight++)
 	{
+		const auto& players = GetPlayers();
+
 		SetCurrentTime(Time{true, dayNight});
 		DayPhase(dayNight);
-		AnnounceMessage("_ _\\n\\n_ _", false);// TODO: don't hard code this here
+		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
+		//TODO: test win
 
 		SetCurrentTime(Time{false, dayNight});
 		NightPhase(nightOrder, dayNight);
-		AnnounceMessage("_ _\\n\\n_ _", false);
+		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
+		//TODO: test win
 	}
 }
 
@@ -71,14 +68,11 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 
 	for (CharacterType targetChar : order)
 	{
-		//TODO: Search for the Drunk by the character they think they are. (or use 'perceived character/etc')
-		//TODO: if not dead
-		//auto targetMatches = GetPlayersMatchingCharacter(targetChar);
-		//for (Player *target : targetMatches)
 		auto pl = GetPlayers();
 		for (auto target : pl | std::views::filter([targetChar](Player* p)
-			{ return p->GetCharacter()->GetCharacterType() == targetChar; }))
-			//TODO: Log the action, test win conditions?
+			{ return p->GetCharacter()->GetPerceivedCharacter() == targetChar &&
+				(p->GetCharacter()->AbilityWorksWhenDead() || !p->IsDead()); }))
+			//TODO: Log the action
 			target->GetCharacter()->NightAction(zerothNight, this);
 	}
 }
@@ -90,7 +84,8 @@ void Storyteller::DayPhase(int day)
 	//TODO: announce who died, etc.
 	AnnounceMessage("Day " + std::to_string(day) + " has begun. Everyone wake up");
 
-	constexpr auto dayTimeLength = std::chrono::seconds(10);
+	//FIXME: bug: day actions end immediately?
+	constexpr auto dayTimeLength = std::chrono::seconds(20);
 	const auto dayTimeEnd = std::chrono::steady_clock::now(); + dayTimeLength;
 
 	OpenCloseDayActions(true);
@@ -100,7 +95,8 @@ void Storyteller::DayPhase(int day)
 	while (slayActionCond.wait_until(dayTimeLock, dayTimeEnd) == std::cv_status::no_timeout)
 	{
 		// Have a slay action (not a timeout)
-		bool targetKilled = ProcessSlayAction(std::get<0>(slayActionData), std::get<1>(slayActionData));
+		//bool targetKilled =
+				ProcessSlayAction(std::get<0>(slayActionData), std::get<1>(slayActionData));
 		//TODO: check win conditions
 	}
 	// Received a timeout, so the day action phase is over.
@@ -157,7 +153,7 @@ void Storyteller::ExecuteChoppingBlock()
 
 		if (wasKilled)
 		{
-			//TODO: spectacular execution messages?
+			//POLISH: spectacular execution messages?
 			AnnounceMessage(choppingBlock->PlayerName() + " was executed and killed");
 			SetLastExecutionDeath(choppingBlock);
 		} else
@@ -178,9 +174,6 @@ void Storyteller::AnnounceMessage(std::string message, bool flush)
 
 void Storyteller::InformNomination(Player *nominee, Player *nominator)
 {
-	// // Lock the mutex until InformNomination is returned from (ie this nomination and voting finished)
-	//const std::lock_guard<std::mutex> lock(nominationOrVotingMutex);
-
 	if (!nominationsOpen)
 	{
 		nominator->Communication()->SendMessage("Nominations are not currently open");
@@ -193,15 +186,14 @@ void Storyteller::InformNomination(Player *nominee, Player *nominator)
 
 bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 {
-	//TODO: only allow 1 nomination & nominee from each player. Player must be alive.
+	//TODO: only allow 1 nomination & nominee from each player. Nominator player must be alive.
 
 	OpenCloseNominations(false);
 	AnnounceMessage(nominee->PlayerName() + " has been nominated by " + nominator->PlayerName());
 
-	if (nominee->GetCharacter()->GetCharacterType() == CharacterType::VIRGIN)
+	if (auto v = dynamic_cast<Virgin *>(nominee->GetCharacterOrDrunkBaseCharacter()))
 	{
-		bool shouldNominatorBeKilled = dynamic_cast<Virgin *>(nominee->GetCharacter().get())->VirginAbility(nominator);
-		if (shouldNominatorBeKilled)
+		if (v->VirginAbility(nominator, this)) // Should nominator be killed
 		{
 			// Virgin ability should execute nominator immediately.
 			// Only one execution in a day, so move to next day immediately.
@@ -216,7 +208,6 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 	constexpr int voteTimeSeconds = 5;
 	OpenCloseVoting(true, voteTimeSeconds);
 
-	//FIXME: this blocks the onMessage stuff
 	std::this_thread::sleep_for(std::chrono::seconds(voteTimeSeconds));
 
 	OpenCloseVoting(false);
@@ -230,9 +221,17 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 
 void Storyteller::InformVote(Player *sourcePlayer, bool vote)
 {
-	//assert(has ghost vote)
-	votes.insert(std::pair(sourcePlayer, vote));
-	//TODO: deduct ghost vote if necessary
+	if (sourcePlayer->IsDead() && !sourcePlayer->HasGhostVote())
+	{
+		std::cerr << "Should not prompt dead player to vote when they have used their ghost vote" << std::endl;
+		return;
+	}
+	else
+	{
+		votes.insert(std::pair(sourcePlayer, vote));
+		if (sourcePlayer->IsDead())
+			sourcePlayer->UseGhostVote();
+	}
 }
 
 void Storyteller::OpenCloseNominations(bool open)
@@ -251,20 +250,8 @@ void Storyteller::OpenCloseNominations(bool open)
 bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, Player *nominator)
 {
 	// Announce votes
-	//TODO: should be moved to discord
-	std::string votesMsg = R"(```yaml\nVotes to execute )" + nominee->PlayerName() + ":\\n";
-	for (auto pair : votes)
-	{
-		votesMsg += "- " + pair.first->PlayerName() + ": " + (pair.second ? "yes" : "no");
-
-		if (pair.first->IsDead())
-			votesMsg += ". Used ghost vote";
-
-		votesMsg += "\\n";
-	}
-	votesMsg += R"(```)";
-
-	AnnounceMessage(votesMsg);
+	for (Player* p : GetPlayers())
+		p->Communication()->AnnounceVotes(votes, nominee, nominator);
 
 	// Count votes
 	int numAlive = GetNumPlayersAlive();
@@ -328,8 +315,7 @@ void Storyteller::OpenCloseVoting(bool open, int voteTimeSeconds)
 
 		for (Player *player : GetPlayers())
 		{
-			//TODO: test if player has ghost vote.
-			if (!player->IsDead())
+			if (!player->IsDead() || player->HasGhostVote())
 				player->Communication()->OpenCloseVoting(true, false, this, player, voteTimeSeconds);
 		}
 	} else
@@ -340,12 +326,6 @@ void Storyteller::OpenCloseVoting(bool open, int voteTimeSeconds)
 				player->Communication()->OpenCloseVoting(false);
 		}
 	}
-}
-
-bool Storyteller::GameFinished() const
-{
-	//TODO: Storyteller::GameFinished
-	return false;
 }
 
 void Storyteller::InformSlayerAttempt(Player *target, Player *sourcePlayer)
@@ -377,12 +357,9 @@ bool Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
 {
 	bool targetKilled = false;
 
-	// No problems with checking the type directly as a Drunk Slayer would do nothing anyway
-	if (!sourcePlayer->IsDead() && sourcePlayer->GetCharacter()->GetCharacterType() == CharacterType::SLAYER)
-	{
-		Slayer* slayer = dynamic_cast<Slayer*>(sourcePlayer->GetCharacter().get());
-		targetKilled = slayer->AttemptSlay(target, this);
-	}
+	if (!sourcePlayer->IsDead())
+		if (auto slayer = dynamic_cast<Slayer*>(sourcePlayer->GetCharacterOrDrunkBaseCharacter()))
+			targetKilled = slayer->AttemptSlay(target, this);
 
 	AnnounceMessage(
 			sourcePlayer->PlayerName() + " claims to slay " + target->PlayerName() +
@@ -394,9 +371,9 @@ bool Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
 	return targetKilled;
 }
 
-const CharacterTypeTraitsMap &Storyteller::GetCharacterTypeTraitsMap() const
+const CharacterTypeTraitsMap* Storyteller::GetCharacterTypeTraitsMap()
 {
-	return characterTypeTraitsMap;
+	return &characterTypeTraitsMap;
 }
 
 }

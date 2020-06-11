@@ -21,6 +21,7 @@
 #include "Characters/Soldier.hpp"
 #include "Characters/TestCharacter.hpp"
 #include "Characters/Poisoner.hpp"
+#include "Characters/Drunk.hpp"
 
 namespace TroubleBrewing
 {
@@ -65,21 +66,22 @@ class Storyteller : public GameState, Voting, DayActions
 			CharacterType::FORTUNETELLER,*/
 	};
 
-	CharacterTypeTraitsMap characterTypeTraitsMap { GetCharacterTypeTraitMap<
-		TestCharacter,
-		Washerwoman,
-		Librarian,
-		Investigator,
-		Chef,
-		Empath,
-		FortuneTeller,
-		Undertaker,
-		Monk,
-		Ravenkeeper,
-		Virgin,
-		Slayer,
-		Soldier,
-		Poisoner
+	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
+			TestCharacter,
+			Washerwoman,
+			Librarian,
+			Investigator,
+			Chef,
+			Empath,
+			FortuneTeller,
+			Undertaker,
+			Monk,
+			Ravenkeeper,
+			Virgin,
+			Slayer,
+			Soldier,
+			Poisoner,
+			Drunk
 	>()};
 
 
@@ -87,7 +89,7 @@ class Storyteller : public GameState, Voting, DayActions
 	std::map<Player*, bool> votes;
 	Player* choppingBlock;
 	int choppingBlockVotes;
-	bool nominationsOpen;
+	bool nominationsOpen{false};
 
 	// Inform nomination
 	std::condition_variable informNominationCond;
@@ -96,8 +98,8 @@ class Storyteller : public GameState, Voting, DayActions
 
 	// Inform slay
 	// If we need to add more day actions, should change this to dayActionData, etc
-	std::condition_variable slayActionCond;
-	std::mutex slayActionCondMutex;
+	std::condition_variable slayActionCond{};
+	std::mutex slayActionCondMutex{};
 	std::tuple<Player*, Player*> slayActionData; // target, slayer
 
 	void NightPhase(const std::vector<CharacterType> order, int night);
@@ -123,14 +125,12 @@ public:
 
 	void StartGame();
 
-	bool GameFinished() const;
-
 	void InformNomination(Player* nominee, Player* nominator) override;
 	void InformVote(Player* sourcePlayer, bool vote) override;
 
 	void InformSlayerAttempt(Player* target, Player* sourcePlayer);
 
-	const CharacterTypeTraitsMap& GetCharacterTypeTraitsMap() const override;
+	const CharacterTypeTraitsMap* GetCharacterTypeTraitsMap() override;
 };
 
 }

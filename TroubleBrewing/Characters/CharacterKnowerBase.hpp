@@ -13,7 +13,7 @@ namespace TroubleBrewing
 class CharacterKnowerBase : public Character
 {
 public:
-	CharacterKnowerBase(Player* player) : Character(player){}
+	CharacterKnowerBase(Player* player, bool isDrunk) : Character(player, isDrunk){}
 
 	constexpr virtual CharacterTraits TargetTraits() = 0;
 

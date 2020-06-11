@@ -5,8 +5,8 @@ namespace TroubleBrewing
 
 bool Slayer::AttemptSlay(Player *target, GameState* gameState)
 {
-	return	!player->AbilityMalfunctions(gameState) && // Slay always fails if drunk/poisoned
-			target->GetCharacter()->GetCharacterTraits().isDemon && // TODO: "perceived" as demon because recluse
+	return	!gameState->AbilityMalfunctions(player) && // Slay always fails if drunk/poisoned
+			target->GetCharacter()->GeneratePerceivedTraits().isDemon &&
 			target->AttemptKill(gameState, false, false, player);
 }
 

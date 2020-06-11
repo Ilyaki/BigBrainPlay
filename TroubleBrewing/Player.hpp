@@ -16,12 +16,14 @@ class PlayerCommunication;
 class Player
 {
 private:
+	//TODO make const, return a raw pointer (same w/ character, etc)
 	std::shared_ptr<PlayerCommunication> communication;
 	PlayerData playerData;
 
 	std::shared_ptr<Character> character;
 
 	bool isDead {false};
+	bool hasGhostVote{true};
 
 	// If adding more characters we may need an effects system (e.g. poisoned by poisoner, monk'd by monk, etc)
 	// Would also be required if we had multiple characters of the same role
@@ -34,7 +36,8 @@ private:
 	void Kill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer);
 
 public:
-	Player(CharacterType characterType, PlayerData _playerData, std::shared_ptr<PlayerCommunication> _communication);
+	Player(CharacterType characterType, PlayerData _playerData,
+			std::shared_ptr<PlayerCommunication> _communication, GameState* gameState);
 
 	bool MatchesPlayerID(int playerID) const;
 	std::string PlayerName() const;
@@ -42,7 +45,12 @@ public:
 
 	bool IsDead() const;
 
-	bool AbilityMalfunctions(GameState* gameState) const;
+	/// Should not be used directly other than in combination with the Character AbilityMalfunctions
+	/// Checks if an ability should malfunction due to something on the player side (e.g. Poisoned effect)
+	bool PlayerPartialCheckAbilityMalfunctions(GameState* gameState) const;
+
+	bool HasGhostVote();
+	void UseGhostVote();
 
 	/// AttemptKill: Tries to kill the player.
 	/// \param isExecutionKill If the player is killed by execution (e.g. voting or Virgin nomination).
@@ -54,7 +62,8 @@ public:
 	void SetPoisoned(Time until, Player* fromWho);
 	void SetMonkProtection(Time until, Player* fromWho);
 
-	std::shared_ptr<Character> GetCharacter();
+	std::shared_ptr<Character> GetCharacter(); // TODO: replace uses with DrunkBase where needed
+	Character* GetCharacterOrDrunkBaseCharacter();
 	std::shared_ptr<PlayerCommunication> Communication();
 
 	// Moving

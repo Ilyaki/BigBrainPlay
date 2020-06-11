@@ -16,7 +16,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 	CharacterType knownCharacter;
 	std::string knownCharacterName;
 
-	if (player->AbilityMalfunctions(gameState))
+	if (gameState->AbilityMalfunctions(player))
 	{
 		using charPair = std::pair<CharacterType, std::pair<CharacterTraits, std::string_view>>;
 		auto targetTraits = TargetTraits();
@@ -25,7 +25,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 		auto map = gameState->GetCharacterTypeTraitsMap();
 
 		// Get character types that match the target & aren't our own character
-		auto possibleView = map | std::views::filter([targetTraits, ourCharacter](charPair y)
+		auto possibleView = *map | std::views::filter([targetTraits, ourCharacter](charPair y)
 									{ return y.second.first == targetTraits && y.first != ourCharacter; })
 							| std::views::transform([](charPair y){ return std::make_pair(y.first, y.second.second); });
 

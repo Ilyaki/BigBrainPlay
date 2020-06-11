@@ -11,7 +11,7 @@ namespace TroubleBrewing
 class TestCharacter : public Character
 {
 public:
-	TestCharacter(Player* player) : Character(player){}
+	TestCharacter(Player* player, bool isDrunk) : Character(player, isDrunk){}
 
 	static constexpr CharacterType CharType = CharacterType::TEST_CHARACTER;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Demon();

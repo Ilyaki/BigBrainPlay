@@ -10,7 +10,7 @@ namespace TroubleBrewing
 class Slayer : public Character
 {
 public:
-	Slayer(Player* player) : Character(player){}
+	Slayer(Player* player, bool isDrunk) : Character(player, isDrunk){}
 
 	static constexpr CharacterType CharType = CharacterType::SLAYER;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

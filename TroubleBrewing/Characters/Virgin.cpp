@@ -3,15 +3,14 @@
 namespace TroubleBrewing
 {
 
-bool Virgin::VirginAbility(Player *nominator)
+bool Virgin::VirginAbility(Player *nominator, GameState* gameState)
 {
 	if (usedVirginAbility)
 		return false;
 	else
 	{
-		//TODO: need 'perceived' as townsfolk for the Spy ability
 		usedVirginAbility = true;
-		return player->GetCharacter()->GetCharacterTraits().isTownsfolk;
+		return gameState->AbilityMalfunctions(player) && player->GetCharacter()->GeneratePerceivedTraits().isTownsfolk;
 	}
 }
 

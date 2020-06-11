@@ -19,6 +19,8 @@ class GameState : public GameLogging
 {
 	// Player is on the free store so the pointer used in Player constructor is the same as inside the vector.
 	std::vector<std::shared_ptr<Player>> players{};
+	std::vector<Player*> playerCache;
+	bool cacheValid { true };
 
 	Time currentTime;
 
@@ -30,25 +32,15 @@ public:
 
 	Time GetCurrentTime();
 
-	std::vector<Player*> GetPlayers();
+	const std::vector<Player*>& GetPlayers();
 
 	int NumberOfPlayers();
 
-	virtual const CharacterTypeTraitsMap& GetCharacterTypeTraitsMap() const = 0;
-
-//	std::vector<Player*> MatchingPlayers(std::function<bool(Player* player)> predicate);
-
-	//TODO: Drunk/Recluse don't work well with these functions
-	/*std::vector<Player*> GetPlayersMatchingCharacter(CharacterType characterType);
-	std::vector<Player*> GetAlive();
-	std::vector<Player*> GetEvil();
-	std::vector<Player*> GetGood();
-	std::vector<Player*> GetTownsfolk();
-	std::vector<Player*> GetMinions();
-	std::vector<Player*> GetOutsiders();
-	std::vector<Player*> GetDemons();*/
+	virtual const CharacterTypeTraitsMap* GetCharacterTypeTraitsMap() = 0;
 
 	std::pair<Player*, Player*> GetNeighbours(Player* player, bool allowDead);
+
+	bool AbilityMalfunctions(Player* player);
 
 	bool PlayersAreNeighbours(Player* first, Player* second, bool allowDead = false);
 

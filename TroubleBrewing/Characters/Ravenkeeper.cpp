@@ -16,12 +16,12 @@ void Ravenkeeper::OnDeath(GameState *gameState, bool isExecutionKill, bool isDem
 
 		std::string targetCharacterName;
 
-		if (player->AbilityMalfunctions(gameState))
+		if (gameState->AbilityMalfunctions(player))
 		{
 			auto map = gameState->GetCharacterTypeTraitsMap();
 
 			// Get character types that match the target & aren't our own character
-			auto possibleView = map | std::views::transform([](auto y){ return y.second.second; });
+			auto possibleView = *map | std::views::transform([](auto y){ return y.second.second; });
 
 			// Copy into a vector for processing
 			std::vector<std::string_view> possibleCharacterNames;

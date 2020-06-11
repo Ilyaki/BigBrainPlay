@@ -19,4 +19,14 @@ CharacterTraits Character::GeneratePerceivedTraits()
 	return GetCharacterTraits();
 }
 
+CharacterType Character::GetPerceivedCharacter()
+{
+	return GetCharacterType();
+}
+
+bool Character::IsDrunk() const
+{
+	return isDrunk;
+}
+
 }

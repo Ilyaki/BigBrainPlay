@@ -16,10 +16,10 @@ void FortuneTeller::InitialSetup(GameState *gameState)
 	else
 	{
 		auto players = gameState->GetPlayers();
-		auto possibleView = players | std::views::filter([](Player* p)
-													 { return !p->GetCharacter()->GeneratePerceivedTraits().isEvil; });
 
-		std::ranges::copy(possibleView, std::back_inserter(redHerringCandidates));
+		std::ranges::copy(players | std::views::filter([](Player* p)
+									{ return !p->GetCharacter()->GeneratePerceivedTraits().isEvil; }),
+				std::back_inserter(redHerringCandidates));
 
 		// Remove possibility of our own player being the red herring
 		if (gameState->NumberOfPlayers() > 6 || RandomBool())
@@ -50,7 +50,7 @@ void FortuneTeller::NightAction(bool zerothNight, GameState *gameState)
 
 	bool fortuneTellerReading;
 
-	if (player->AbilityMalfunctions(gameState))
+	if (gameState->AbilityMalfunctions(player))
 		fortuneTellerReading = RandomBetween(1, 5) <= 2;
 	else
 	{

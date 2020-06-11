@@ -72,6 +72,12 @@ public:
 
 	void OpenCloseDayActions(bool open, TroubleBrewing::DayActions* dayActions,
 			TroubleBrewing::GameState* gameState, TroubleBrewing::Player* sourcePlayer) override;
+
+	void AnnounceVotes(const std::map<TroubleBrewing::Player *, bool>& votes,
+			TroubleBrewing::Player *nominee, TroubleBrewing::Player *nominator) override;
+
+	void NewParagraph() override;
+	void BlankPage() override;
 };
 
 }

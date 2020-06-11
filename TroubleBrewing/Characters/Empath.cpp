@@ -10,7 +10,7 @@ void Empath::NightAction(bool zerothNight, GameState *gameState)
 
 	int evilNeighbours = 0;
 
-	if (player->AbilityMalfunctions(gameState))
+	if (gameState->AbilityMalfunctions(player))
 	{
 		evilNeighbours = RandomBool() ? (RandomBool() ? 2 : 1) : 0;
 	}

@@ -51,6 +51,7 @@ DiscordPlayerCommunication::InputPlayer(TroubleBrewing::GameState *gameState,
 
 	while (foundTarget == nullptr)
 	{
+		bool timeout = false;
 		int playerID = -1;
 
 		while(playerID == -1)
@@ -58,7 +59,15 @@ DiscordPlayerCommunication::InputPlayer(TroubleBrewing::GameState *gameState,
 			SendMessage("Enter a player ID:");
 
 			auto lock = std::unique_lock<std::mutex>{dmMessageConditionVarMutex};
-			dmMessageConditionVar.wait(lock); // TODO: wait_until to prevent eternity wait
+			auto res = dmMessageConditionVar.wait_for(lock, std::chrono::seconds(60));
+
+			if (res == std::cv_status::timeout)
+			{
+				// Took too long to respond
+				SendMessage("Took too long to respond, selecting a random player", false);
+				timeout = true;
+				break;
+			}
 
 			auto message = lastMessage;
 
@@ -76,6 +85,18 @@ DiscordPlayerCommunication::InputPlayer(TroubleBrewing::GameState *gameState,
 				SendMessage("Invalid ID");
 				continue;
 			}
+		}
+
+		if (timeout)
+		{
+			auto pr = predicate.first;
+			if (pr) // Need to match a predicate
+				foundTarget = *std::ranges::find_if(players, [pr](Player* p){ return pr(p); });
+			else
+				foundTarget = players.front();
+
+			SendMessage("Selected player: " + foundTarget->PlayerName());
+			break;
 		}
 
 		auto index = std::find_if(players.begin(), players.end(),
@@ -330,6 +351,35 @@ std::cout << "TEST" << std::endl;
 			}
 		}
 	}
+}
+
+void DiscordPlayerCommunication::NewParagraph()
+{
+	SendMessage("_ _\\n\\n_ _", false);
+}
+
+void DiscordPlayerCommunication::BlankPage()
+{
+	SendMessage("_ _\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n"
+				"\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n_ _");
+}
+
+void DiscordPlayerCommunication::AnnounceVotes(
+		const std::map<Player *, bool> &votes, Player *nominee, Player *nominator)
+{
+	std::string votesMsg = R"(```yaml\nVotes to execute )" + nominee->PlayerName() + ":\\n";
+	for (auto pair : votes)
+	{
+		votesMsg += "- " + pair.first->PlayerName() + ": " + (pair.second ? "yes" : "no");
+
+		if (pair.first->IsDead())
+			votesMsg += ". Used ghost vote";
+
+		votesMsg += "\\n";
+	}
+	votesMsg += R"(```)";
+
+	SendMessage(votesMsg);
 }
 
 }

@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Undertaker : public Character
 {
 public:
-	Undertaker(Player* player) : Character(player){}
+	Undertaker(Player* player, bool isDrunk) : Character(player, isDrunk){}
 
 	static constexpr CharacterType CharType = CharacterType::UNDERTAKER;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

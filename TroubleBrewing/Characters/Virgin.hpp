@@ -11,7 +11,7 @@ class Virgin : public Character
 	bool usedVirginAbility;
 
 public:
-	Virgin(Player* player) : Character(player){}
+	Virgin(Player* player, bool isDrunk) : Character(player, isDrunk){}
 
 	static constexpr CharacterType CharType = CharacterType::VIRGIN;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
@@ -20,7 +20,7 @@ public:
 
 	/// VirginAbility: Should be called whenever the Virgin is nominated.
 	/// \returns True if the nominator should be executed
-	bool VirginAbility(Player* nominator);
+	bool VirginAbility(Player* nominator, GameState* gameState);
 };
 
 }

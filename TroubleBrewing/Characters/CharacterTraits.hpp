@@ -88,12 +88,10 @@ struct GetCharacterTypeTraitMapStruct<>
 };
 
 template<typename... T>
-CharacterTypeTraitsMap GetCharacterTypeTraitMap()
+CharacterTypeTraitsMap GetCharacterTypeTraitMapTemplate()
 {
 	return GetCharacterTypeTraitMapStruct<T...>{}.GetMap();
 }
-
-
 
 }
 

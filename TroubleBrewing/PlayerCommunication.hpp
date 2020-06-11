@@ -20,7 +20,6 @@ public:
 			InputPlayerPredicate predicate = {nullptr, ""}
 			) = 0;
 
-	//TODO: Message types for formatting?
 	virtual void SendMessage(std::string msg,  bool flush = true) = 0;
 
 	virtual void OpenCloseNominations(
@@ -31,6 +30,11 @@ public:
 
 	virtual void OpenCloseDayActions(bool open, DayActions* dayActions = nullptr,
 			GameState* gameState = nullptr, Player* sourcePlayer = nullptr) = 0;
+
+	virtual void AnnounceVotes(const std::map<Player *, bool>& votes, Player *nominee, Player *nominator) = 0;
+
+	virtual void NewParagraph() = 0;
+	virtual void BlankPage() = 0;
 };
 
 }

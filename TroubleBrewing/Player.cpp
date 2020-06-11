@@ -1,98 +1,21 @@
 #include <iostream>
 #include <cassert>
+#include "Characters/CharacterHelper.hpp"
 #include "Player.hpp"
-#include "Characters/TestCharacter.hpp"
-#include "Characters/Washerwoman.hpp"
-#include "Characters/Librarian.hpp"
-#include "Characters/Investigator.hpp"
-#include "Characters/Chef.hpp"
-#include "Characters/Empath.hpp"
-#include "Characters/FortuneTeller.hpp"
-#include "Characters/Undertaker.hpp"
-#include "Characters/Monk.hpp"
-#include "Characters/Ravenkeeper.hpp"
-#include "Characters/Virgin.hpp"
-#include "Characters/Soldier.hpp"
-#include "Characters/Slayer.hpp"
-#include "Characters/Poisoner.hpp"
+#include "Characters/Drunk.hpp"
 
-using namespace TroubleBrewing;
+namespace TroubleBrewing
+{
 
 Player::Player(CharacterType characterType,
-		PlayerData _playerData,
-		std::shared_ptr<PlayerCommunication> _communication) :
-	communication{_communication},
-	playerData{_playerData}
+			   PlayerData _playerData,
+			   std::shared_ptr<PlayerCommunication> _communication,
+			   GameState* gameState) :
+		communication{_communication},
+		playerData{_playerData},
+		character{CharacterHelper::CreateCharacter(characterType, gameState, this, false)}
 {
 	assert(_playerData.playerID >= 0);
-
-	switch(characterType)
-	{
-		//TODO: cleanup somehow since all the constructors are similar?
-
-		case CharacterType::TEST_CHARACTER:
-			character = std::make_shared<TestCharacter>(this);
-			break;
-
-		case CharacterType::WASHERWOMAN:
-			character = std::make_shared<Washerwoman>(this);
-			break;
-
-		case CharacterType::LIBRARIAN:
-			character = std::make_shared<Librarian>(this);
-			break;
-
-		case CharacterType::INVESTIGATOR:
-			character = std::make_shared<Investigator>(this);
-			break;
-
-		case CharacterType::CHEF:
-			character = std::make_shared<Chef>(this);
-			break;
-
-		case CharacterType::EMPATH:
-			character = std::make_shared<Empath>(this);
-			break;
-
-		case CharacterType::FORTUNETELLER:
-			character = std::make_shared<FortuneTeller>(this);
-			break;
-
-		case CharacterType::UNDERTAKER:
-			character = std::make_shared<Undertaker>(this);
-			break;
-
-		case CharacterType::MONK:
-			character = std::make_shared<Monk>(this);
-			break;
-
-		case CharacterType::RAVENKEEPER:
-			character = std::make_shared<Ravenkeeper>(this);
-			break;
-
-		case CharacterType::VIRGIN:
-			character = std::make_shared<Virgin>(this);
-			break;
-
-		case CharacterType::SOLDIER:
-			character = std::make_shared<Soldier>(this);
-			break;
-
-		case CharacterType::SLAYER:
-			character = std::make_shared<Slayer>(this);
-			break;
-
-		case CharacterType::POISONER:
-			character = std::make_shared<Poisoner>(this);
-			break;
-
-		case CharacterType::NO_CHARACTER:
-		default:
-			//TODO: Give error
-			break;
-	}
-
-	assert(character != nullptr);
 }
 
 std::shared_ptr<Character> Player::GetCharacter()
@@ -110,19 +33,18 @@ bool Player::IsDead() const
 	return isDead;
 }
 
-bool Player::AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer)
+bool Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
 	if (isDead)
 	{
 		Communication()->SendMessage("You have died. Again");
 		return true;
-	}
-	else
+	} else
 	{
 		if (character->AllowCharacterDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer))
 		{
 			bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
-									monkProtectedBy != nullptr && !monkProtectedBy->AbilityMalfunctions(gameState));
+								  monkProtectedBy != nullptr && !gameState->AbilityMalfunctions(monkProtectedBy));
 
 			if (monkProtected)
 				return false;
@@ -131,8 +53,7 @@ bool Player::AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemo
 				Kill(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 				return true;
 			}
-		}
-		else
+		} else
 		{
 			return false;
 		}
@@ -154,10 +75,10 @@ int Player::PlayerID() const
 	return playerData.playerID;
 }
 
-bool Player::AbilityMalfunctions(GameState* gameState) const
+bool Player::PlayerPartialCheckAbilityMalfunctions(GameState *gameState) const
 {
 	auto currentTime = gameState->GetCurrentTime();
-	return !(poisonedUntil >= currentTime && poisonedBy != nullptr && !poisonedBy->AbilityMalfunctions(gameState));
+	return !(poisonedUntil >= currentTime && poisonedBy != nullptr && !gameState->AbilityMalfunctions(poisonedBy));
 }
 
 void Player::SetPoisoned(Time until, Player *fromWho)
@@ -172,8 +93,29 @@ void Player::SetMonkProtection(Time until, Player *fromWho)
 	monkProtectedBy = fromWho;
 }
 
-void Player::Kill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer)
+void Player::Kill(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
 	isDead = true;
-	character->OnDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
+	GetCharacterOrDrunkBaseCharacter()->OnDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
+}
+
+bool Player::HasGhostVote()
+{
+	return hasGhostVote;
+}
+
+void Player::UseGhostVote()
+{
+	hasGhostVote = false;
+}
+
+Character *Player::GetCharacterOrDrunkBaseCharacter()
+{
+	auto c = GetCharacter().get();
+	if (auto d = dynamic_cast<Drunk*>(c))
+		return d->DrunkBaseCharacter();
+	else
+		return c;
+}
+
 }

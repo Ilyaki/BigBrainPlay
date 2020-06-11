@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Investigator : public CharacterKnowerBase
 {
 public:
-	Investigator(Player* player) : CharacterKnowerBase(player){}
+	Investigator(Player* player, bool isDrunk) : CharacterKnowerBase(player, isDrunk){}
 
 	static constexpr CharacterType CharType = CharacterType::INVESTIGATOR;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
