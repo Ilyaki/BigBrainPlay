@@ -3,6 +3,8 @@ project(BBP)
 
 set(CMAKE_CXX_STANDARD 20)
 
+add_compile_definitions(_WEBSOCKETPP_CPP11_THREAD_)
+
 add_subdirectory(TroubleBrewing)
 
 #set(GCC_COVERAGE_COMPILE_FLAGS "-O3")
