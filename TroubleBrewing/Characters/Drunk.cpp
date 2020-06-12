@@ -6,7 +6,7 @@
 namespace TroubleBrewing
 {
 
-Drunk::Drunk(Player *player, GameState* gameState) : Character(player, true)
+Drunk::Drunk(Player *player, GameState* gameState, Time creationTime) : Character(player, true, creationTime)
 {
 	auto map = gameState->GetCharacterTypeTraitsMap();
 

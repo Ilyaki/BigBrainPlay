@@ -19,7 +19,8 @@ enum class CharacterType {
 	SOLDIER,
 	SLAYER,
 	POISONER,
-	DRUNK
+	DRUNK,
+	IMP
 	};
 
 #endif //BBP_CONSOLE_CHARACTERTYPE_HPP

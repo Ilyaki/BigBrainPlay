@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Ravenkeeper : public Character
 {
 public:
-	Ravenkeeper(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::RAVENKEEPER;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

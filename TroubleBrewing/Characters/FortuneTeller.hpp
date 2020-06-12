@@ -12,7 +12,7 @@ class FortuneTeller : public Character
 	Player* redHerring;
 
 public:
-	FortuneTeller(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::FORTUNETELLER;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

@@ -31,6 +31,7 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 	{
 		player->Communication()->BlankPage();
 		player->Communication()->SendMessage("Game has begun...");
+		player->GetCharacter()->AnnounceCharacterAndAlignment();
 		player->GetCharacter()->InitialSetup(this);
 	}
 }
@@ -66,14 +67,30 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 
 	AnnounceMessage("Night phase " + std::to_string(night) + " has begun. Everyone go to sleep");
 
+	std::vector<Player*> playerActionOrder;
 	for (CharacterType targetChar : order)
 	{
-		auto pl = GetPlayers();
-		for (auto target : pl | std::views::filter([targetChar](Player* p)
-			{ return p->GetCharacter()->GetPerceivedCharacter() == targetChar &&
-				(p->GetCharacter()->AbilityWorksWhenDead() || !p->IsDead()); }))
-			//TODO: Log the action
-			target->GetCharacter()->NightAction(zerothNight, this);
+		for (auto target : GetPlayers())
+		{
+			// Don't use a sorting algorithm in case GetPerceived is called multiple times
+			// (Not a problem with Drunk, maybe with future roles)
+			if (target->GetCharacter()->GetPerceivedCharacter() == targetChar &&
+					(target->GetCharacter()->AbilityWorksWhenDead() || !target->IsDead()) )
+				playerActionOrder.push_back(target);
+		}
+	}
+
+	for(Player* player : playerActionOrder)
+	{
+		auto character = player->GetCharacter();
+
+		// Don't let a new character perform a night action (unless its the zeroth night)
+		auto creationTime = character->GetCreationTime();
+		auto currentTime = GetCurrentTime();
+
+		//FIXME: this is always false for the newly created demon?
+		if (creationTime != currentTime || currentTime == Time{false, 0})
+			character->NightAction(zerothNight, this);
 	}
 }
 
@@ -164,12 +181,10 @@ void Storyteller::ExecuteChoppingBlock()
 	}
 }
 
-void Storyteller::AnnounceMessage(std::string message, bool flush)
+void Storyteller::AnnounceMessage(const std::string& message, bool flush)
 {
 	for (Player *player : GetPlayers())
-	{
 		player->Communication()->SendMessage(message, flush);
-	}
 }
 
 void Storyteller::InformNomination(Player *nominee, Player *nominator)

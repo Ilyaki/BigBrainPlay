@@ -22,6 +22,7 @@
 #include "Characters/TestCharacter.hpp"
 #include "Characters/Poisoner.hpp"
 #include "Characters/Drunk.hpp"
+#include "Characters/Imp.hpp"
 
 namespace TroubleBrewing
 {
@@ -46,6 +47,7 @@ class Storyteller : public GameState, Voting, DayActions
 			CharacterType::TEST_CHARACTER,
 			CharacterType::POISONER,
 			CharacterType::MONK,
+			CharacterType::IMP,
 			CharacterType::EMPATH,
 			CharacterType::FORTUNETELLER,
 			CharacterType::UNDERTAKER
@@ -53,17 +55,9 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
+			CharacterType::IMP,
 			CharacterType::POISONER,
-			CharacterType::RAVENKEEPER,
 			CharacterType::TEST_CHARACTER
-		//	CharacterType::CHEF
-			/*CharacterType::TEST_CHARACTER,
-			CharacterType::WASHERWOMAN,
-			CharacterType::CHEF,
-			CharacterType::LIBRARIAN,
-			CharacterType::EMPATH,
-			CharacterType::INVESTIGATOR,
-			CharacterType::FORTUNETELLER,*/
 	};
 
 	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
@@ -81,7 +75,8 @@ class Storyteller : public GameState, Voting, DayActions
 			Slayer,
 			Soldier,
 			Poisoner,
-			Drunk
+			Drunk,
+			Imp
 	>()};
 
 
@@ -105,7 +100,7 @@ class Storyteller : public GameState, Voting, DayActions
 	void NightPhase(const std::vector<CharacterType> order, int night);
 	void DayPhase(int day);
 
-	void AnnounceMessage(std::string message, bool flush = true);
+	void AnnounceMessage(const std::string& message, bool flush = true);
 
 	void OpenCloseNominations(bool open);
 	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);

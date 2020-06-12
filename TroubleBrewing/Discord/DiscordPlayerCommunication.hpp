@@ -60,7 +60,7 @@ public:
 			InputPlayerPredicate predicate
 	) override;
 
-	void SendMessage(std::string msg, bool flush = true) override;
+	void SendMessage(const std::string& msg, bool flush = true) override;
 
 	void OpenCloseNominations(bool open,
 			TroubleBrewing::GameState* gameState,

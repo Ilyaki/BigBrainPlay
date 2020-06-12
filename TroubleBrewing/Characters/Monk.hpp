@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Monk : public Character
 {
 public:
-	Monk(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::MONK;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

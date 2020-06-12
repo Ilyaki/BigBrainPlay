@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Chef : public Character
 {
 public:
-	Chef(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::CHEF;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

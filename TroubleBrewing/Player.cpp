@@ -78,7 +78,8 @@ int Player::PlayerID() const
 bool Player::PlayerPartialCheckAbilityMalfunctions(GameState *gameState) const
 {
 	auto currentTime = gameState->GetCurrentTime();
-	return !(poisonedUntil >= currentTime && poisonedBy != nullptr && !gameState->AbilityMalfunctions(poisonedBy));
+	return poisonedUntil >= currentTime && poisonedBy != nullptr &&
+		(this == poisonedBy || !gameState->AbilityMalfunctions(poisonedBy));
 }
 
 void Player::SetPoisoned(Time until, Player *fromWho)
@@ -116,6 +117,12 @@ Character *Player::GetCharacterOrDrunkBaseCharacter()
 		return d->DrunkBaseCharacter();
 	else
 		return c;
+}
+
+void Player::SwitchCharacter(CharacterType newType, GameState* gameState)
+{
+	character = CharacterHelper::CreateCharacter(newType, gameState, this, false);
+	character->AnnounceCharacterAndAlignment(); // Sends their new character message
 }
 
 }

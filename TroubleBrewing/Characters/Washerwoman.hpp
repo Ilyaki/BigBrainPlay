@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Washerwoman : public CharacterKnowerBase
 {
 public:
-	Washerwoman(Player* player, bool isDrunk) : CharacterKnowerBase(player, isDrunk){}
+	using CharacterKnowerBase::CharacterKnowerBase;
 
 	static constexpr CharacterType CharType = CharacterType::WASHERWOMAN;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

@@ -13,12 +13,12 @@ DiscordPlayerCommunication::DiscordPlayerCommunication(
 	discordClient{_discordClient},
 	user{_user},
 	dmChannel{_dmChannel},
-	nominationData{std::make_tuple(false, nullptr, nullptr, nullptr)}
+	nominationData{std::tuple(false, nullptr, nullptr, nullptr)}
 {
 	flusherThread = std::thread([this]{this->FlusherStart();});
 }
 
-void DiscordPlayerCommunication::SendMessage(std::string msg, bool flush)
+void DiscordPlayerCommunication::SendMessage(const std::string& msg, bool flush)
 {
 	const std::lock_guard<std::mutex> messageBufLock(messageBufMutex);
 	messageBuf << msg << "\\n";
@@ -149,7 +149,7 @@ void DiscordPlayerCommunication::TextSeparator()
 void DiscordPlayerCommunication::OpenCloseNominations(
 		bool open, GameState *gameState, Voting *voting, Player* sourcePlayer)
 {
-	nominationData = std::make_tuple(open, gameState, voting, sourcePlayer);
+	nominationData = std::tuple(open, gameState, voting, sourcePlayer);
 
 	if (open)
 	{
@@ -161,9 +161,7 @@ void DiscordPlayerCommunication::OpenCloseNominations(
 
 void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message message)
 {
-	GameState* gameState = std::get<1>(nominationData);
-	Voting* voting = std::get<2>(nominationData);
-	Player* sourcePlayer = std::get<3>(nominationData);
+	auto [ nominationsOpen, gameState, voting, sourcePlayer ] = nominationData;
 
 	auto players = gameState->GetPlayers();
 
@@ -248,7 +246,7 @@ void DiscordPlayerCommunication::OpenCloseVoting(
 		std::get<2>(votingData)->InformVote(std::get<3>(votingData), false);
 	}
 
-	votingData = std::make_tuple(open, ghostVote, voting, sourcePlayer);
+	votingData = std::tuple(open, ghostVote, voting, sourcePlayer);
 
 	if (open)
 	{
@@ -292,7 +290,7 @@ void DiscordPlayerCommunication::FlusherStart()
 void DiscordPlayerCommunication::OpenCloseDayActions(
 		bool open, DayActions* dayActions, GameState* gameState, Player* sourcePlayer)
 {
-	dayActionsData = std::make_tuple(open, dayActions, gameState, sourcePlayer);
+	dayActionsData = std::tuple(open, dayActions, gameState, sourcePlayer);
 
 	if (open)
 		SendMessage("Day actions are now open. Write `slay X` to announce slaying player X");

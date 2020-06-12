@@ -12,7 +12,7 @@ class Drunk: public Character
 	std::shared_ptr<Character> perceivedCharacter;
 
 public:
-	Drunk(Player* player, GameState* gameState);
+	Drunk(Player *player, GameState* gameState, Time creationTime);
 
 	static constexpr CharacterType CharType = CharacterType::DRUNK;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Outsider();

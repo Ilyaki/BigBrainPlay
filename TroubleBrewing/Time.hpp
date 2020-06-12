@@ -37,6 +37,11 @@ inline bool operator==(Time a, Time b)
 	return a.IsDay() == b.IsDay() && a.DayOrNightCount() == b.DayOrNightCount();
 }
 
+inline bool operator!=(Time a, Time b)
+{
+	return a.IsDay() != b.IsDay() || a.DayOrNightCount() != b.DayOrNightCount();
+}
+
 inline Time& operator++(Time& a)
 {
 	return a.Increment();

@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Empath : public Character
 {
 public:
-	Empath(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::EMPATH;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

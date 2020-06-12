@@ -16,19 +16,25 @@ class Character
 {
 	/// If we are the Drunk character
 	const bool isDrunk;
+	const Time creationTime;
 
 protected:
 	Player* player;
 
-	Character(Player* _player, bool _isDrunk) : isDrunk{_isDrunk}, player{_player} {}
-
 public:
+	Character(Player* _player, bool _isDrunk, Time _creationTime) :
+		isDrunk{_isDrunk}, creationTime{_creationTime}, player{_player} {}
+
 	inline std::string GetCharacterNameString() const { return std::string { GetCharacterName() }; }
 	constexpr virtual std::string_view GetCharacterName() const = 0;
 	[[deprecated]] constexpr virtual CharacterType GetCharacterType() = 0;
 	[[deprecated]] constexpr virtual CharacterTraits GetCharacterTraits() = 0;
 
-	virtual constexpr bool AbilityWorksWhenDead() { return false; }
+	void AnnounceCharacterAndAlignment();
+
+	virtual bool AbilityWorksWhenDead() { return false; }
+
+	Time GetCreationTime() const;
 
 	/// Characters like Recluse & Spy can register as different characters.
 	virtual CharacterTraits GeneratePerceivedTraits();
@@ -42,7 +48,7 @@ public:
 	/// OnDeath: Call when the player of this character has died
 	virtual void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer){};
 
-	virtual void InitialSetup(GameState* gameState);
+	virtual void InitialSetup(GameState* gameState){};
 
 	/// \param isDrunk Provided so to know when to not apply an effect (e.g. Monk protection) and when to (if poisoned)
 	virtual void NightAction(bool zerothNight, GameState* gameState){};

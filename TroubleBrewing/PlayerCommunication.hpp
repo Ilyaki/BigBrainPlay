@@ -20,7 +20,7 @@ public:
 			InputPlayerPredicate predicate = {nullptr, ""}
 			) = 0;
 
-	virtual void SendMessage(std::string msg,  bool flush = true) = 0;
+	virtual void SendMessage(const std::string& msg,  bool flush = true) = 0;
 
 	virtual void OpenCloseNominations(
 			bool open, GameState* gameState = nullptr, Voting* voting = nullptr, Player* sourcePlayer = nullptr) = 0;

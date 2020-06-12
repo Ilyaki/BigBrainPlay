@@ -10,7 +10,7 @@ namespace TroubleBrewing
 class Librarian : public CharacterKnowerBase
 {
 public:
-	Librarian(Player* player, bool isDrunk) : CharacterKnowerBase(player, isDrunk){}
+	using CharacterKnowerBase::CharacterKnowerBase;
 
 	static constexpr CharacterType CharType = CharacterType::LIBRARIAN;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();

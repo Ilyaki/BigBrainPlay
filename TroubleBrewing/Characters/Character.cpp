@@ -8,10 +8,11 @@ bool Character::AllowCharacterDeath(GameState* gameState, bool isExecutionKill, 
 	return true;
 }
 
-void Character::InitialSetup(GameState *gameState)
+void Character::AnnounceCharacterAndAlignment()
 {
-	player->Communication()->SendMessage("You are the " + GetCharacterNameString() +
-		", your alignment is " + (GetCharacterTraits().isEvil ? "Evil" : "Good"));
+	player->Communication()->SendMessage("You are the " +
+				player->GetCharacterOrDrunkBaseCharacter()->GetCharacterNameString() +
+				", your alignment is " + (GetCharacterTraits().isEvil ? "Evil" : "Good"));
 }
 
 CharacterTraits Character::GeneratePerceivedTraits()
@@ -27,6 +28,11 @@ CharacterType Character::GetPerceivedCharacter()
 bool Character::IsDrunk() const
 {
 	return isDrunk;
+}
+
+Time Character::GetCreationTime() const
+{
+	return creationTime;
 }
 
 }

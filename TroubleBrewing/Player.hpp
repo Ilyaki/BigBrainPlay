@@ -62,6 +62,8 @@ public:
 	void SetPoisoned(Time until, Player* fromWho);
 	void SetMonkProtection(Time until, Player* fromWho);
 
+	void SwitchCharacter(CharacterType newType, GameState* gameState);
+
 	std::shared_ptr<Character> GetCharacter(); // TODO: replace uses with DrunkBase where needed
 	Character* GetCharacterOrDrunkBaseCharacter();
 	std::shared_ptr<PlayerCommunication> Communication();

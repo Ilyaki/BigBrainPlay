@@ -9,7 +9,7 @@ namespace TroubleBrewing
 class Poisoner : public Character
 {
 public:
-	Poisoner(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::POISONER;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Minion();

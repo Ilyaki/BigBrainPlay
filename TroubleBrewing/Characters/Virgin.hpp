@@ -11,7 +11,7 @@ class Virgin : public Character
 	bool usedVirginAbility;
 
 public:
-	Virgin(Player* player, bool isDrunk) : Character(player, isDrunk){}
+	using Character::Character;
 
 	static constexpr CharacterType CharType = CharacterType::VIRGIN;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
