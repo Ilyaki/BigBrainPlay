@@ -31,8 +31,8 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 	{
 		player->Communication()->BlankPage();
 		player->Communication()->SendMessage("Game has begun...");
-		player->GetCharacter()->AnnounceCharacterAndAlignment();
 		player->GetCharacter()->InitialSetup(this);
+		player->GetCharacter()->AnnounceCharacterAndAlignment();
 	}
 }
 
@@ -74,7 +74,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 		{
 			// Don't use a sorting algorithm in case GetPerceived is called multiple times
 			// (Not a problem with Drunk, maybe with future roles)
-			if (target->GetCharacter()->GetPerceivedCharacter() == targetChar &&
+			if (target->GetCharacter()->GetPerceivedCharacter(this) == targetChar &&
 					(target->GetCharacter()->AbilityWorksWhenDead() || !target->IsDead()) )
 				playerActionOrder.push_back(target);
 		}
@@ -88,7 +88,6 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 		auto creationTime = character->GetCreationTime();
 		auto currentTime = GetCurrentTime();
 
-		//FIXME: this is always false for the newly created demon?
 		if (creationTime != currentTime || currentTime == Time{false, 0})
 			character->NightAction(zerothNight, this);
 	}
@@ -141,6 +140,7 @@ void Storyteller::DayPhase(int day)
 		if (informNominationCond.wait_for(lock, std::chrono::seconds(5)) == std::cv_status::no_timeout)
 		{
 			// Must have a nomination
+
 			bool abruptEnd = ProcessNomination(std::get<0>(informNominationData), std::get<1>(informNominationData));
 			if (abruptEnd)
 				break;
@@ -389,6 +389,51 @@ bool Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
 const CharacterTypeTraitsMap* Storyteller::GetCharacterTypeTraitsMap()
 {
 	return &characterTypeTraitsMap;
+}
+
+std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
+{
+	// Sources of game ending:
+	// Only 2 players alive: evil win
+	// All demons are dead: good win
+	// Saint is executed: evil win
+	// Only 3 players alive, no execution this day, and a mayor is alive
+	//TODO: make sure we check the execution for this day (matching Time), not the prev. day
+	// 		(since this function is run after the day and night phase)
+
+	if (GetNumPlayersAlive() <= 2)
+	{
+		return std::make_tuple(true, true, WinType::TWO_PLAYERS_LEFT_ALIVE); // Game ended, evil win
+	}
+
+	int aliveDemons = 0;
+	for (Player* player : GetPlayers())
+	{
+		if (player->GetCharacter()->GetCharacterTraits().isDemon && !player->IsDead())
+			++aliveDemons;
+	}
+
+	if (aliveDemons == 0)
+	{
+		return std::make_tuple(true, false, WinType::DEMONS_DEAD); // Game ended, good win
+	}
+
+	if (GetCurrentTime().IsDay() && HasAnyExecutionPhaseTakenPlace()) // Execution phase has just ended
+	{
+		Player* lastExecution = GetLastExecutionDeath();
+		if (lastExecution != nullptr)
+		{
+			//TODO: Check if Saint was executed. Also check drunk status (don't lose if they are poisoned)
+			if (false)
+				return std::make_tuple(true, true, WinType::SAINT_EXECUTED); // Game ended, evil win
+		}
+		else
+		{
+			//TODO: Check if there is a Mayor alive. Also check drunk status
+			if (false)
+				return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
+		}
+	}
 }
 
 }

@@ -14,7 +14,7 @@
 #include "Soldier.hpp"
 #include "Slayer.hpp"
 #include "Poisoner.hpp"
-#include "Drunk.hpp"
+#include "Recluse.hpp"
 #include "Imp.hpp"
 
 namespace TroubleBrewing
@@ -82,12 +82,16 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 			character = std::make_shared<Slayer>(player, isDrunk, creationTime);
 			break;
 
-		case CharacterType::POISONER:
-			character = std::make_shared<Poisoner>(player, isDrunk, creationTime);
-			break;
-
 		case CharacterType::DRUNK:
 			character = std::make_shared<Drunk>(player, gameState, creationTime);
+			break;
+
+		case CharacterType::RECLUSE:
+			character = std::make_shared<Recluse>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::POISONER:
+			character = std::make_shared<Poisoner>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::IMP:

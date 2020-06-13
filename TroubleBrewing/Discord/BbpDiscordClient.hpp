@@ -11,7 +11,7 @@ namespace Discord
 
 class BbpDiscordClient: public SleepyDiscord::DiscordClient
 {
-	std::map<std::string, std::shared_ptr<DiscordPlayerCommunication>> communicationMap;
+	std::map<std::string, std::shared_ptr<DiscordPlayerCommunication>> communicationMap{};
 
 	std::thread storytellerThread;
 

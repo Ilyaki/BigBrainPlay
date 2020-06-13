@@ -22,10 +22,13 @@
 #include "Characters/TestCharacter.hpp"
 #include "Characters/Poisoner.hpp"
 #include "Characters/Drunk.hpp"
+#include "Characters/Recluse.hpp"
 #include "Characters/Imp.hpp"
 
 namespace TroubleBrewing
 {
+
+enum class WinType { TWO_PLAYERS_LEFT_ALIVE, DEMONS_DEAD, SAINT_EXECUTED, MAYOR_NO_EXECUTION };
 
 class Storyteller : public GameState, Voting, DayActions
 {
@@ -55,9 +58,9 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::IMP,
-			CharacterType::POISONER,
-			CharacterType::TEST_CHARACTER
+			CharacterType::DRUNK,
+			CharacterType::DRUNK,
+			CharacterType::DRUNK
 	};
 
 	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
@@ -72,23 +75,24 @@ class Storyteller : public GameState, Voting, DayActions
 			Monk,
 			Ravenkeeper,
 			Virgin,
-			Slayer,
 			Soldier,
-			Poisoner,
+			Slayer,
 			Drunk,
+			Recluse,
+			Poisoner,
 			Imp
 	>()};
 
 
 	// Voting system
-	std::map<Player*, bool> votes;
-	Player* choppingBlock;
-	int choppingBlockVotes;
+	std::map<Player*, bool> votes{};
+	Player* choppingBlock{};
+	int choppingBlockVotes{};
 	bool nominationsOpen{false};
 
 	// Inform nomination
-	std::condition_variable informNominationCond;
-	std::mutex informNominationCondMutex;
+	std::condition_variable informNominationCond{};
+	std::mutex informNominationCondMutex{};
 	std::tuple<Player*, Player*> informNominationData; // nominee, nominator
 
 	// Inform slay
@@ -101,6 +105,9 @@ class Storyteller : public GameState, Voting, DayActions
 	void DayPhase(int day);
 
 	void AnnounceMessage(const std::string& message, bool flush = true);
+
+	/// \return { game ended, evil win, win type }
+	std::tuple<bool, bool, WinType> CheckGameWin();
 
 	void OpenCloseNominations(bool open);
 	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);

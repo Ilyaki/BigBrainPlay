@@ -17,7 +17,7 @@ public:
 	Time (bool _isDay, int _dayOrNightCount) : isDay{_isDay}, dayOrNightCount{_dayOrNightCount}{};
 
 	inline bool IsDay() const { return isDay; }
-	inline bool DayOrNightCount() const { return dayOrNightCount; }
+	inline int DayOrNightCount() const { return dayOrNightCount; }
 
 	inline Time& Increment()
 	{

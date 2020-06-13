@@ -17,21 +17,21 @@ class Player
 {
 private:
 	//TODO make const, return a raw pointer (same w/ character, etc)
-	std::shared_ptr<PlayerCommunication> communication;
+	std::shared_ptr<PlayerCommunication> communication{};
 	PlayerData playerData;
 
-	std::shared_ptr<Character> character;
+	std::shared_ptr<Character> character{};
 
 	bool isDead {false};
 	bool hasGhostVote{true};
 
 	// If adding more characters we may need an effects system (e.g. poisoned by poisoner, monk'd by monk, etc)
 	// Would also be required if we had multiple characters of the same role
-	Time poisonedUntil;
-	Player* poisonedBy;
+	Time poisonedUntil{};
+	Player* poisonedBy{};
 
-	Time monkProtectedUntil;
-	Player* monkProtectedBy;
+	Time monkProtectedUntil{};
+	Player* monkProtectedBy{};
 
 	void Kill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer);
 

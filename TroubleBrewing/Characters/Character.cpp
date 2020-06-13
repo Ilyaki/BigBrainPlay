@@ -20,7 +20,7 @@ CharacterTraits Character::GeneratePerceivedTraits()
 	return GetCharacterTraits();
 }
 
-CharacterType Character::GetPerceivedCharacter()
+CharacterType Character::GetPerceivedCharacter(GameState*)
 {
 	return GetCharacterType();
 }

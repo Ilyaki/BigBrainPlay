@@ -15,11 +15,11 @@ class Player;
 class Character
 {
 	/// If we are the Drunk character
-	const bool isDrunk;
-	const Time creationTime;
+	const bool isDrunk { false };
+	const Time creationTime{};
 
 protected:
-	Player* player;
+	Player* player{};
 
 public:
 	Character(Player* _player, bool _isDrunk, Time _creationTime) :
@@ -40,7 +40,7 @@ public:
 	virtual CharacterTraits GeneratePerceivedTraits();
 
 	/// The Drunk thinks they are another character
-	virtual CharacterType GetPerceivedCharacter();
+	virtual CharacterType GetPerceivedCharacter(GameState* gameState);
 
 	/// AllowCharacterDeath: Returns false if a death should be prevented, (e.g. Soldier), otherwise false.
 	virtual bool AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);

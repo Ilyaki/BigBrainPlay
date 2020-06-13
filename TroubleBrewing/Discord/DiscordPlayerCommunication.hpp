@@ -15,15 +15,15 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 	const SleepyDiscord::User user;
 	SleepyDiscord::DMChannel dmChannel;
 
-	std::condition_variable dmMessageConditionVar;
-	std::mutex dmMessageConditionVarMutex;
+	std::condition_variable dmMessageConditionVar{};
+	std::mutex dmMessageConditionVarMutex{};
 	SleepyDiscord::Message lastMessage;
 
 	std::thread flusherThread;
 	std::stringstream messageBuf;
-	std::condition_variable flushCondition;
-	std::mutex flushConditionMutex;
-	std::mutex messageBufMutex;
+	std::condition_variable flushCondition{};
+	std::mutex flushConditionMutex{};
+	std::mutex messageBufMutex{};
 
 	// is nominations open, game state, voting interface, source player
 	std::tuple<bool, TroubleBrewing::GameState*, TroubleBrewing::Voting*, TroubleBrewing::Player*> nominationData;

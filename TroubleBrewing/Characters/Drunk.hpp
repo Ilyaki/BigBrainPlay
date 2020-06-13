@@ -8,11 +8,13 @@ namespace TroubleBrewing
 
 class Drunk: public Character
 {
-	CharacterType perceivedCharacterType;
-	std::shared_ptr<Character> perceivedCharacter;
+	CharacterType perceivedCharacterType{};
+	std::shared_ptr<Character> perceivedCharacter{};
 
 public:
-	Drunk(Player *player, GameState* gameState, Time creationTime);
+	Drunk(Player *player, GameState* gameState, Time _creationTime) : Character(player, true, _creationTime){};
+
+	void InitialSetup(GameState* gameState) override;
 
 	static constexpr CharacterType CharType = CharacterType::DRUNK;
 	static constexpr CharacterTraits CharTraits = CharacterTraits::Outsider();

@@ -1,4 +1,6 @@
 #include <cassert>
+#include <algorithm>
+#include <ranges>
 #include "Drunk.hpp"
 #include "CharacterHelper.hpp"
 #include "../Random.hpp"
@@ -6,21 +8,39 @@
 namespace TroubleBrewing
 {
 
-Drunk::Drunk(Player *player, GameState* gameState, Time creationTime) : Character(player, true, creationTime)
+void Drunk::InitialSetup(GameState *gameState)
 {
-	auto map = gameState->GetCharacterTypeTraitsMap();
+	// Do this in InitialSetup so we know what other characters are in play
 
-	// Get townsfolk that aren't our own character
+	// Get possible townsfolk that aren't our own character
 	auto ourCharacter = GetCharacterType();
 	std::vector<CharacterType> possible;
-	std::ranges::copy(*map	| std::views::filter([ourCharacter](auto y)
-												  { return y.first != ourCharacter && y.second.first.isTownsfolk; })
-					  		| std::views::transform([](auto y) { return y.first; }),
-					  	std::back_inserter(possible));
+
+	for (auto y : *gameState->GetCharacterTypeTraitsMap())
+	{
+		if (y.first != ourCharacter && y.second.first.isTownsfolk)
+			possible.push_back(y.first);
+	}
 
 	assert(possible.size() != 0);
 
-	perceivedCharacterType = possible.at(RandomBetween(0, possible.size() - 1));
+	// Find what townsfolk are already existing to avoid a role clash
+	std::vector<CharacterType> townsfolkInPlay;
+	for (Player* p : gameState->GetPlayers())
+	{
+		if (p->GetCharacter()->GetCharacterTraits().isTownsfolk &&
+			std::find(townsfolkInPlay.begin(), townsfolkInPlay.end(),
+					  p->GetCharacter()->GetCharacterType()) == townsfolkInPlay.end())
+		{
+			auto charType = p->GetCharacter()->GetCharacterType();
+			townsfolkInPlay.push_back(charType);
+			std::remove(possible.begin(), possible.end(), charType);
+		}
+	}
+
+	auto p = possible.size() == 0 ? &townsfolkInPlay : &possible;
+
+	perceivedCharacterType = p->at(RandomBetween(0, p->size() - 1));
 	perceivedCharacter = CharacterHelper::CreateCharacter(perceivedCharacterType, gameState, player, true);
 }
 

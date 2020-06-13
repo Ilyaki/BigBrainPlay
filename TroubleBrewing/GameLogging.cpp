@@ -15,4 +15,9 @@ void GameLogging::SetLastExecutionDeath(Player *player)
 	executionDeaths.push_back(player);
 }
 
+bool GameLogging::HasAnyExecutionPhaseTakenPlace()
+{
+	executionDeaths.size() != 0;
+}
+
 }

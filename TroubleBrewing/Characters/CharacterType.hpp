@@ -18,8 +18,9 @@ enum class CharacterType {
 	VIRGIN,
 	SOLDIER,
 	SLAYER,
-	POISONER,
 	DRUNK,
+	RECLUSE,
+	POISONER,
 	IMP
 	};
 

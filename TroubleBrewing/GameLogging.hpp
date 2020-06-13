@@ -9,15 +9,18 @@ class Player;
 
 class GameLogging
 {
-	std::vector<Player*> executionDeaths;
+	std::vector<Player*> executionDeaths{};
 
 protected:
 	/// Sets the last player killed by exection. Set nullptr if no-one was killed by execution
 	void SetLastExecutionDeath(Player* player);
 
 public:
-	/// \returns Gets the last player to be killed by execution. Returns nullptr if no-one was killed by execution
+	/// \return Gets the last player to be killed by execution. Returns nullptr if no-one was killed by execution
 	Player* GetLastExecutionDeath();
+
+	/// \return true after the first day, even if no one was executed
+	bool HasAnyExecutionPhaseTakenPlace();
 };
 
 }

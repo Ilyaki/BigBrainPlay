@@ -19,10 +19,10 @@ class GameState : public GameLogging
 {
 	// Player is on the free store so the pointer used in Player constructor is the same as inside the vector.
 	std::vector<std::shared_ptr<Player>> players{};
-	std::vector<Player*> playerCache;
+	std::vector<Player*> playerCache{};
 	bool cacheValid { true };
 
-	Time currentTime;
+	Time currentTime{};
 
 protected:
 	void SetCurrentTime(Time newTime);

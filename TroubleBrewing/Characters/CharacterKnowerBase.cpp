@@ -22,16 +22,13 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 		auto targetTraits = TargetTraits();
 		auto ourCharacter = GetCharacterType();
 
-		auto map = gameState->GetCharacterTypeTraitsMap();
-
 		// Get character types that match the target & aren't our own character
-		auto possibleView = *map | std::views::filter([targetTraits, ourCharacter](charPair y)
-									{ return y.second.first == targetTraits && y.first != ourCharacter; })
-							| std::views::transform([](charPair y){ return std::make_pair(y.first, y.second.second); });
-
-		// Copy into a vector for processing
 		std::vector<std::pair<CharacterType, std::string_view>> possibleCharacters;
-		std::ranges::copy(possibleView, std::back_inserter(possibleCharacters));
+		for (charPair p : *gameState->GetCharacterTypeTraitsMap())
+		{
+			if (p.second.first == targetTraits && p.first != ourCharacter)
+				possibleCharacters.push_back({p.first, p.second.second});
+		}
 
 		if (possibleCharacters.empty())
 		{
@@ -68,7 +65,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 
 		// Copy into a vector for processing
 		std::vector<Player*> targets;
-		std::copy(targetsView.begin(), targetsView.end(), std::back_inserter(targets));
+		std::ranges::copy(targetsView, std::back_inserter(targets));
 
 		if (targets.size() == 0)
 		{
@@ -100,8 +97,13 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 	}
 
 	// Communicate to player.
-	player->Communication()->SendMessage(GetCharacterNameString() + ": One of " + firstPlayer->PlayerName() +
-		" and " + secondPlayer->PlayerName() + " is a " + knownCharacterName);
+	if (knownCharacter == CharacterType::NO_CHARACTER)
+	{
+		player->Communication()->SendMessage(GetCharacterNameString() + ": There are zero outsiders in play");
+	}
+	else
+		player->Communication()->SendMessage(GetCharacterNameString() + ": One of " + firstPlayer->PlayerName() +
+			" and " + secondPlayer->PlayerName() + " is a " + knownCharacterName);
 }
 
 }

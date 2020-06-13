@@ -5,7 +5,7 @@ namespace TroubleBrewing
 
 bool Virgin::VirginAbility(Player *nominator, GameState* gameState)
 {
-	if (usedVirginAbility)
+	if (usedVirginAbility || player->IsDead())
 		return false;
 	else
 	{

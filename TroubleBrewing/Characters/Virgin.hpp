@@ -8,7 +8,7 @@ namespace TroubleBrewing
 
 class Virgin : public Character
 {
-	bool usedVirginAbility;
+	bool usedVirginAbility { false };
 
 public:
 	using Character::Character;

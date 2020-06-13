@@ -9,7 +9,7 @@ namespace TroubleBrewing
 
 class FortuneTeller : public Character
 {
-	Player* redHerring;
+	Player* redHerring{};
 
 public:
 	using Character::Character;
