@@ -6,7 +6,7 @@
 namespace TroubleBrewing
 {
 
-class Recluse: public Character
+class Recluse : public Character
 {
 public:
 	using Character::Character;
@@ -19,7 +19,7 @@ public:
 	CharacterTraits GeneratePerceivedTraits() override;
 
 	//TODO: should be using this?
-	//CharacterType GetPerceivedCharacter(GameState* gameState) override;
+	//CharacterType GetSelfPerceivedCharacter(GameState* gameState) override;
 };
 
 }

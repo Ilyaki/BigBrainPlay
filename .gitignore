@@ -3,3 +3,5 @@
 /cmake-build-debug-clang/
 /cmake-build-release/
 /cmake-build-release-clang/
+/.idea/.name
+/.idea/deployment.xml

@@ -42,7 +42,6 @@ void Storyteller::StartGame()
 	SetCurrentTime(Time{false, 0});
 	NightPhase(zerothNightOrder, 0);
 
-	//TODO: win conditions
 	for (int dayNight = 1;; dayNight++)
 	{
 		const auto& players = GetPlayers();
@@ -50,12 +49,20 @@ void Storyteller::StartGame()
 		SetCurrentTime(Time{true, dayNight});
 		DayPhase(dayNight);
 		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
-		//TODO: test win
+		if (auto [gameEnded, evilWin, winType] = CheckGameWin(); gameEnded)
+		{
+			ManageWin(evilWin, winType);
+			break;
+		}
 
 		SetCurrentTime(Time{false, dayNight});
 		NightPhase(nightOrder, dayNight);
 		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
-		//TODO: test win
+		if (auto [gameEnded, evilWin, winType] = CheckGameWin(); gameEnded)
+		{
+			ManageWin(evilWin, winType);
+			break;
+		}
 	}
 }
 
@@ -74,8 +81,8 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 		{
 			// Don't use a sorting algorithm in case GetPerceived is called multiple times
 			// (Not a problem with Drunk, maybe with future roles)
-			if (target->GetCharacter()->GetPerceivedCharacter(this) == targetChar &&
-					(target->GetCharacter()->AbilityWorksWhenDead() || !target->IsDead()) )
+			if (target->GetCharacter()->GetSelfPerceivedCharacter() == targetChar &&
+				(target->GetCharacter()->AbilityWorksWhenDead() || !target->IsDead()) )
 				playerActionOrder.push_back(target);
 		}
 	}
@@ -398,13 +405,6 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
 	// All demons are dead: good win
 	// Saint is executed: evil win
 	// Only 3 players alive, no execution this day, and a mayor is alive
-	//TODO: make sure we check the execution for this day (matching Time), not the prev. day
-	// 		(since this function is run after the day and night phase)
-
-	if (GetNumPlayersAlive() <= 2)
-	{
-		return std::make_tuple(true, true, WinType::TWO_PLAYERS_LEFT_ALIVE); // Game ended, evil win
-	}
 
 	int aliveDemons = 0;
 	for (Player* player : GetPlayers())
@@ -423,8 +423,8 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
 		Player* lastExecution = GetLastExecutionDeath();
 		if (lastExecution != nullptr)
 		{
-			//TODO: Check if Saint was executed. Also check drunk status (don't lose if they are poisoned)
-			if (false)
+			if (lastExecution->GetCharacter()->GetCharacterType() == CharacterType::SAINT &&
+				!AbilityMalfunctions(lastExecution)) // Saint doesn't lose if they are drunk/poisoned
 				return std::make_tuple(true, true, WinType::SAINT_EXECUTED); // Game ended, evil win
 		}
 		else
@@ -434,6 +434,41 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
 				return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
 		}
 	}
+
+	if (GetNumPlayersAlive() <= 2)
+	{
+		return std::make_tuple(true, true, WinType::TWO_PLAYERS_LEFT_ALIVE); // Game ended, evil win
+	}
+
+	return { false, false, WinType::NONE }; // Game didn't end
+}
+
+void Storyteller::ManageWin(bool evilWin, WinType winType)
+{
+	assert (winType != WinType::NONE);
+
+	//POLISH: Spectacular win messages?
+	switch (winType)
+	{
+		case WinType::DEMONS_DEAD:
+			AnnounceMessage("All demons have died. Good team wins");
+			break;
+		case WinType::TWO_PLAYERS_LEFT_ALIVE:
+			AnnounceMessage("Two players left alive. Evil team wins");
+			break;
+		case WinType::SAINT_EXECUTED:
+			AnnounceMessage("The Saint was executed. Evil team wins");
+			break;
+		case WinType::MAYOR_NO_EXECUTION:
+			AnnounceMessage("No execution with Mayor. Good team wins");
+			break;
+		default:
+			assert(false);
+			AnnounceMessage(evilWin ? "Evil team wins" : "Good team wins");
+			break;
+	}
+
+	//TODO: Log game history
 }
 
 }

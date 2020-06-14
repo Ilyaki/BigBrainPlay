@@ -27,8 +27,8 @@ public:
 
 	inline std::string GetCharacterNameString() const { return std::string { GetCharacterName() }; }
 	constexpr virtual std::string_view GetCharacterName() const = 0;
-	[[deprecated]] constexpr virtual CharacterType GetCharacterType() = 0;
-	[[deprecated]] constexpr virtual CharacterTraits GetCharacterTraits() = 0;
+	constexpr virtual CharacterType GetCharacterType() = 0;
+	constexpr virtual CharacterTraits GetCharacterTraits() = 0;
 
 	void AnnounceCharacterAndAlignment();
 
@@ -39,8 +39,10 @@ public:
 	/// Characters like Recluse & Spy can register as different characters.
 	virtual CharacterTraits GeneratePerceivedTraits();
 
-	/// The Drunk thinks they are another character
-	virtual CharacterType GetPerceivedCharacter(GameState* gameState);
+	/// What character the player thinks they are (e.g. Drunk/Lunatic).
+	/// Not to be used in abilities that detect other players characters
+	//TODO: May potentially need GetExternal
+	virtual CharacterType GetSelfPerceivedCharacter();
 
 	/// AllowCharacterDeath: Returns false if a death should be prevented, (e.g. Soldier), otherwise false.
 	virtual bool AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);

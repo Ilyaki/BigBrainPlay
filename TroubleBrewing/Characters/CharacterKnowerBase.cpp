@@ -20,7 +20,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 	{
 		using charPair = std::pair<CharacterType, std::pair<CharacterTraits, std::string_view>>;
 		auto targetTraits = TargetTraits();
-		auto ourCharacter = GetCharacterType();
+		auto ourCharacter = GetSelfPerceivedCharacter();
 
 		// Get character types that match the target & aren't our own character
 		std::vector<std::pair<CharacterType, std::string_view>> possibleCharacters;
@@ -56,7 +56,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 	{
 		// Get targets that aren't also our character
 		auto targetTraits = TargetTraits();
-		auto ourCharacter = GetCharacterType();
+		auto ourCharacter = GetSelfPerceivedCharacter();
 
 		auto players = gameState->GetPlayers();
 		auto targetsView = players | std::views::filter([targetTraits, ourCharacter](Player* p)

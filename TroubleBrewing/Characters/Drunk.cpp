@@ -1,6 +1,5 @@
 #include <cassert>
 #include <algorithm>
-#include <ranges>
 #include "Drunk.hpp"
 #include "CharacterHelper.hpp"
 #include "../Random.hpp"
@@ -28,11 +27,11 @@ void Drunk::InitialSetup(GameState *gameState)
 	std::vector<CharacterType> townsfolkInPlay;
 	for (Player* p : gameState->GetPlayers())
 	{
-		if (p->GetCharacter()->GetCharacterTraits().isTownsfolk &&
-			std::find(townsfolkInPlay.begin(), townsfolkInPlay.end(),
-					  p->GetCharacter()->GetCharacterType()) == townsfolkInPlay.end())
+		if (auto charType = p->GetCharacter()->GetCharacterType();
+
+			p->GetCharacter()->GetCharacterTraits().isTownsfolk &&
+			std::find(townsfolkInPlay.begin(), townsfolkInPlay.end(), charType) == townsfolkInPlay.end())
 		{
-			auto charType = p->GetCharacter()->GetCharacterType();
 			townsfolkInPlay.push_back(charType);
 			std::remove(possible.begin(), possible.end(), charType);
 		}
@@ -44,7 +43,7 @@ void Drunk::InitialSetup(GameState *gameState)
 	perceivedCharacter = CharacterHelper::CreateCharacter(perceivedCharacterType, gameState, player, true);
 }
 
-CharacterType Drunk::GetPerceivedCharacter()
+CharacterType Drunk::GetSelfPerceivedCharacter()
 {
 	return perceivedCharacterType;
 }

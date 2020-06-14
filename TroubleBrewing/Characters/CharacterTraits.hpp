@@ -66,24 +66,37 @@ using CharacterTypeTraitsMap = std::map<CharacterType, std::pair<CharacterTraits
 template<typename... T>
 struct GetCharacterTypeTraitMapStruct;
 
-template<typename H, typename... T>
-struct GetCharacterTypeTraitMapStruct<H, T...> : public GetCharacterTypeTraitMapStruct<T...>
+struct GetCharacterTypeTraitMapStructMapBase
 {
-	virtual CharacterTypeTraitsMap GetMap() override
+	CharacterTypeTraitsMap GetMap()
 	{
-		auto prev = GetCharacterTypeTraitMapStruct<T...>::GetMap();
-		using x = CharacterTypeTraitsPair<H>;
-		prev.insert({ x::characterType, {x::traits, x::charName} } );
-		return prev;
+		return map;
 	}
+
+protected:
+	void Insert(CharacterType a, CharacterTraits b, std::string_view c)
+	{
+		map.insert({a, {b, c}});
+	}
+
+private:
+	CharacterTypeTraitsMap map{};
 };
 
 template<>
-struct GetCharacterTypeTraitMapStruct<>
+struct GetCharacterTypeTraitMapStruct<> : public virtual GetCharacterTypeTraitMapStructMapBase
 {
-	virtual CharacterTypeTraitsMap GetMap()
+	GetCharacterTypeTraitMapStruct<>(){}
+};
+
+template<typename H, typename... T>
+struct GetCharacterTypeTraitMapStruct<H, T...> : public GetCharacterTypeTraitMapStruct<T...>,
+        public virtual GetCharacterTypeTraitMapStructMapBase
+{
+	GetCharacterTypeTraitMapStruct<H, T...>() : GetCharacterTypeTraitMapStruct<T...>()
 	{
-		return CharacterTypeTraitsMap{};
+		using x = CharacterTypeTraitsPair<H>;
+		Insert(x::characterType, x::traits, x::charName);
 	}
 };
 

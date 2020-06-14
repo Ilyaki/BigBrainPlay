@@ -13,7 +13,7 @@ class BbpDiscordClient: public SleepyDiscord::DiscordClient
 {
 	std::map<std::string, std::shared_ptr<DiscordPlayerCommunication>> communicationMap{};
 
-	std::thread storytellerThread;
+	std::thread storytellerThread{};
 
 	static void StartStorytellerThread(std::vector<std::pair<TroubleBrewing::PlayerData,
 			std::shared_ptr<TroubleBrewing::PlayerCommunication>>> playerDatas);

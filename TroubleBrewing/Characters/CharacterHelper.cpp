@@ -16,6 +16,8 @@
 #include "Poisoner.hpp"
 #include "Recluse.hpp"
 #include "Imp.hpp"
+#include "Drunk.hpp"
+#include "Saint.hpp"
 
 namespace TroubleBrewing
 {
@@ -88,6 +90,10 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 		case CharacterType::RECLUSE:
 			character = std::make_shared<Recluse>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::SAINT:
+			character = std::make_shared<Saint>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::POISONER:

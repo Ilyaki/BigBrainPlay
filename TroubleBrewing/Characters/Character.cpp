@@ -12,7 +12,8 @@ void Character::AnnounceCharacterAndAlignment()
 {
 	player->Communication()->SendMessage("You are the " +
 				player->GetCharacterOrDrunkBaseCharacter()->GetCharacterNameString() +
-				", your alignment is " + (GetCharacterTraits().isEvil ? "Evil" : "Good"));
+				", your alignment is " + (player->GetCharacterOrDrunkBaseCharacter()->GetCharacterTraits().isEvil ?
+				"Evil" : "Good"));
 }
 
 CharacterTraits Character::GeneratePerceivedTraits()
@@ -20,7 +21,7 @@ CharacterTraits Character::GeneratePerceivedTraits()
 	return GetCharacterTraits();
 }
 
-CharacterType Character::GetPerceivedCharacter(GameState*)
+CharacterType Character::GetSelfPerceivedCharacter()
 {
 	return GetCharacterType();
 }

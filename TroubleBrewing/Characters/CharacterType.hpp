@@ -20,6 +20,7 @@ enum class CharacterType {
 	SLAYER,
 	DRUNK,
 	RECLUSE,
+	SAINT,
 	POISONER,
 	IMP
 	};

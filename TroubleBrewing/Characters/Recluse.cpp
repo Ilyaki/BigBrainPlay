@@ -16,7 +16,7 @@ CharacterTraits Recluse::GeneratePerceivedTraits()
 	}
 }
 
-/*CharacterType Recluse::GetPerceivedCharacter(GameState* gameState)
+/*CharacterType Recluse::GetSelfPerceivedCharacter(GameState* gameState)
 {
 	if (RandomBool())
 		return GetCharacterType(); // Our actual character

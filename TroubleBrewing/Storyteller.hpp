@@ -24,11 +24,12 @@
 #include "Characters/Drunk.hpp"
 #include "Characters/Recluse.hpp"
 #include "Characters/Imp.hpp"
+#include "Characters/Saint.hpp"
 
 namespace TroubleBrewing
 {
 
-enum class WinType { TWO_PLAYERS_LEFT_ALIVE, DEMONS_DEAD, SAINT_EXECUTED, MAYOR_NO_EXECUTION };
+enum class WinType { NONE, TWO_PLAYERS_LEFT_ALIVE, DEMONS_DEAD, SAINT_EXECUTED, MAYOR_NO_EXECUTION };
 
 class Storyteller : public GameState, Voting, DayActions
 {
@@ -58,8 +59,8 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::DRUNK,
-			CharacterType::DRUNK,
+			CharacterType::SAINT,
+			CharacterType::IMP,
 			CharacterType::DRUNK
 	};
 
@@ -79,6 +80,7 @@ class Storyteller : public GameState, Voting, DayActions
 			Slayer,
 			Drunk,
 			Recluse,
+			Saint,
 			Poisoner,
 			Imp
 	>()};
@@ -108,6 +110,7 @@ class Storyteller : public GameState, Voting, DayActions
 
 	/// \return { game ended, evil win, win type }
 	std::tuple<bool, bool, WinType> CheckGameWin();
+	void ManageWin(bool evilWin, WinType winType);
 
 	void OpenCloseNominations(bool open);
 	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);

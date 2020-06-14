@@ -48,6 +48,9 @@ void BbpDiscordClient::onMessage(SleepyDiscord::Message message)
 
 			sendMessage(c, startMsg);
 
+			//TODO: need to have multiple games running?
+			if (storytellerThread.joinable())
+				storytellerThread.join();
 			storytellerThread = std::thread(StartStorytellerThread, playerDatas);
 		}
 	}

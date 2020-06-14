@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_compile_definitions(_WEBSOCKETPP_CPP11_THREAD_)
 
-add_subdirectory(TroubleBrewing)
-
-set(GCC_COVERAGE_COMPILE_FLAGS "-O0 -fuse-ld=lld")
+set(GCC_COVERAGE_COMPILE_FLAGS "-O0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
+
+add_subdirectory(TroubleBrewing)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/lib/sleepy-discord)
 target_link_libraries(BBP sleepy-discord)
