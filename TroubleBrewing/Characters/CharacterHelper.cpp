@@ -18,6 +18,7 @@
 #include "Imp.hpp"
 #include "Drunk.hpp"
 #include "Saint.hpp"
+#include "Mayor.hpp"
 
 namespace TroubleBrewing
 {
@@ -82,6 +83,10 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 		case CharacterType::SLAYER:
 			character = std::make_shared<Slayer>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::MAYOR:
+			character = std::make_shared<Mayor>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::DRUNK:

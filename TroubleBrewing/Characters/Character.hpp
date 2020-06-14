@@ -45,7 +45,9 @@ public:
 	virtual CharacterType GetSelfPerceivedCharacter();
 
 	/// AllowCharacterDeath: Returns false if a death should be prevented, (e.g. Soldier), otherwise false.
-	virtual bool AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
+	/// \return { allowDeath, redirectDeath, redirectTo }
+	virtual std::tuple<bool, bool, Player*> AllowCharacterDeath(
+			GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
 
 	/// OnDeath: Call when the player of this character has died
 	virtual void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer){};

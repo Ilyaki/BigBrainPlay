@@ -33,29 +33,40 @@ bool Player::IsDead() const
 	return isDead;
 }
 
-bool Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
+Player* Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
 	if (isDead)
 	{
-		Communication()->SendMessage("You have died. Again");
-		return true;
+		// Hmm
+		return this;
 	} else
 	{
-		if (character->AllowCharacterDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer))
-		{
-			bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
-								  monkProtectedBy != nullptr && !gameState->AbilityMalfunctions(monkProtectedBy));
+		auto [ allowDeath, redirectDeath, redirectTo ] =
+				character->AllowCharacterDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 
-			if (monkProtected)
-				return false;
-			else
-			{
-				Kill(gameState, isExecutionKill, isDemonKill, sourcePlayer);
-				return true;
-			}
+		if (!allowDeath)
+		{
+			return nullptr;
 		} else
 		{
-			return false;
+			if (redirectDeath)
+			{
+				assert(redirectTo != nullptr);
+				return redirectTo->AttemptKill(gameState, isExecutionKill, isDemonKill, sourcePlayer);
+			}
+			else
+			{
+				bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
+									  monkProtectedBy != nullptr && !gameState->AbilityMalfunctions(monkProtectedBy));
+
+				if (monkProtected)
+					return nullptr;
+				else
+				{
+					Kill(gameState, isExecutionKill, isDemonKill, sourcePlayer);
+					return this;
+				}
+			}
 		}
 	}
 }

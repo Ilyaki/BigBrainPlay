@@ -7,6 +7,8 @@ namespace TroubleBrewing
 
 CharacterTraits Recluse::GeneratePerceivedTraits()
 {
+	//TODO: recluse if drunk registers as good outsider
+
 	if (RandomBool())
 		return GetCharacterTraits(); // Our actual character traits
 	else

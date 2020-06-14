@@ -18,7 +18,7 @@ public:
 	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	/// \return true if the target was slain
-	bool AttemptSlay(Player *target, GameState *gameState);
+	Player* AttemptSlay(Player *target, GameState *gameState);
 };
 
 }

@@ -25,6 +25,7 @@
 #include "Characters/Recluse.hpp"
 #include "Characters/Imp.hpp"
 #include "Characters/Saint.hpp"
+#include "Characters/Mayor.hpp"
 
 namespace TroubleBrewing
 {
@@ -59,9 +60,9 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::SAINT,
+			CharacterType::POISONER,
 			CharacterType::IMP,
-			CharacterType::DRUNK
+			CharacterType::MAYOR
 	};
 
 	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
@@ -76,8 +77,9 @@ class Storyteller : public GameState, Voting, DayActions
 			Monk,
 			Ravenkeeper,
 			Virgin,
-			Soldier,
 			Slayer,
+			Soldier,
+			Mayor,
 			Drunk,
 			Recluse,
 			Saint,
@@ -119,8 +121,8 @@ class Storyteller : public GameState, Voting, DayActions
 	/// \return true if the nomination phase should end abruptly (e.g. because Virgin was nominated)
 	bool ProcessNomination(Player* nominee, Player* nominator);
 
-	/// \return true if someone was killed
-	bool ProcessSlayAction(Player* target, Player* sourcePlayer);
+	/// \return player who was killed. nullptr if no one died
+	Player* ProcessSlayAction(Player* target, Player* sourcePlayer);
 
 	void ExecuteChoppingBlock();
 	bool ManageVotes(std::map<Player*, bool> votes, Player* nominee, Player* nominator);

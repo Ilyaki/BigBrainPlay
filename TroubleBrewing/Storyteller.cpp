@@ -120,7 +120,7 @@ void Storyteller::DayPhase(int day)
 		// Have a slay action (not a timeout)
 		//bool targetKilled =
 				ProcessSlayAction(std::get<0>(slayActionData), std::get<1>(slayActionData));
-		//TODO: check win conditions
+		//FIXME: check win conditions
 	}
 	// Received a timeout, so the day action phase is over.
 
@@ -173,13 +173,13 @@ void Storyteller::ExecuteChoppingBlock()
 		SetLastExecutionDeath(nullptr);
 	} else
 	{
-		bool wasKilled = choppingBlock->AttemptKill(this, true, false);
+		Player* whoDied = choppingBlock->AttemptKill(this, true, false);
 
-		if (wasKilled)
+		if (whoDied != nullptr)
 		{
 			//POLISH: spectacular execution messages?
-			AnnounceMessage(choppingBlock->PlayerName() + " was executed and killed");
-			SetLastExecutionDeath(choppingBlock);
+			AnnounceMessage(whoDied->PlayerName() + " was executed and killed");
+			SetLastExecutionDeath(whoDied);
 		} else
 		{
 			AnnounceMessage(choppingBlock->PlayerName() + " was executed but did not die");
@@ -375,22 +375,22 @@ void Storyteller::OpenCloseDayActions(bool open)
 	}
 }
 
-bool Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
+Player* Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
 {
-	bool targetKilled = false;
+	Player* whoDied { nullptr };
 
 	if (!sourcePlayer->IsDead())
 		if (auto slayer = dynamic_cast<Slayer*>(sourcePlayer->GetCharacterOrDrunkBaseCharacter()))
-			targetKilled = slayer->AttemptSlay(target, this);
+			whoDied = slayer->AttemptSlay(target, this);
 
 	AnnounceMessage(
 			sourcePlayer->PlayerName() + " claims to slay " + target->PlayerName() +
-			(targetKilled ?
-				(". " + target->PlayerName() + " was killed") :
+			((whoDied != nullptr) ?
+				(". " + whoDied->PlayerName() + " was killed") :
 				(". Nothing happens"))
 	);
 
-	return targetKilled;
+	return whoDied;
 }
 
 const CharacterTypeTraitsMap* Storyteller::GetCharacterTypeTraitsMap()
@@ -429,8 +429,19 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
 		}
 		else
 		{
-			//TODO: Check if there is a Mayor alive. Also check drunk status
-			if (false)
+			bool functionalMayorAlive { false };
+			for (Player* p : GetPlayers())
+			{
+				if (!p->IsDead() &&
+					p->GetCharacter()->GetCharacterType() == CharacterType::MAYOR &&
+					!AbilityMalfunctions(p))
+				{
+					functionalMayorAlive = true;
+					break;
+				}
+			}
+
+			if (functionalMayorAlive)
 				return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
 		}
 	}

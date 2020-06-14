@@ -3,11 +3,9 @@
 namespace TroubleBrewing
 {
 
-bool Soldier::AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
+std::tuple<bool, bool, Player*> Soldier::AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
-	return !(isDemonKill && !gameState->AbilityMalfunctions(player));
-
+	return { !(isDemonKill && !gameState->AbilityMalfunctions(player)), false, nullptr };
 }
-
 
 }

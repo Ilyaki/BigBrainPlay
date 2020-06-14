@@ -3,9 +3,10 @@
 namespace TroubleBrewing
 {
 
-bool Character::AllowCharacterDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
+std::tuple<bool, bool, Player*> Character::AllowCharacterDeath(
+		GameState* gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
-	return true;
+	return { true, false, nullptr };
 }
 
 void Character::AnnounceCharacterAndAlignment()

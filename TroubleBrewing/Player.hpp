@@ -56,8 +56,8 @@ public:
 	/// \param isExecutionKill If the player is killed by execution (e.g. voting or Virgin nomination).
 	/// \param isDemonKill If the player is killed by the demon.
 	/// \param sourcePlayer The killer, if applicable.
-	/// \return Returns true if the player is killed.
-	bool AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
+	/// \return Pointer to the player that was killed. nullptr if no one died
+	Player* AttemptKill(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
 
 	void SetPoisoned(Time until, Player* fromWho);
 	void SetMonkProtection(Time until, Player* fromWho);

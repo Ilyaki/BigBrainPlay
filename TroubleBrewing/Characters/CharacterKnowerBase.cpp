@@ -79,6 +79,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 			firstPlayer = targets.at(firstIndex);
 			knownCharacter = firstPlayer->GetCharacter()->GetCharacterType();
 			knownCharacterName = firstPlayer->GetCharacter()->GetCharacterName();
+			//TODO: if a Spy is chosen, knownCharacter would be Spy instead of a random townsfolk/outsider
 
 			// Choose a different random player (from all players except ourselves) for the second player.
 			auto allPlayers = gameState->GetPlayers();

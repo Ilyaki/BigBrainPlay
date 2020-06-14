@@ -1,19 +1,19 @@
-#ifndef BBP_SOLDIER_HPP
-#define BBP_SOLDIER_HPP
+#ifndef BBP_MAYOR_HPP
+#define BBP_MAYOR_HPP
 
 #include "Character.hpp"
 
 namespace TroubleBrewing
 {
 
-class Soldier : public Character
+class Mayor: public Character
 {
 public:
 	using Character::Character;
 
-	static constexpr CharacterType CharType = CharacterType::SOLDIER;
-	static constexpr CharacterTraits CharTraits = CharacterTraits::Townsfolk();
-	static constexpr std::string_view CharName  = "Soldier";
+	static constexpr CharacterType CharType = CharacterType::MAYOR;
+	static constexpr CharacterTraits CharTraits = CharacterTraits::Outsider();
+	static constexpr std::string_view CharName  = "Mayor";
 	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
 	std::tuple<bool, bool, Player*> AllowCharacterDeath(
@@ -22,4 +22,4 @@ public:
 
 }
 
-#endif //BBP_SOLDIER_HPP
+#endif //BBP_MAYOR_HPP

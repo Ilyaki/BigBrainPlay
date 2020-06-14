@@ -18,6 +18,7 @@ enum class CharacterType {
 	VIRGIN,
 	SOLDIER,
 	SLAYER,
+	MAYOR,
 	DRUNK,
 	RECLUSE,
 	SAINT,
