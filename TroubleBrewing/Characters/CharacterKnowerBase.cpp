@@ -16,11 +16,12 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 	CharacterType knownCharacter;
 	std::string knownCharacterName;
 
+	const auto ourCharacter = GeneratePerceivedCharacterData(gameState).selfPerceivedCharacterType;
+
 	if (gameState->AbilityMalfunctions(player))
 	{
 		using charPair = std::pair<CharacterType, std::pair<CharacterTraits, std::string_view>>;
 		auto targetTraits = TargetTraits();
-		auto ourCharacter = GetSelfPerceivedCharacter();
 
 		// Get character types that match the target & aren't our own character
 		std::vector<std::pair<CharacterType, std::string_view>> possibleCharacters;
@@ -56,12 +57,12 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 	{
 		// Get targets that aren't also our character
 		auto targetTraits = TargetTraits();
-		auto ourCharacter = GetSelfPerceivedCharacter();
 
 		auto players = gameState->GetPlayers();
-		auto targetsView = players | std::views::filter([targetTraits, ourCharacter](Player* p)
-									{ return	p->GetCharacter()->GeneratePerceivedTraits() == targetTraits &&
-												p->GetCharacter()->GetCharacterType() != ourCharacter; });
+		auto targetsView = players | std::views::filter([targetTraits, ourCharacter, gameState](Player* p)
+				{ return	p->GetCharacter()->GeneratePerceivedCharacterData(gameState)
+	  							.externalPerceivedCharacterTraits == targetTraits &&
+							p->GetCharacter()->GetCharacterType() != ourCharacter; });
 
 		// Copy into a vector for processing
 		std::vector<Player*> targets;

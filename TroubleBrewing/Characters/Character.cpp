@@ -11,20 +11,11 @@ std::tuple<bool, bool, Player*> Character::AllowCharacterDeath(
 
 void Character::AnnounceCharacterAndAlignment()
 {
+	//TODO: perceivedData
 	player->Communication()->SendMessage("You are the " +
 				player->GetCharacterOrDrunkBaseCharacter()->GetCharacterNameString() +
 				", your alignment is " + (player->GetCharacterOrDrunkBaseCharacter()->GetCharacterTraits().isEvil ?
 				"Evil" : "Good"));
-}
-
-CharacterTraits Character::GeneratePerceivedTraits()
-{
-	return GetCharacterTraits();
-}
-
-CharacterType Character::GetSelfPerceivedCharacter()
-{
-	return GetCharacterType();
 }
 
 bool Character::IsDrunk() const
@@ -35,6 +26,17 @@ bool Character::IsDrunk() const
 Time Character::GetCreationTime() const
 {
 	return creationTime;
+}
+
+PerceivedCharacterData Character::GeneratePerceivedCharacterData(GameState* gameState)
+{
+	return {
+		.selfPerceivedCharacterTraits = GetCharacterTraits(),
+		.selfPerceivedCharacterType = GetCharacterType(),
+		.selfPerceivedName = GetCharacterName(),
+		.externalPerceivedCharacterTraits = GetCharacterTraits(),
+		.externalPerceivedCharacterType = GetCharacterType()
+	};
 }
 
 }

@@ -81,7 +81,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 		{
 			// Don't use a sorting algorithm in case GetPerceived is called multiple times
 			// (Not a problem with Drunk, maybe with future roles)
-			if (target->GetCharacter()->GetSelfPerceivedCharacter() == targetChar &&
+			if (target->GetCharacter()->GeneratePerceivedCharacterData(this).selfPerceivedCharacterType == targetChar &&
 				(target->GetCharacter()->AbilityWorksWhenDead() || !target->IsDead()) )
 				playerActionOrder.push_back(target);
 		}

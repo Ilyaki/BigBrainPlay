@@ -43,11 +43,6 @@ void Drunk::InitialSetup(GameState *gameState)
 	perceivedCharacter = CharacterHelper::CreateCharacter(perceivedCharacterType, gameState, player, true);
 }
 
-CharacterType Drunk::GetSelfPerceivedCharacter()
-{
-	return perceivedCharacterType;
-}
-
 void Drunk::NightAction(bool zerothNight, GameState *gameState)
 {
 	perceivedCharacter->NightAction(zerothNight, gameState);
@@ -56,6 +51,19 @@ void Drunk::NightAction(bool zerothNight, GameState *gameState)
 Character *Drunk::DrunkBaseCharacter()
 {
 	return perceivedCharacter.get();
+}
+
+PerceivedCharacterData Drunk::GeneratePerceivedCharacterData(GameState *gameState)
+{
+	// Only change self perception
+	return {
+			.selfPerceivedCharacterTraits = perceivedCharacter->GetCharacterTraits(),
+			.selfPerceivedCharacterType = perceivedCharacterType,
+			.selfPerceivedName = perceivedCharacter->GetCharacterName(),
+
+			.externalPerceivedCharacterTraits = GetCharacterTraits(),
+			.externalPerceivedCharacterType = GetCharacterType()
+	};
 }
 
 }

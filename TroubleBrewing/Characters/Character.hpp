@@ -12,6 +12,16 @@ namespace TroubleBrewing
 class GameState;
 class Player;
 
+struct PerceivedCharacterData
+{
+	CharacterTraits selfPerceivedCharacterTraits;
+	CharacterType selfPerceivedCharacterType; // Used for Drunk, Lunatic
+	std::string_view selfPerceivedName;
+
+	CharacterTraits externalPerceivedCharacterTraits; // e.g. Recluse/Spy
+	CharacterType externalPerceivedCharacterType; // e.g. Recluse/Spy
+};
+
 class Character
 {
 	/// If we are the Drunk character
@@ -36,13 +46,16 @@ public:
 
 	Time GetCreationTime() const;
 
+	/*
 	/// Characters like Recluse & Spy can register as different characters.
 	virtual CharacterTraits GeneratePerceivedTraits();
 
 	/// What character the player thinks they are (e.g. Drunk/Lunatic).
 	/// Not to be used in abilities that detect other players characters
 	//TODO: May potentially need GetExternal
-	virtual CharacterType GetSelfPerceivedCharacter();
+	virtual CharacterType GetSelfPerceivedCharacter();*/
+
+	virtual PerceivedCharacterData GeneratePerceivedCharacterData(GameState* gameState);
 
 	/// AllowCharacterDeath: Returns false if a death should be prevented, (e.g. Soldier), otherwise false.
 	/// \return { allowDeath, redirectDeath, redirectTo }

@@ -18,7 +18,7 @@ void FortuneTeller::InitialSetup(GameState *gameState)
 		auto players = gameState->GetPlayers();
 
 		std::ranges::copy(players | std::views::filter([](Player* p)
-									{ return !p->GetCharacter()->GeneratePerceivedTraits().isEvil; }),
+									{ return !p->GetCharacter()->GetCharacterTraits().isEvil; }), // Get actual traits
 				std::back_inserter(redHerringCandidates));
 
 		// Remove possibility of our own player being the red herring
@@ -55,8 +55,12 @@ void FortuneTeller::NightAction(bool zerothNight, GameState *gameState)
 	else
 	{
 		fortuneTellerReading = firstPlayer == redHerring || secondPlayer == redHerring ||
-							   firstPlayer->GetCharacter()->GeneratePerceivedTraits().isDemon ||
-							   secondPlayer->GetCharacter()->GeneratePerceivedTraits().isDemon;
+
+			   firstPlayer->GetCharacter()->GeneratePerceivedCharacterData(gameState)
+			   			.externalPerceivedCharacterTraits.isDemon ||
+
+				secondPlayer->GetCharacter()->GeneratePerceivedCharacterData(gameState)
+						.externalPerceivedCharacterTraits.isDemon;
 	}
 
 	player->Communication()->SendMessage(

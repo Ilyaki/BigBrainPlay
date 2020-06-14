@@ -16,10 +16,7 @@ public:
 	static constexpr std::string_view CharName  = "Recluse";
 	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
-	CharacterTraits GeneratePerceivedTraits() override;
-
-	//TODO: should be using this?
-	//CharacterType GetSelfPerceivedCharacter(GameState* gameState) override;
+	PerceivedCharacterData GeneratePerceivedCharacterData(GameState* gameState) override;
 };
 
 }

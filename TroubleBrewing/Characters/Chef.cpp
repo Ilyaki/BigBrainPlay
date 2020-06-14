@@ -26,7 +26,8 @@ void Chef::NightAction(bool zerothNight, GameState *gameState)
 	{
 		auto players = gameState->GetPlayers();
 		auto evilPlayers = players | std::views::filter(
-				[](Player *p) { return p->GetCharacter()->GeneratePerceivedTraits().isEvil; });
+				[gameState](Player *p) { return p->GetCharacter()->GeneratePerceivedCharacterData(gameState)
+																.externalPerceivedCharacterTraits.isEvil; });
 		std::vector<Player *> countedEvilPlayers{};
 
 		for (Player *checking : evilPlayers)

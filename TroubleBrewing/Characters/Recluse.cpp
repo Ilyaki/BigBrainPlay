@@ -5,42 +5,38 @@
 namespace TroubleBrewing
 {
 
-CharacterTraits Recluse::GeneratePerceivedTraits()
+PerceivedCharacterData Recluse::GeneratePerceivedCharacterData(GameState* gameState)
 {
-	//TODO: recluse if drunk registers as good outsider
-
-	if (RandomBool())
-		return GetCharacterTraits(); // Our actual character traits
-	else
+	if (gameState->AbilityMalfunctions(player) || RandomBool())
 	{
-		// Generate Minion or Demon traits
-		return RandomBool() ? CharacterTraits::Demon() : CharacterTraits::Minion();
+		return Character::GeneratePerceivedCharacterData(gameState); // Default
 	}
-}
-
-/*CharacterType Recluse::GetSelfPerceivedCharacter(GameState* gameState)
-{
-	if (RandomBool())
-		return GetCharacterType(); // Our actual character
 	else
 	{
-		// Generate Minion or Demon traits
+		// Generate a Minion or Outsider
 		bool genMinion = RandomBool();
 
-		std::vector<CharacterType> possible{};
+		std::vector<std::pair<CharacterType, CharacterTraits>> possible{};
 
 		for (auto p : *gameState->GetCharacterTypeTraitsMap())
 		{
 			if (genMinion ? p.second.first.isMinion : p.second.first.isDemon)
-				possible.push_back(p.first);
+				possible.push_back({p.first, p.second.first});
 		}
 
 		assert(possible.size() != 0);
 
-		auto charType = possible.at(RandomBetween(0, possible.size() - 1));
+		auto [ extCharType, extCharTraits ] = possible.at(RandomBetween(0, possible.size() - 1));
 
-		return charType;
+		// Only change the external view
+		return {
+				.selfPerceivedCharacterTraits = GetCharacterTraits(),
+				.selfPerceivedCharacterType = GetCharacterType(),
+				.selfPerceivedName = GetCharacterName(),
+
+				.externalPerceivedCharacterTraits = extCharTraits,
+				.externalPerceivedCharacterType = extCharType
+		};
 	}
-}*/
-
+}
 }

@@ -18,10 +18,14 @@ void Empath::NightAction(bool zerothNight, GameState *gameState)
 	{
 		auto neighbours = gameState->GetNeighbours(player, false);
 
-		if (neighbours.first != nullptr && neighbours.first->GetCharacter()->GeneratePerceivedTraits().isEvil)
+		if (neighbours.first != nullptr &&
+				neighbours.first->GetCharacter()->GeneratePerceivedCharacterData(gameState)
+													.externalPerceivedCharacterTraits.isEvil)
 			++evilNeighbours;
 
-		if (neighbours.second != nullptr && neighbours.second->GetCharacter()->GeneratePerceivedTraits().isEvil)
+		if (neighbours.second != nullptr &&
+				neighbours.second->GetCharacter()->GeneratePerceivedCharacterData(gameState)
+													.externalPerceivedCharacterTraits.isEvil)
 			++evilNeighbours;
 	}
 

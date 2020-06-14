@@ -21,7 +21,7 @@ public:
 	static constexpr std::string_view CharName  = "Drunk";
 	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
-	CharacterType GetSelfPerceivedCharacter() override;
+	PerceivedCharacterData GeneratePerceivedCharacterData(GameState* gameState) override;
 
 	Character* DrunkBaseCharacter();
 
