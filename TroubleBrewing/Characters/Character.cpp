@@ -34,8 +34,10 @@ PerceivedCharacterData Character::GeneratePerceivedCharacterData(GameState* game
 		.selfPerceivedCharacterTraits = GetCharacterTraits(),
 		.selfPerceivedCharacterType = GetCharacterType(),
 		.selfPerceivedName = GetCharacterName(),
+
 		.externalPerceivedCharacterTraits = GetCharacterTraits(),
-		.externalPerceivedCharacterType = GetCharacterType()
+		.externalPerceivedCharacterType = GetCharacterType(),
+		.externalPerceivedName = GetCharacterName()
 	};
 }
 

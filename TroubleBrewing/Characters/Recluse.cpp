@@ -16,17 +16,17 @@ PerceivedCharacterData Recluse::GeneratePerceivedCharacterData(GameState* gameSt
 		// Generate a Minion or Outsider
 		bool genMinion = RandomBool();
 
-		std::vector<std::pair<CharacterType, CharacterTraits>> possible{};
+		std::vector<std::tuple<CharacterType, CharacterTraits, std::string_view>> possible{};
 
 		for (auto p : *gameState->GetCharacterTypeTraitsMap())
 		{
 			if (genMinion ? p.second.first.isMinion : p.second.first.isDemon)
-				possible.push_back({p.first, p.second.first});
+				possible.push_back({p.first, p.second.first, p.second.second});
 		}
 
 		assert(possible.size() != 0);
 
-		auto [ extCharType, extCharTraits ] = possible.at(RandomBetween(0, possible.size() - 1));
+		auto [ extCharType, extCharTraits, extName ] = possible.at(RandomBetween(0, possible.size() - 1));
 
 		// Only change the external view
 		return {
@@ -35,7 +35,8 @@ PerceivedCharacterData Recluse::GeneratePerceivedCharacterData(GameState* gameSt
 				.selfPerceivedName = GetCharacterName(),
 
 				.externalPerceivedCharacterTraits = extCharTraits,
-				.externalPerceivedCharacterType = extCharType
+				.externalPerceivedCharacterType = extCharType,
+				.externalPerceivedName = extName
 		};
 	}
 }

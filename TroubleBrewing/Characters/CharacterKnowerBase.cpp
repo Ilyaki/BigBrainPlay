@@ -58,15 +58,16 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 		// Get targets that aren't also our character
 		auto targetTraits = TargetTraits();
 
-		auto players = gameState->GetPlayers();
-		auto targetsView = players | std::views::filter([targetTraits, ourCharacter, gameState](Player* p)
-				{ return	p->GetCharacter()->GeneratePerceivedCharacterData(gameState)
-	  							.externalPerceivedCharacterTraits == targetTraits &&
-							p->GetCharacter()->GetCharacterType() != ourCharacter; });
-
-		// Copy into a vector for processing
-		std::vector<Player*> targets;
-		std::ranges::copy(targetsView, std::back_inserter(targets));
+		std::vector<std::pair<Player*, PerceivedCharacterData>> targets;
+		for (Player* p : gameState->GetPlayers())
+		{
+			if (auto perceived = p->GetCharacter()->GeneratePerceivedCharacterData(gameState);
+				perceived.externalPerceivedCharacterTraits == targetTraits &&
+				p->GetCharacter()->GetCharacterType() != ourCharacter)
+			{
+				targets.push_back({p, perceived});
+			}
+		}
 
 		if (targets.size() == 0)
 		{
@@ -77,10 +78,11 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 		{
 			// Choose a random player as the first player, and use their character.
 			const int firstIndex = RandomBetween(0, targets.size() - 1);
-			firstPlayer = targets.at(firstIndex);
-			knownCharacter = firstPlayer->GetCharacter()->GetCharacterType();
-			knownCharacterName = firstPlayer->GetCharacter()->GetCharacterName();
-			//TODO: if a Spy is chosen, knownCharacter would be Spy instead of a random townsfolk/outsider
+			auto data = targets.at(firstIndex);
+			firstPlayer = data.first;
+			auto perceivedData = data.second;
+			knownCharacter = perceivedData.externalPerceivedCharacterType;
+			knownCharacterName = std::string { perceivedData.externalPerceivedName };
 
 			// Choose a different random player (from all players except ourselves) for the second player.
 			auto allPlayers = gameState->GetPlayers();

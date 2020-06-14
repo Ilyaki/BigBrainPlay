@@ -62,7 +62,8 @@ PerceivedCharacterData Drunk::GeneratePerceivedCharacterData(GameState *gameStat
 			.selfPerceivedName = perceivedCharacter->GetCharacterName(),
 
 			.externalPerceivedCharacterTraits = GetCharacterTraits(),
-			.externalPerceivedCharacterType = GetCharacterType()
+			.externalPerceivedCharacterType = GetCharacterType(),
+			.externalPerceivedName = GetCharacterName()
 	};
 }
 

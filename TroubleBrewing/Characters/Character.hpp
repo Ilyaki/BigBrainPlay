@@ -20,6 +20,7 @@ struct PerceivedCharacterData
 
 	CharacterTraits externalPerceivedCharacterTraits; // e.g. Recluse/Spy
 	CharacterType externalPerceivedCharacterType; // e.g. Recluse/Spy
+	std::string_view externalPerceivedName;
 };
 
 class Character
