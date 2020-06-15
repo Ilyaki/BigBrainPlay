@@ -26,6 +26,7 @@
 #include "Characters/Imp.hpp"
 #include "Characters/Saint.hpp"
 #include "Characters/Mayor.hpp"
+#include "Characters/Spy.hpp"
 
 namespace TroubleBrewing
 {
@@ -44,7 +45,8 @@ class Storyteller : public GameState, Voting, DayActions
 		CharacterType::INVESTIGATOR,
 		CharacterType::CHEF,
 		CharacterType::EMPATH,
-		CharacterType::FORTUNETELLER
+		CharacterType::FORTUNETELLER,
+		CharacterType::SPY
 	};
 
 	const std::vector<CharacterType> nightOrder
@@ -52,6 +54,7 @@ class Storyteller : public GameState, Voting, DayActions
 			CharacterType::TEST_CHARACTER,
 			CharacterType::POISONER,
 			CharacterType::MONK,
+			CharacterType::SPY,
 			CharacterType::IMP,
 			CharacterType::EMPATH,
 			CharacterType::FORTUNETELLER,
@@ -60,9 +63,9 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::POISONER,
+			CharacterType::SLAYER,
 			CharacterType::IMP,
-			CharacterType::MAYOR
+			CharacterType::SPY
 	};
 
 	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
@@ -84,6 +87,7 @@ class Storyteller : public GameState, Voting, DayActions
 			Recluse,
 			Saint,
 			Poisoner,
+			Spy,
 			Imp
 	>()};
 
@@ -111,7 +115,7 @@ class Storyteller : public GameState, Voting, DayActions
 	void AnnounceMessage(const std::string& message, bool flush = true);
 
 	/// \return { game ended, evil win, win type }
-	std::tuple<bool, bool, WinType> CheckGameWin();
+	std::tuple<bool, bool, WinType> CheckGameWin(bool duringDay);
 	void ManageWin(bool evilWin, WinType winType);
 
 	void OpenCloseNominations(bool open);

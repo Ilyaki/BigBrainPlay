@@ -19,7 +19,6 @@ void Chef::NightAction(bool zerothNight, GameState *gameState)
 
 	if (gameState->AbilityMalfunctions(player))
 	{
-		//TODO: maybe revisit this (Chef Drunk)
 		totalPairs = RandomBool() ? 1 : 0;
 	}
 	else

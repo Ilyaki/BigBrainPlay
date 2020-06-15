@@ -41,20 +41,11 @@ public:
 	constexpr virtual CharacterType GetCharacterType() = 0;
 	constexpr virtual CharacterTraits GetCharacterTraits() = 0;
 
-	void AnnounceCharacterAndAlignment();
+	void AnnounceCharacterAndAlignment(GameState* gameState);
 
 	virtual bool AbilityWorksWhenDead() { return false; }
 
 	Time GetCreationTime() const;
-
-	/*
-	/// Characters like Recluse & Spy can register as different characters.
-	virtual CharacterTraits GeneratePerceivedTraits();
-
-	/// What character the player thinks they are (e.g. Drunk/Lunatic).
-	/// Not to be used in abilities that detect other players characters
-	//TODO: May potentially need GetExternal
-	virtual CharacterType GetSelfPerceivedCharacter();*/
 
 	virtual PerceivedCharacterData GeneratePerceivedCharacterData(GameState* gameState);
 

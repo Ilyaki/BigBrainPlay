@@ -14,6 +14,7 @@
 #include "Soldier.hpp"
 #include "Slayer.hpp"
 #include "Poisoner.hpp"
+#include "Spy.hpp"
 #include "Recluse.hpp"
 #include "Imp.hpp"
 #include "Drunk.hpp"
@@ -30,7 +31,6 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 	switch (characterType)
 	{
-		//TODO: cleanup somehow since all the constructors are similar?
 		assert(characterType != CharacterType::NO_CHARACTER);
 
 		case CharacterType::TEST_CHARACTER:
@@ -103,6 +103,10 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 		case CharacterType::POISONER:
 			character = std::make_shared<Poisoner>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::SPY:
+			character = std::make_shared<Spy>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::IMP:

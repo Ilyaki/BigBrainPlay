@@ -67,4 +67,9 @@ PerceivedCharacterData Drunk::GeneratePerceivedCharacterData(GameState *gameStat
 	};
 }
 
+bool Drunk::AbilityWorksWhenDead()
+{
+	return perceivedCharacter->AbilityWorksWhenDead();
+}
+
 }

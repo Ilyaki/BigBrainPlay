@@ -35,7 +35,8 @@ void Ravenkeeper::OnDeath(GameState *gameState, bool isExecutionKill, bool isDem
 
 		}
 		else
-			targetCharacterName = target->GetCharacter()->GetCharacterNameString();
+			targetCharacterName = std::string {
+				target->GetCharacter()->GeneratePerceivedCharacterData(gameState).externalPerceivedName };
 
 		player->Communication()->SendMessage(GetCharacterNameString() + ": " + target->PlayerName() +
 											 " is a " + targetCharacterName);

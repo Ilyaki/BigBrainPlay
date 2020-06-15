@@ -9,6 +9,8 @@ namespace TroubleBrewing
 
 class Slayer : public Character
 {
+	bool usedSlayAbility { false };
+
 public:
 	using Character::Character;
 

@@ -9,13 +9,12 @@ std::tuple<bool, bool, Player*> Character::AllowCharacterDeath(
 	return { true, false, nullptr };
 }
 
-void Character::AnnounceCharacterAndAlignment()
+void Character::AnnounceCharacterAndAlignment(GameState* gameState)
 {
-	//TODO: perceivedData
-	player->Communication()->SendMessage("You are the " +
-				player->GetCharacterOrDrunkBaseCharacter()->GetCharacterNameString() +
-				", your alignment is " + (player->GetCharacterOrDrunkBaseCharacter()->GetCharacterTraits().isEvil ?
-				"Evil" : "Good"));
+	auto perceived = GeneratePerceivedCharacterData(gameState);
+
+	player->Communication()->SendMessage("You are the " + std::string { perceived.selfPerceivedName } +
+				", your alignment is " + (perceived.selfPerceivedCharacterTraits.isEvil ? "Evil" : "Good"));
 }
 
 bool Character::IsDrunk() const

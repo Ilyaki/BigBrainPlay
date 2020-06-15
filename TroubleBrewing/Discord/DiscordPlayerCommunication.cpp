@@ -263,6 +263,10 @@ void DiscordPlayerCommunication::FlusherStart()
 		auto lock = std::unique_lock<std::mutex>{flushConditionMutex};
 		flushCondition.wait(lock);
 
+		// Leave a chance for any messages that are sent immediately after to be included in the same flush
+		//TODO: this could work
+		//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
 		const std::lock_guard<std::mutex> messageBufLock(messageBufMutex);
 
 		auto c = Snowflake<SleepyDiscord::Channel>{dmChannel.ID};
@@ -305,7 +309,6 @@ void DiscordPlayerCommunication::ProcessDayAction(SleepyDiscord::Message message
 	Player* sourcePlayer = std::get<3>(dayActionsData);
 	std::string content = message.content;
 
-std::cout << "TEST" << std::endl;
 	constexpr auto npos = std::string::npos;
 	if (content.find("slay ") != npos)
 	{
@@ -318,7 +321,7 @@ std::cout << "TEST" << std::endl;
 
 		try
 		{
-			playerID = std::stoi(message.content);
+			playerID = std::stoi(targetString);
 		}
 		catch(const std::invalid_argument& e)
 		{

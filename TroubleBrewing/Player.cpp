@@ -18,14 +18,14 @@ Player::Player(CharacterType characterType,
 	assert(_playerData.playerID >= 0);
 }
 
-std::shared_ptr<Character> Player::GetCharacter()
+Character* Player::GetCharacter()
 {
-	return character;
+	return character.get();
 }
 
-std::shared_ptr<PlayerCommunication> Player::Communication()
+PlayerCommunication* Player::Communication()
 {
-	return communication;
+	return communication.get();
 }
 
 bool Player::IsDead() const
@@ -123,7 +123,7 @@ void Player::UseGhostVote()
 
 Character *Player::GetCharacterOrDrunkBaseCharacter()
 {
-	auto c = GetCharacter().get();
+	auto c = GetCharacter();
 	if (auto d = dynamic_cast<Drunk*>(c))
 		return d->DrunkBaseCharacter();
 	else
@@ -133,7 +133,7 @@ Character *Player::GetCharacterOrDrunkBaseCharacter()
 void Player::SwitchCharacter(CharacterType newType, GameState* gameState)
 {
 	character = CharacterHelper::CreateCharacter(newType, gameState, this, false);
-	character->AnnounceCharacterAndAlignment(); // Sends their new character message
+	character->AnnounceCharacterAndAlignment(gameState); // Sends their new character message
 }
 
 }

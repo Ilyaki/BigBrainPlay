@@ -25,6 +25,8 @@ public:
 
 	Character* DrunkBaseCharacter();
 
+	bool AbilityWorksWhenDead() override;
+
 	void NightAction(bool zerothNight, GameState* gameState) override;
 };
 

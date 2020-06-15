@@ -16,8 +16,7 @@ class PlayerCommunication;
 class Player
 {
 private:
-	//TODO make const, return a raw pointer (same w/ character, etc)
-	std::shared_ptr<PlayerCommunication> communication{};
+	const std::shared_ptr<PlayerCommunication> communication{};
 	PlayerData playerData;
 
 	std::shared_ptr<Character> character{};
@@ -64,9 +63,9 @@ public:
 
 	void SwitchCharacter(CharacterType newType, GameState* gameState);
 
-	std::shared_ptr<Character> GetCharacter(); // TODO: replace uses with DrunkBase where needed
+	Character* GetCharacter(); // TODO: replace uses with DrunkBase where needed
 	Character* GetCharacterOrDrunkBaseCharacter();
-	std::shared_ptr<PlayerCommunication> Communication();
+	PlayerCommunication* Communication();
 
 	// Moving
 	Player(Player&&) = delete;

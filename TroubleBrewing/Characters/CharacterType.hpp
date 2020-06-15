@@ -23,6 +23,7 @@ enum class CharacterType {
 	RECLUSE,
 	SAINT,
 	POISONER,
+	SPY,
 	IMP
 	};
 

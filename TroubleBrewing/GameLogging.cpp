@@ -1,23 +1,24 @@
 #include <cassert>
 #include "GameLogging.hpp"
+#include "Time.hpp"
 
 namespace TroubleBrewing
 {
 
-Player *GameLogging::GetLastExecutionDeath()
+std::pair<Player*, Time> GameLogging::GetLastExecutionDeath()
 {
 	assert(executionDeaths.size() > 0);
 	return executionDeaths.back();
 }
 
-void GameLogging::SetLastExecutionDeath(Player *player)
+void GameLogging::SetLastExecutionDeath(Player *player, Time executionTime)
 {
-	executionDeaths.push_back(player);
+	executionDeaths.push_back({player, executionTime});
 }
 
 bool GameLogging::HasAnyExecutionPhaseTakenPlace()
 {
-	executionDeaths.size() != 0;
+	return executionDeaths.size() != 0;
 }
 
 }

@@ -9,9 +9,9 @@ void Undertaker::NightAction(bool zerothNight, GameState *gameState)
 	if (zerothNight)
 		return;
 
-	Player *exec = gameState->GetLastExecutionDeath();
+	auto [ exec, execTime ] = gameState->GetLastExecutionDeath();
 	if (exec == nullptr)
-		player->Communication()->SendMessage(GetCharacterNameString() + ": No character was executed last night");
+		player->Communication()->SendMessage(GetCharacterNameString() + ": No character was executed yesterday");
 	else
 	{
 		std::string charName;
@@ -35,7 +35,8 @@ void Undertaker::NightAction(bool zerothNight, GameState *gameState)
 			}
 		}
 		else
-			charName = exec->GetCharacter()->GetCharacterNameString();
+			charName = std::string { exec->GetCharacter()->
+									GeneratePerceivedCharacterData(gameState).externalPerceivedName };
 
 		player->Communication()->SendMessage(
 				GetCharacterNameString() + ": The " + charName + " was executed last night");

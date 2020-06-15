@@ -42,7 +42,6 @@ void FortuneTeller::NightAction(bool zerothNight, GameState *gameState)
 	auto firstPlayer = player->Communication()->InputPlayer(gameState, player,
 			GetCharacterNameString() + ": Choose the first player to check");
 
-	//TODO: Allow the same player if there is only 1 player? (Can't actually happen in game, only useful in testing)
 	auto secondPlayer = player->Communication()->InputPlayer(gameState, player,
 			GetCharacterNameString() + ": Choose the second player to check",
 			{[firstPlayer](Player* p){ return p != firstPlayer; },

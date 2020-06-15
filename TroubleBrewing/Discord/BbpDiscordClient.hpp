@@ -19,7 +19,7 @@ class BbpDiscordClient: public SleepyDiscord::DiscordClient
 			std::shared_ptr<TroubleBrewing::PlayerCommunication>>> playerDatas);
 
 public:
-	using SleepyDiscord::DiscordClient::DiscordClient;
+	using SleepyDiscord::DiscordClient::WebsocketppDiscordClient;
 
 	void onMessage(SleepyDiscord::Message message) override;
 };

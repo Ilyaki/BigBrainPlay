@@ -32,7 +32,7 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 		player->Communication()->BlankPage();
 		player->Communication()->SendMessage("Game has begun...");
 		player->GetCharacter()->InitialSetup(this);
-		player->GetCharacter()->AnnounceCharacterAndAlignment();
+		player->GetCharacter()->AnnounceCharacterAndAlignment(this);
 	}
 }
 
@@ -49,7 +49,7 @@ void Storyteller::StartGame()
 		SetCurrentTime(Time{true, dayNight});
 		DayPhase(dayNight);
 		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
-		if (auto [gameEnded, evilWin, winType] = CheckGameWin(); gameEnded)
+		if (auto [gameEnded, evilWin, winType] = CheckGameWin(false); gameEnded)
 		{
 			ManageWin(evilWin, winType);
 			break;
@@ -58,12 +58,15 @@ void Storyteller::StartGame()
 		SetCurrentTime(Time{false, dayNight});
 		NightPhase(nightOrder, dayNight);
 		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
-		if (auto [gameEnded, evilWin, winType] = CheckGameWin(); gameEnded)
+		if (auto [gameEnded, evilWin, winType] = CheckGameWin(false); gameEnded)
 		{
 			ManageWin(evilWin, winType);
 			break;
 		}
 	}
+
+	//TODO: Flush all player communications, join all threads (otherwise the final messages might not be sent)
+	//	(maybe use deconstructor of DiscordPlayComm)
 }
 
 void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
@@ -79,7 +82,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 	{
 		for (auto target : GetPlayers())
 		{
-			// Don't use a sorting algorithm in case GetPerceived is called multiple times
+			// Don't use a sorting algorithm in case GenPerceived is called multiple times
 			// (Not a problem with Drunk, maybe with future roles)
 			if (target->GetCharacter()->GeneratePerceivedCharacterData(this).selfPerceivedCharacterType == targetChar &&
 				(target->GetCharacter()->AbilityWorksWhenDead() || !target->IsDead()) )
@@ -95,7 +98,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 		auto creationTime = character->GetCreationTime();
 		auto currentTime = GetCurrentTime();
 
-		if (creationTime != currentTime || currentTime == Time{false, 0})
+		if (creationTime != currentTime || currentTime == Time { false, 0 })
 			character->NightAction(zerothNight, this);
 	}
 }
@@ -104,23 +107,27 @@ void Storyteller::DayPhase(int day)
 {
 	assert(day > 0);
 
-	//TODO: announce who died, etc.
-	AnnounceMessage("Day " + std::to_string(day) + " has begun. Everyone wake up");
+	constexpr auto dayTimeLengthSeconds = 20;
+	const auto dayTimeEnd = std::chrono::steady_clock::now() + std::chrono::seconds(dayTimeLengthSeconds);
 
-	//FIXME: bug: day actions end immediately?
-	constexpr auto dayTimeLength = std::chrono::seconds(20);
-	const auto dayTimeEnd = std::chrono::steady_clock::now(); + dayTimeLength;
+	//TODO: announce who died, etc.
+	AnnounceMessage("Day " + std::to_string(day) + " has begun, ending in " + std::to_string(dayTimeLengthSeconds) +
+					" seconds. Everyone wake up");
 
 	OpenCloseDayActions(true);
 
 	// Day action wait loop
 	std::unique_lock<std::mutex> dayTimeLock(slayActionCondMutex);
-	while (slayActionCond.wait_until(dayTimeLock, dayTimeEnd) == std::cv_status::no_timeout)
+	while (slayActionCond.wait_until(dayTimeLock, dayTimeEnd) != std::cv_status::timeout)
 	{
 		// Have a slay action (not a timeout)
-		//bool targetKilled =
+		Player* playerKilled =
 				ProcessSlayAction(std::get<0>(slayActionData), std::get<1>(slayActionData));
-		//FIXME: check win conditions
+
+		if (playerKilled && std::get<0>(CheckGameWin(false)))
+		{
+			return;
+		}
 	}
 	// Received a timeout, so the day action phase is over.
 
@@ -170,7 +177,7 @@ void Storyteller::ExecuteChoppingBlock()
 	if (choppingBlock == nullptr)
 	{
 		AnnounceMessage("Nobody was executed");
-		SetLastExecutionDeath(nullptr);
+		SetLastExecutionDeath(nullptr, GetCurrentTime());
 	} else
 	{
 		Player* whoDied = choppingBlock->AttemptKill(this, true, false);
@@ -179,11 +186,11 @@ void Storyteller::ExecuteChoppingBlock()
 		{
 			//POLISH: spectacular execution messages?
 			AnnounceMessage(whoDied->PlayerName() + " was executed and killed");
-			SetLastExecutionDeath(whoDied);
+			SetLastExecutionDeath(whoDied, GetCurrentTime());
 		} else
 		{
 			AnnounceMessage(choppingBlock->PlayerName() + " was executed but did not die");
-			SetLastExecutionDeath(nullptr);
+			SetLastExecutionDeath(nullptr, GetCurrentTime());
 		}
 	}
 }
@@ -398,7 +405,7 @@ const CharacterTypeTraitsMap* Storyteller::GetCharacterTypeTraitsMap()
 	return &characterTypeTraitsMap;
 }
 
-std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
+std::tuple<bool, bool, WinType> Storyteller::CheckGameWin(bool duringDay)
 {
 	// Sources of game ending:
 	// Only 2 players alive: evil win
@@ -418,31 +425,32 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin()
 		return std::make_tuple(true, false, WinType::DEMONS_DEAD); // Game ended, good win
 	}
 
-	if (GetCurrentTime().IsDay() && HasAnyExecutionPhaseTakenPlace()) // Execution phase has just ended
+	if (!duringDay && HasAnyExecutionPhaseTakenPlace())
 	{
-		Player* lastExecution = GetLastExecutionDeath();
-		if (lastExecution != nullptr)
+		if (auto [ lastExecution, executionTime ] = GetLastExecutionDeath(); executionTime == GetCurrentTime())
 		{
-			if (lastExecution->GetCharacter()->GetCharacterType() == CharacterType::SAINT &&
-				!AbilityMalfunctions(lastExecution)) // Saint doesn't lose if they are drunk/poisoned
-				return std::make_tuple(true, true, WinType::SAINT_EXECUTED); // Game ended, evil win
-		}
-		else
-		{
-			bool functionalMayorAlive { false };
-			for (Player* p : GetPlayers())
+			if (lastExecution != nullptr)
 			{
-				if (!p->IsDead() &&
-					p->GetCharacter()->GetCharacterType() == CharacterType::MAYOR &&
-					!AbilityMalfunctions(p))
+				if (lastExecution->GetCharacter()->GetCharacterType() == CharacterType::SAINT &&
+					!AbilityMalfunctions(lastExecution)) // Saint doesn't lose if they are drunk/poisoned
+					return std::make_tuple(true, true, WinType::SAINT_EXECUTED); // Game ended, evil win
+			} else
+			{
+				bool functionalMayorAlive {false};
+				for (Player *p : GetPlayers())
 				{
-					functionalMayorAlive = true;
-					break;
+					if (!p->IsDead() &&
+						p->GetCharacter()->GetCharacterType() == CharacterType::MAYOR &&
+						!AbilityMalfunctions(p))
+					{
+						functionalMayorAlive = true;
+						break;
+					}
 				}
-			}
 
-			if (functionalMayorAlive)
-				return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
+				if (functionalMayorAlive)
+					return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
+			}
 		}
 	}
 

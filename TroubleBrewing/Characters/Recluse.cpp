@@ -7,13 +7,14 @@ namespace TroubleBrewing
 
 PerceivedCharacterData Recluse::GeneratePerceivedCharacterData(GameState* gameState)
 {
+	// Note: can generate random, even if dead
 	if (gameState->AbilityMalfunctions(player) || RandomBool())
 	{
 		return Character::GeneratePerceivedCharacterData(gameState); // Default
 	}
 	else
 	{
-		// Generate a Minion or Outsider
+		// Generate a Minion or Demon
 		bool genMinion = RandomBool();
 
 		std::vector<std::tuple<CharacterType, CharacterTraits, std::string_view>> possible{};

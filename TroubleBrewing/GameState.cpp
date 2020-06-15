@@ -40,7 +40,6 @@ std::pair<Player*, Player*> GameState::GetNeighbours(Player* player, bool allowD
 {
 	assert(allowDead || !player->IsDead());
 
-	//TODO: test if GetNeighbors works
 	auto players = GetPlayers();
 	auto ptrsView = (players | std::views::filter([allowDead](Player* p)
 			{ return allowDead || !p->IsDead(); } ));
@@ -89,5 +88,5 @@ int GameState::GetNumPlayersAlive()
 bool GameState::AbilityMalfunctions(Player *player)
 {
 	return	player->PlayerPartialCheckAbilityMalfunctions(this) ||
-			player->GetCharacter()->IsDrunk();
+			player->GetCharacterOrDrunkBaseCharacter()->IsDrunk();
 }
