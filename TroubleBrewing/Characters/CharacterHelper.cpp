@@ -15,6 +15,7 @@
 #include "Poisoner.hpp"
 #include "Spy.hpp"
 #include "Baron.hpp"
+#include "ScarletWoman.hpp"
 #include "Recluse.hpp"
 #include "Imp.hpp"
 #include "Butler.hpp"
@@ -108,6 +109,10 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 		case CharacterType::SPY:
 			character = std::make_shared<Spy>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::SCARLETWOMAN:
+			character = std::make_shared<ScarletWoman>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::BARON:

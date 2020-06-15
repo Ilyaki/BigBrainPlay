@@ -54,8 +54,8 @@ public:
 	virtual std::tuple<bool, bool, Player*> AllowCharacterDeath(
 			GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer = nullptr);
 
-	/// OnDeath: Call when the player of this character has died
-	virtual void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer){};
+	/// PreDeath: Called just before the player of this character is about to die
+	virtual void PreDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer){};
 
 	virtual void InitialSetup(GameState* gameState){};
 

@@ -73,9 +73,9 @@ bool Drunk::AbilityWorksWhenDead()
 	return perceivedCharacter->AbilityWorksWhenDead();
 }
 
-void Drunk::OnDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
+void Drunk::PreDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
-	return perceivedCharacter->OnDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
+	return perceivedCharacter->PreDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 }
 
 }

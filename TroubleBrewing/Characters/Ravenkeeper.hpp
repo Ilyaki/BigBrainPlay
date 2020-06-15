@@ -16,7 +16,7 @@ public:
 	static constexpr std::string_view CharName  = "Ravenkeeper";
 	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
-	void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer) override;
+	void PreDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer) override;
 };
 
 }

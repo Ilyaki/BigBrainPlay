@@ -107,8 +107,8 @@ void Player::SetMonkProtection(Time until, Player *fromWho)
 
 void Player::Kill(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
+	GetCharacterOrDrunkBaseCharacter()->PreDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 	isDead = true;
-	GetCharacterOrDrunkBaseCharacter()->OnDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 }
 
 bool Player::HasGhostVote()

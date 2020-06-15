@@ -1,6 +1,7 @@
 #include "Imp.hpp"
 #include "../Random.hpp"
 #include <ranges>
+#include "ScarletWoman.hpp"
 
 namespace TroubleBrewing
 {
@@ -20,9 +21,17 @@ void Imp::NightAction(bool zerothNight, GameState *gameState)
 	}
 }
 
-void Imp::OnDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
+void Imp::PreDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
-	// TODO: Scarlet Woman must always be chosen if they exist
+	for (Player* p : gameState->GetPlayers())
+	{
+		if (ScarletWoman* scarlet = dynamic_cast<ScarletWoman*>(p->GetCharacterOrDrunkBaseCharacter());
+			scarlet && scarlet->ScarletWomanCanSwitchIntoDemon(gameState))
+		{
+			p->SwitchCharacter(CharacterType::IMP, gameState);
+			return;
+		}
+	}
 
 	if (isDemonKill && sourcePlayer == player)
 	{
@@ -37,6 +46,7 @@ void Imp::OnDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, 
 		{
 			Player* targetMinion = minions.at(RandomBetween(0, minions.size() - 1));
 			targetMinion->SwitchCharacter(CharacterType::IMP, gameState);
+			return;
 		}
 	}
 }

@@ -18,7 +18,7 @@ public:
 
 	void NightAction(bool zerothNight, GameState* gameState) override;
 
-	void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer) override;
+	void PreDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer) override;
 };
 
 }

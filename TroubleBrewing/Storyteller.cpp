@@ -309,6 +309,8 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 	int minMajority = (numAlive / 2) + (numAlive % 2);
 	for (auto &[player, voted] : votes)
 	{
+		// Edge case if a butler chooses another butler as their master, they may get their vote counted
+		// 	even if the first one was invalid. Not actually possible so not going to fix it
 		if (voted)
 		{
 			Butler* butler = dynamic_cast<Butler*>(player->GetCharacterOrDrunkBaseCharacter());
@@ -321,7 +323,10 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 					player->Communication()->SendMessage("Your vote as Butler was counted");
 				}
 				else
+				{
 					player->Communication()->SendMessage("Your vote as Butler was not counted");
+					votes[player] = false; // Fixes the display
+				}
 			}
 			else
 			{
