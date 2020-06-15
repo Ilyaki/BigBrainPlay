@@ -27,6 +27,7 @@
 #include "Characters/Saint.hpp"
 #include "Characters/Mayor.hpp"
 #include "Characters/Spy.hpp"
+#include "Characters/Baron.hpp"
 
 namespace TroubleBrewing
 {
@@ -88,6 +89,7 @@ class Storyteller : public GameState, Voting, DayActions
 			Saint,
 			Poisoner,
 			Spy,
+			Baron,
 			Imp
 	>()};
 

@@ -14,6 +14,7 @@
 #include "Slayer.hpp"
 #include "Poisoner.hpp"
 #include "Spy.hpp"
+#include "Baron.hpp"
 #include "Recluse.hpp"
 #include "Imp.hpp"
 #include "Butler.hpp"
@@ -107,6 +108,10 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 		case CharacterType::SPY:
 			character = std::make_shared<Spy>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::BARON:
+			character = std::make_shared<Baron>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::IMP:

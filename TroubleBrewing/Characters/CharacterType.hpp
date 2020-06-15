@@ -24,6 +24,7 @@ enum class CharacterType {
 	SAINT,
 	POISONER,
 	SPY,
+	BARON,
 	IMP
 	};
 
