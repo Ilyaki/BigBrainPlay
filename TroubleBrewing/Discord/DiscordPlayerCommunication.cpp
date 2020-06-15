@@ -20,6 +20,8 @@ DiscordPlayerCommunication::DiscordPlayerCommunication(
 
 void DiscordPlayerCommunication::SendMessage(const std::string& msg, bool flush)
 {
+	assert(!terminating);
+
 	const std::lock_guard<std::mutex> messageBufLock(messageBufMutex);
 	messageBuf << msg << "\\n";
 
@@ -275,8 +277,9 @@ void DiscordPlayerCommunication::FlusherStart()
 		{
 			try
 			{
-				discordClient->sendMessage(c, messageBuf.str());
-				sent = true;
+				auto response = discordClient->sendMessage(c, messageBuf.str());
+				if (!response.error())
+					sent = true;
 			}
 			catch(...)
 			{
@@ -284,6 +287,9 @@ void DiscordPlayerCommunication::FlusherStart()
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			}
 		}
+
+		if (terminating)
+			break;
 
 		messageBuf.str(std::string{});
 	}
@@ -389,6 +395,18 @@ void DiscordPlayerCommunication::AnnounceVotes(
 	votesMsg += R"(```)";
 
 	SendMessage(votesMsg);
+}
+
+void DiscordPlayerCommunication::TerminateCommunication()
+{
+	terminating = true;
+	FlushMessage();
+	flusherThread.join();
+}
+
+DiscordPlayerCommunication::~DiscordPlayerCommunication()
+{
+	TerminateCommunication();
 }
 
 }

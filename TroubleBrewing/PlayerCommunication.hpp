@@ -35,6 +35,8 @@ public:
 
 	virtual void NewParagraph() = 0;
 	virtual void BlankPage() = 0;
+
+	virtual void PrintPlayerIDs(GameState* gameState) = 0;
 };
 
 }

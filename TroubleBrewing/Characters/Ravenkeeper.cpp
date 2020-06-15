@@ -6,9 +6,6 @@ namespace TroubleBrewing
 
 void Ravenkeeper::PreDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
-	//TODO: be careful not to call this during demon information,
-	// or the demon will have to wait for text and it would give the Ravenkeeper away
-
 	if (!gameState->GetCurrentTime().IsDay() && !player->IsDead()) // Don't give info if they have already died
 	{
 		Player *target = player->Communication()->InputPlayer(gameState, player,

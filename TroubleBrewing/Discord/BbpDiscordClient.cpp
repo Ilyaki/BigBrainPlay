@@ -12,7 +12,7 @@ void BbpDiscordClient::onMessage(SleepyDiscord::Message message)
 	auto channelIdString = message.channelID.string();
 	if (!message.author.bot && communicationMap.contains(channelIdString))
 	{
-		communicationMap.at(channelIdString)->OnDirectMessage(message);
+		communicationMap.at(channelIdString).first->OnDirectMessage(message);
 	}
 
 	if (!message.author.bot && message.startsWith("BBP start"))
@@ -22,7 +22,13 @@ void BbpDiscordClient::onMessage(SleepyDiscord::Message message)
 
 		if (std::ranges::distance(mentions) != 0)
 		{
+			//TODO: need to have multiple games running?
+			if (storytellerThread.joinable())
+				storytellerThread.join();
+
 			std::string startMsg = "Starting with: ";
+
+			++currentStorytellerID;
 
 			std::vector<std::pair<PlayerData,
 					std::shared_ptr<PlayerCommunication>>> playerDatas;
@@ -41,26 +47,36 @@ void BbpDiscordClient::onMessage(SleepyDiscord::Message message)
 
 				playerDatas.push_back({playerData, comm});
 
-				communicationMap.insert({dmChannel.ID.string(), comm});
+				communicationMap.insert({ dmChannel.ID.string(), {comm, currentStorytellerID }});
 
 				++playerID;
 			}
 
 			sendMessage(c, startMsg);
 
-			//TODO: need to have multiple games running?
-			if (storytellerThread.joinable())
-				storytellerThread.join();
-			storytellerThread = std::thread(StartStorytellerThread, playerDatas);
+			storytellerThread = std::thread(StartStorytellerThread, this, playerDatas, currentStorytellerID);
 		}
 	}
 }
 
-void BbpDiscordClient::StartStorytellerThread(std::vector<std::pair<PlayerData,
-		std::shared_ptr<PlayerCommunication>>> playerDatas)
+void BbpDiscordClient::StartStorytellerThread(BbpDiscordClient* ptr, std::vector<std::pair<PlayerData,
+		std::shared_ptr<PlayerCommunication>>> playerDatas, int storytellerID)
 {
 	Storyteller storyteller{playerDatas};
 	storyteller.StartGame();
+
+	// Game finished. Remove communication maps with our storyteller
+	std::vector<CommunicationMapType::const_iterator> iterators{};
+	for (auto iter = ptr->communicationMap.cbegin(); iter != ptr->communicationMap.cend(); ++iter)
+	{
+		if ((*iter).second.second == storytellerID)
+			iterators.push_back(iter);
+	}
+
+	for (const auto& iter : iterators)
+	{
+		ptr->communicationMap.erase(iter);
+	}
 }
 
 }

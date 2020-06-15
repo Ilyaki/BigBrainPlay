@@ -64,7 +64,7 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::SCARLETWOMAN,
+			CharacterType::SLAYER,
 			CharacterType::IMP,
 			CharacterType::SPY
 	};

@@ -11,6 +11,8 @@ namespace Discord
 
 class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 {
+	bool terminating { false };
+
 	SleepyDiscord::DiscordClient* discordClient;
 	const SleepyDiscord::User user;
 	SleepyDiscord::DMChannel dmChannel;
@@ -40,11 +42,11 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 	void TextSeparator();
 	void FlushMessage();
 
-	void PrintPlayerIDs(TroubleBrewing::GameState* gameState);
-
 	void ProcessNomination(SleepyDiscord::Message message);
 	void ProcessVote(SleepyDiscord::Message message);
 	void ProcessDayAction(SleepyDiscord::Message message);
+
+	void TerminateCommunication();
 
 public:
 	DiscordPlayerCommunication(
@@ -79,6 +81,10 @@ public:
 
 	void NewParagraph() override;
 	void BlankPage() override;
+
+	void PrintPlayerIDs(TroubleBrewing::GameState* gameState) override;
+
+	~DiscordPlayerCommunication();
 };
 
 }

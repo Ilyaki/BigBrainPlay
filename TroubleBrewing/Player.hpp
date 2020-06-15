@@ -16,7 +16,7 @@ class PlayerCommunication;
 class Player
 {
 private:
-	const std::shared_ptr<PlayerCommunication> communication{};
+	std::shared_ptr<PlayerCommunication> communication{};
 	PlayerData playerData;
 
 	std::shared_ptr<Character> character{};
@@ -63,7 +63,7 @@ public:
 
 	void SwitchCharacter(CharacterType newType, GameState* gameState);
 
-	Character* GetCharacter(); // TODO: replace uses with DrunkBase where needed
+	Character* GetCharacter();
 	Character* GetCharacterOrDrunkBaseCharacter();
 	PlayerCommunication* Communication();
 
@@ -75,6 +75,8 @@ public:
 	Player(const Player&) = delete;
 	Player& operator=(const Player&) = delete;
 
+	//TODO: remove
+	~Player();
 };
 
 }

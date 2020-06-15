@@ -32,6 +32,7 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 		player->Communication()->BlankPage();
 		player->Communication()->SendMessage("Game has begun...");
 		player->GetCharacter()->InitialSetup(this);
+		player->Communication()->PrintPlayerIDs(this);
 		player->GetCharacter()->AnnounceCharacterAndAlignment(this);
 	}
 }
@@ -64,9 +65,6 @@ void Storyteller::StartGame()
 			break;
 		}
 	}
-
-	//TODO: Flush all player communications, join all threads (otherwise the final messages might not be sent)
-	//	(maybe use deconstructor of DiscordPlayComm)
 }
 
 void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)

@@ -11,15 +11,19 @@ namespace Discord
 
 class BbpDiscordClient: public SleepyDiscord::DiscordClient
 {
-	std::map<std::string, std::shared_ptr<DiscordPlayerCommunication>> communicationMap{};
+	int currentStorytellerID {0 };
+
+	using CommunicationMapType = std::map<std::string, std::pair<std::shared_ptr<DiscordPlayerCommunication>, int>>;
 
 	std::thread storytellerThread{};
 
-	static void StartStorytellerThread(std::vector<std::pair<TroubleBrewing::PlayerData,
-			std::shared_ptr<TroubleBrewing::PlayerCommunication>>> playerDatas);
+	static void StartStorytellerThread(BbpDiscordClient* ptr, std::vector<std::pair<TroubleBrewing::PlayerData,
+			std::shared_ptr<TroubleBrewing::PlayerCommunication>>> playerDatas, int storytellerID);
 
 public:
 	using SleepyDiscord::DiscordClient::WebsocketppDiscordClient;
+
+	CommunicationMapType communicationMap{};
 
 	void onMessage(SleepyDiscord::Message message) override;
 };

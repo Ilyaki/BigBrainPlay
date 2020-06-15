@@ -136,4 +136,9 @@ void Player::SwitchCharacter(CharacterType newType, GameState* gameState)
 	character->AnnounceCharacterAndAlignment(gameState); // Sends their new character message
 }
 
+Player::~Player()
+{
+
+}
+
 }
