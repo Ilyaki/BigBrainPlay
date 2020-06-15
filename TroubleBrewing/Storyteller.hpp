@@ -19,8 +19,8 @@
 #include "Characters/Virgin.hpp"
 #include "Characters/Slayer.hpp"
 #include "Characters/Soldier.hpp"
-#include "Characters/TestCharacter.hpp"
 #include "Characters/Poisoner.hpp"
+#include "Characters/Butler.hpp"
 #include "Characters/Drunk.hpp"
 #include "Characters/Recluse.hpp"
 #include "Characters/Imp.hpp"
@@ -38,7 +38,6 @@ class Storyteller : public GameState, Voting, DayActions
 	// Orders
 	const std::vector<CharacterType> zerothNightOrder
 	{
-		CharacterType::TEST_CHARACTER,
 		CharacterType::POISONER,
 		CharacterType::WASHERWOMAN,
 		CharacterType::LIBRARIAN,
@@ -46,30 +45,30 @@ class Storyteller : public GameState, Voting, DayActions
 		CharacterType::CHEF,
 		CharacterType::EMPATH,
 		CharacterType::FORTUNETELLER,
-		CharacterType::SPY
+		CharacterType::SPY,
+		CharacterType::BUTLER
 	};
 
 	const std::vector<CharacterType> nightOrder
 	{
-			CharacterType::TEST_CHARACTER,
 			CharacterType::POISONER,
 			CharacterType::MONK,
 			CharacterType::SPY,
 			CharacterType::IMP,
 			CharacterType::EMPATH,
 			CharacterType::FORTUNETELLER,
-			CharacterType::UNDERTAKER
+			CharacterType::UNDERTAKER,
+			CharacterType::BUTLER
 	};
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::SLAYER,
+			CharacterType::BUTLER,
 			CharacterType::IMP,
 			CharacterType::SPY
 	};
 
 	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
-			TestCharacter,
 			Washerwoman,
 			Librarian,
 			Investigator,
@@ -83,6 +82,7 @@ class Storyteller : public GameState, Voting, DayActions
 			Slayer,
 			Soldier,
 			Mayor,
+			Butler,
 			Drunk,
 			Recluse,
 			Saint,
@@ -100,12 +100,14 @@ class Storyteller : public GameState, Voting, DayActions
 
 	// Inform nomination
 	std::condition_variable informNominationCond{};
+	bool informNominationCondWaiting { false };
 	std::mutex informNominationCondMutex{};
 	std::tuple<Player*, Player*> informNominationData; // nominee, nominator
 
 	// Inform slay
 	// If we need to add more day actions, should change this to dayActionData, etc
 	std::condition_variable slayActionCond{};
+	bool slayActionCondWaiting { false };
 	std::mutex slayActionCondMutex{};
 	std::tuple<Player*, Player*> slayActionData; // target, slayer
 

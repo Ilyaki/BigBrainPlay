@@ -4,9 +4,9 @@
 #include <thread>
 #include "Storyteller.hpp"
 #include "Player.hpp"
-#include "Characters/TestCharacter.hpp"
 #include "Characters/Virgin.hpp"
 #include "Characters/Slayer.hpp"
+#include "Characters/Butler.hpp"
 
 namespace TroubleBrewing
 {
@@ -118,7 +118,14 @@ void Storyteller::DayPhase(int day)
 
 	// Day action wait loop
 	std::unique_lock<std::mutex> dayTimeLock(slayActionCondMutex);
-	while (slayActionCond.wait_until(dayTimeLock, dayTimeEnd) != std::cv_status::timeout)
+	bool wasNotified;
+	while (
+				(slayActionCondWaiting = true),
+				(wasNotified = slayActionCond.wait_until(dayTimeLock, dayTimeEnd,
+						[this](){ return !slayActionCondWaiting; })),
+				(slayActionCondWaiting = false),
+				(wasNotified)
+				)
 	{
 		// Have a slay action (not a timeout)
 		Player* playerKilled =
@@ -148,10 +155,16 @@ void Storyteller::DayPhase(int day)
 		if (!nominationsOpen) // Prevents message spam
 			OpenCloseNominations(true);
 
-		AnnounceMessage("Nominations closing in 5 seconds...");
+		constexpr int nominationSeconds = 15;
+		AnnounceMessage("Nominations closing in " + std::to_string(nominationSeconds) + " seconds...");
 
 		std::unique_lock<std::mutex> lock(informNominationCondMutex);
-		if (informNominationCond.wait_for(lock, std::chrono::seconds(5)) == std::cv_status::no_timeout)
+		informNominationCondWaiting = true;
+		bool wasNotified = informNominationCond.wait_for(lock, std::chrono::seconds(nominationSeconds),
+				[this](){ return !informNominationCondWaiting; });
+		informNominationCondWaiting = false;
+
+		if (wasNotified) // Not a timeout
 		{
 			// Must have a nomination
 
@@ -209,6 +222,7 @@ void Storyteller::InformNomination(Player *nominee, Player *nominator)
 	} else
 	{
 		informNominationData = std::make_tuple(nominee, nominator);
+		informNominationCondWaiting = false;
 		informNominationCond.notify_one();
 	}
 }
@@ -234,10 +248,17 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 
 	// TODO: allow time for players to defend themselves
 
-	constexpr int voteTimeSeconds = 5;
+	constexpr int voteTimeSeconds = 20;
 	OpenCloseVoting(true, voteTimeSeconds);
 
-	std::this_thread::sleep_for(std::chrono::seconds(voteTimeSeconds));
+	//FIXME: sleep_for returns immediately, this is a workaround
+	//std::this_thread::sleep_for(std::chrono::seconds(voteTimeSeconds));
+	{
+		std::condition_variable cv{};
+		std::mutex cvm{};
+		auto cvl = std::unique_lock<std::mutex>{cvm};
+		cv.wait_for(cvl, std::chrono::seconds(voteTimeSeconds));
+	}
 
 	OpenCloseVoting(false);
 
@@ -286,10 +307,27 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 	int numAlive = GetNumPlayersAlive();
 	int numVotes = 0;
 	int minMajority = (numAlive / 2) + (numAlive % 2);
-	for (auto pair : votes)
+	for (auto &[player, voted] : votes)
 	{
-		if (pair.second)
-			++numVotes;
+		if (voted)
+		{
+			Butler* butler = dynamic_cast<Butler*>(player->GetCharacterOrDrunkBaseCharacter());
+
+			if (butler)
+			{
+				if (butler->CanButlerVote(votes, this))
+				{
+					++numVotes;
+					player->Communication()->SendMessage("Your vote as Butler was counted");
+				}
+				else
+					player->Communication()->SendMessage("Your vote as Butler was not counted");
+			}
+			else
+			{
+				++numVotes;
+			}
+		}
 	}
 
 	// Test majority
@@ -361,6 +399,7 @@ void Storyteller::InformSlayerAttempt(Player *target, Player *sourcePlayer)
 {
 	//Note : the sourcePlayer can be dead and can not be the Slayer (bluff)
 	slayActionData = {target, sourcePlayer};
+	slayActionCondWaiting = false;
 	slayActionCond.notify_one();
 }
 

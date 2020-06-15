@@ -5,7 +5,6 @@
 
 enum class CharacterType {
 	NO_CHARACTER=0,
-	TEST_CHARACTER,
 	WASHERWOMAN,
 	LIBRARIAN,
 	INVESTIGATOR,
@@ -19,6 +18,7 @@ enum class CharacterType {
 	SOLDIER,
 	SLAYER,
 	MAYOR,
+	BUTLER,
 	DRUNK,
 	RECLUSE,
 	SAINT,

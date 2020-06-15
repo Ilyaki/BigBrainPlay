@@ -1,6 +1,5 @@
 #include <cassert>
 #include "CharacterHelper.hpp"
-#include "TestCharacter.hpp"
 #include "Washerwoman.hpp"
 #include "Librarian.hpp"
 #include "Investigator.hpp"
@@ -17,6 +16,7 @@
 #include "Spy.hpp"
 #include "Recluse.hpp"
 #include "Imp.hpp"
+#include "Butler.hpp"
 #include "Drunk.hpp"
 #include "Saint.hpp"
 #include "Mayor.hpp"
@@ -32,10 +32,6 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 	switch (characterType)
 	{
 		assert(characterType != CharacterType::NO_CHARACTER);
-
-		case CharacterType::TEST_CHARACTER:
-			character = std::make_shared<TestCharacter>(player, isDrunk, creationTime);
-			break;
 
 		case CharacterType::WASHERWOMAN:
 			character = std::make_shared<Washerwoman>(player, isDrunk, creationTime);
@@ -87,6 +83,10 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 
 		case CharacterType::MAYOR:
 			character = std::make_shared<Mayor>(player, isDrunk, creationTime);
+			break;
+
+		case CharacterType::BUTLER:
+			character = std::make_shared<Butler>(player, isDrunk, creationTime);
 			break;
 
 		case CharacterType::DRUNK:

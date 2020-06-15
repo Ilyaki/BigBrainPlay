@@ -33,8 +33,6 @@ void FortuneTeller::InitialSetup(GameState *gameState)
 		redHerringCandidates = gameState->GetPlayers();
 
 	redHerring = redHerringCandidates.at(RandomBetween(0, redHerringCandidates.size() - 1));
-
-	std::cout << "Fortune teller red herring = " << redHerring->PlayerName() << std::endl;
 }
 
 void FortuneTeller::NightAction(bool zerothNight, GameState *gameState)

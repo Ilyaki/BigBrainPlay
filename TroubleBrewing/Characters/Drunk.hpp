@@ -21,6 +21,8 @@ public:
 	static constexpr std::string_view CharName  = "Drunk";
 	TROUBLEBREWING_CHARACTER_CONSTEXPR_GETTERS
 
+	void OnDeath(GameState* gameState, bool isExecutionKill, bool isDemonKill, Player* sourcePlayer) override;
+
 	PerceivedCharacterData GeneratePerceivedCharacterData(GameState* gameState) override;
 
 	Character* DrunkBaseCharacter();

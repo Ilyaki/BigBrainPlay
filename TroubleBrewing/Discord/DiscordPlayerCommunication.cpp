@@ -59,9 +59,12 @@ DiscordPlayerCommunication::InputPlayer(TroubleBrewing::GameState *gameState,
 			SendMessage("Enter a player ID:");
 
 			auto lock = std::unique_lock<std::mutex>{dmMessageConditionVarMutex};
-			auto res = dmMessageConditionVar.wait_for(lock, std::chrono::seconds(60));
+			dmMessageConditionVarWaiting = true;
+			bool wasNotified = dmMessageConditionVar.wait_for(lock, std::chrono::seconds(60),
+					[this](){ return !dmMessageConditionVarWaiting; });
+			dmMessageConditionVarWaiting = false;
 
-			if (res == std::cv_status::timeout)
+			if (!wasNotified)
 			{
 				// Took too long to respond
 				SendMessage("Took too long to respond, selecting a random player", false);
@@ -135,15 +138,10 @@ void DiscordPlayerCommunication::OnDirectMessage(SleepyDiscord::Message message)
 	else if (std::get<0>(dayActionsData)) // Are day actions open
 		ProcessDayAction(message);
 	else
+	{
+		dmMessageConditionVarWaiting = false;
 		dmMessageConditionVar.notify_one();
-}
-
-void DiscordPlayerCommunication::TextSeparator()
-{
-	auto cid = Snowflake<SleepyDiscord::Channel>{dmChannel.ID};
-	auto last = discordClient->getMessage(cid, discordClient->getChannel(cid).cast().lastMessageID);
-	if(last.error() || last.cast().author.bot)
-		SendMessage(R"(```\n \n```)");
+	}
 }
 
 void DiscordPlayerCommunication::OpenCloseNominations(
@@ -352,6 +350,16 @@ void DiscordPlayerCommunication::ProcessDayAction(SleepyDiscord::Message message
 			}
 		}
 	}
+}
+
+void DiscordPlayerCommunication::TextSeparator()
+{
+	//auto cid = Snowflake<SleepyDiscord::Channel>{dmChannel.ID};
+	//auto last = discordClient->getMessage(cid, discordClient->getChannel(cid).cast().lastMessageID);
+	//if(last.error() || last.cast().author.bot)
+	//	SendMessage(R"(```\n \n```)");
+
+	NewParagraph();
 }
 
 void DiscordPlayerCommunication::NewParagraph()

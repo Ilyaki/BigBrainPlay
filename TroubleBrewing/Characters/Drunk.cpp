@@ -41,6 +41,7 @@ void Drunk::InitialSetup(GameState *gameState)
 
 	perceivedCharacterType = p->at(RandomBetween(0, p->size() - 1));
 	perceivedCharacter = CharacterHelper::CreateCharacter(perceivedCharacterType, gameState, player, true);
+	perceivedCharacter->InitialSetup(gameState);
 }
 
 void Drunk::NightAction(bool zerothNight, GameState *gameState)
@@ -70,6 +71,11 @@ PerceivedCharacterData Drunk::GeneratePerceivedCharacterData(GameState *gameStat
 bool Drunk::AbilityWorksWhenDead()
 {
 	return perceivedCharacter->AbilityWorksWhenDead();
+}
+
+void Drunk::OnDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
+{
+	return perceivedCharacter->OnDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 }
 
 }

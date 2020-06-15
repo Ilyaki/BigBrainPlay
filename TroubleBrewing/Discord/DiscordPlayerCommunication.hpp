@@ -16,6 +16,7 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 	SleepyDiscord::DMChannel dmChannel;
 
 	std::condition_variable dmMessageConditionVar{};
+	bool dmMessageConditionVarWaiting { false };
 	std::mutex dmMessageConditionVarMutex{};
 	SleepyDiscord::Message lastMessage;
 
