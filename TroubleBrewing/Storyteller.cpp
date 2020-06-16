@@ -99,6 +99,8 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 		if (creationTime != currentTime || currentTime == Time { false, 0 })
 			character->NightAction(zerothNight, this);
 	}
+
+	//TODO: Add wait here so players don't know if anyone came after them
 }
 
 void Storyteller::AnnounceNightDeaths()
@@ -263,7 +265,31 @@ void Storyteller::InformNomination(Player *nominee, Player *nominator)
 
 bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 {
-	//TODO: only allow 1 nomination & nominee from each player. Nominator player must be alive.
+	// Only allow 1 nomination & nominee from each player each day. Nominator player must be alive.
+	if(nominator->IsDead())
+	{
+		AnnounceMessage(nominator->PlayerName() + " tried to nominate " + nominee->PlayerName() + ", but "
+			+ nominator->PlayerName() + " is dead");
+		return false;
+	}
+	else if (HasBeenNominator(nominator, GetCurrentTime()))
+	{
+		AnnounceMessage(nominator->PlayerName() + " tried to nominate " + nominee->PlayerName() + ", but "
+						+ nominator->PlayerName() + " has already nominated someone today");
+		return false;
+	}
+	else if (HasBeenNominee(nominee, GetCurrentTime()))
+	{
+		AnnounceMessage(nominator->PlayerName() + " tried to nominate " + nominee->PlayerName() + ", but "
+						+ nominee->PlayerName() + " has already been nominated today");
+		return false;
+	}
+	else
+	{
+		// Allow the nomination to pass
+		AddNomination(nominee, nominator, GetCurrentTime());
+	}
+
 
 	OpenCloseNominations(false);
 	AnnounceMessage(nominee->PlayerName() + " has been nominated by " + nominator->PlayerName());
@@ -280,19 +306,33 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 		}
 	}
 
-	// TODO: allow time for players to defend themselves
-
-	constexpr int voteTimeSeconds = 20;
-	OpenCloseVoting(true, voteTimeSeconds);
-
 	//FIXME: sleep_for returns immediately, this is a workaround
-	//std::this_thread::sleep_for(std::chrono::seconds(voteTimeSeconds));
+	//std::this_thread::sleep_for(std::chrono::seconds());
+	auto sleepTime = [](int seconds)
 	{
 		std::condition_variable cv{};
 		std::mutex cvm{};
 		auto cvl = std::unique_lock<std::mutex>{cvm};
-		cv.wait_for(cvl, std::chrono::seconds(voteTimeSeconds));
-	}
+		cv.wait_for(cvl, std::chrono::seconds(seconds));
+	};
+
+	constexpr int explainNominationTimeSeconds = 15;
+	constexpr int defendTimeSeconds = 15;
+
+	AnnounceMessage(nominator->PlayerName() + " has " + std::to_string(explainNominationTimeSeconds) +
+		" seconds to explain why they nominated " + nominee->PlayerName() + ". Everyone else be silent");
+
+	sleepTime(explainNominationTimeSeconds);
+
+	AnnounceMessage(nominee->PlayerName() + " has " + std::to_string(defendTimeSeconds) +
+					" seconds to defend themself. Everyone else be silent");
+
+	sleepTime(defendTimeSeconds);
+
+	constexpr int voteTimeSeconds = 20;
+	OpenCloseVoting(true, voteTimeSeconds);
+
+	sleepTime(voteTimeSeconds);
 
 	OpenCloseVoting(false);
 
