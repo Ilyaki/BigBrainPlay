@@ -11,6 +11,7 @@ class Player;
 class GameLogging
 {
 	std::vector<std::pair<Player*, Time>> executionDeaths{};
+	std::vector<std::pair<Player*, Time>> deaths{};
 
 protected:
 	/// Sets the last player killed by exection. Set nullptr if no-one was killed by execution
@@ -19,6 +20,10 @@ protected:
 public:
 	/// \return Gets the last player to be killed by execution. Returns nullptr if no-one was killed by execution
 	std::pair<Player*, Time> GetLastExecutionDeath();
+
+	const std::vector<std::pair<Player*, Time>>* GetDeaths();
+
+	void LogDeath(Player* player, Time deathTime);
 
 	/// \return true after the first day, even if no one was executed
 	bool HasAnyExecutionPhaseTakenPlace();

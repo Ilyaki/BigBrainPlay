@@ -8,13 +8,13 @@ namespace TroubleBrewing
 
 class Time
 {
-	bool isDay;
 	int dayOrNightCount;
+	bool isDay;
 
 public:
-	explicit Time() : isDay{false}, dayOrNightCount{0}{};
+	explicit Time() : dayOrNightCount{0}, isDay{false}{};
 
-	Time (bool _isDay, int _dayOrNightCount) : isDay{_isDay}, dayOrNightCount{_dayOrNightCount}{};
+	Time (bool _isDay, int _dayOrNightCount) : dayOrNightCount{_dayOrNightCount}, isDay{_isDay}{};
 
 	inline bool IsDay() const { return isDay; }
 	inline int DayOrNightCount() const { return dayOrNightCount; }
@@ -49,7 +49,8 @@ inline Time& operator++(Time& a)
 
 inline bool operator<(Time a, Time b)
 {
-	return (a.DayOrNightCount() < b.DayOrNightCount()) || (a.IsDay() && !b.IsDay());
+	return (a.DayOrNightCount() < b.DayOrNightCount()) ||
+		(a.DayOrNightCount() == b.DayOrNightCount() && a.IsDay() && !b.IsDay());
 }
 
 inline bool operator<=(Time a, Time b)

@@ -21,4 +21,14 @@ bool GameLogging::HasAnyExecutionPhaseTakenPlace()
 	return executionDeaths.size() != 0;
 }
 
+const std::vector<std::pair<Player *, Time>> *GameLogging::GetDeaths()
+{
+	return &deaths;
+}
+
+void GameLogging::LogDeath(Player *player, Time deathTime)
+{
+	deaths.push_back({player, deathTime});
+}
+
 }

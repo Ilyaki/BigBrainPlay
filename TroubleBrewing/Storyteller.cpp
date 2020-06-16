@@ -101,14 +101,50 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 	}
 }
 
+void Storyteller::AnnounceNightDeaths()
+{
+	Time lastNight = Time {false, GetCurrentTime().DayOrNightCount() - 1};
+	std::vector<Player *> deathsLastNight {};
+	for (auto &[player, deathTime] : *GetDeaths())
+	{
+		if (deathTime == lastNight)
+			deathsLastNight.push_back(player);
+	}
+
+	const auto deathsLastNightSize = deathsLastNight.size();
+
+	if (deathsLastNightSize == 0)
+		AnnounceMessage("There were no deaths last night", false);
+	else
+	{
+		// Gives a message like "Alpha, Beta and Gamma"
+		std::string msg{};
+		long unsigned int i = 0;
+		for (Player* p : deathsLastNight)
+		{
+			if (i == 0)
+				msg += p->PlayerName();
+			else if (i == deathsLastNightSize - 1)
+				msg += " and " + p->PlayerName();
+			else
+				msg += ", " + p->PlayerName();
+
+			++i;
+		}
+
+		AnnounceMessage(msg + " died last night", false);
+	}
+}
+
 void Storyteller::DayPhase(int day)
 {
 	assert(day > 0);
 
+	AnnounceNightDeaths();
+
 	constexpr auto dayTimeLengthSeconds = 20;
 	const auto dayTimeEnd = std::chrono::steady_clock::now() + std::chrono::seconds(dayTimeLengthSeconds);
 
-	//TODO: announce who died, etc.
 	AnnounceMessage("Day " + std::to_string(day) + " has begun, ending in " + std::to_string(dayTimeLengthSeconds) +
 					" seconds. Everyone wake up");
 

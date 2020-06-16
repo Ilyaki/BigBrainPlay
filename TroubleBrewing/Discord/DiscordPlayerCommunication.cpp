@@ -271,20 +271,26 @@ void DiscordPlayerCommunication::FlusherStart()
 
 		auto c = Snowflake<SleepyDiscord::Channel>{dmChannel.ID};
 
-		bool sent = false;
+		std::string str = messageBuf.str();
 
-		while (!sent)
+		if(!str.empty())
 		{
-			try
+
+			bool sent = false;
+
+			while (!sent)
 			{
-				auto response = discordClient->sendMessage(c, messageBuf.str());
-				if (!response.error())
-					sent = true;
-			}
-			catch(...)
-			{
-				// Discord prevents sending messages too quickly.
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				try
+				{
+					auto response = discordClient->sendMessage(c, str);
+					if (!response.error())
+						sent = true;
+				}
+				catch (...)
+				{
+					// Discord prevents sending messages too quickly.
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+				}
 			}
 		}
 
@@ -399,6 +405,8 @@ void DiscordPlayerCommunication::AnnounceVotes(
 
 void DiscordPlayerCommunication::TerminateCommunication()
 {
+	std::cout << "Closing communication" << std::endl;
+
 	terminating = true;
 	FlushMessage();
 	flusherThread.join();

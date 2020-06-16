@@ -64,8 +64,8 @@ class Storyteller : public GameState, Voting, DayActions
 
 	const std::vector<CharacterType> charactersInPlay
 	{
-			CharacterType::SLAYER,
 			CharacterType::IMP,
+			CharacterType::POISONER,
 			CharacterType::SPY
 	};
 
@@ -117,6 +117,8 @@ class Storyteller : public GameState, Voting, DayActions
 	void DayPhase(int day);
 
 	void AnnounceMessage(const std::string& message, bool flush = true);
+
+	void AnnounceNightDeaths();
 
 	/// \return { game ended, evil win, win type }
 	std::tuple<bool, bool, WinType> CheckGameWin(bool duringDay);

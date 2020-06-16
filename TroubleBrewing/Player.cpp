@@ -109,6 +109,7 @@ void Player::Kill(GameState *gameState, bool isExecutionKill, bool isDemonKill, 
 {
 	GetCharacterOrDrunkBaseCharacter()->PreDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 	isDead = true;
+	gameState->LogDeath(this, gameState->GetCurrentTime());
 }
 
 bool Player::HasGhostVote()
@@ -134,11 +135,6 @@ void Player::SwitchCharacter(CharacterType newType, GameState* gameState)
 {
 	character = CharacterHelper::CreateCharacter(newType, gameState, this, false);
 	character->AnnounceCharacterAndAlignment(gameState); // Sends their new character message
-}
-
-Player::~Player()
-{
-
 }
 
 }

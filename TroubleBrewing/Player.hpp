@@ -74,9 +74,6 @@ public:
 	// Copying
 	Player(const Player&) = delete;
 	Player& operator=(const Player&) = delete;
-
-	//TODO: remove
-	~Player();
 };
 
 }
