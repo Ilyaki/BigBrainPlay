@@ -3,6 +3,7 @@
 #include "Drunk.hpp"
 #include "CharacterHelper.hpp"
 #include "../Random.hpp"
+#include "CharacterMap.hpp"
 
 namespace TroubleBrewing
 {
@@ -15,7 +16,7 @@ void Drunk::InitialSetup(GameState *gameState)
 	auto ourCharacter = GetCharacterType();
 	std::vector<CharacterType> possible;
 
-	for (auto y : *gameState->GetCharacterTypeTraitsMap())
+	for (auto y : *CharacterMap::GetCharacterTypeTraitsMap())
 	{
 		if (y.first != ourCharacter && y.second.first.isTownsfolk)
 			possible.push_back(y.first);

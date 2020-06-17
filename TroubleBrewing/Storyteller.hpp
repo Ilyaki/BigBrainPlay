@@ -62,38 +62,6 @@ class Storyteller : public GameState, Voting, DayActions
 			CharacterType::BUTLER
 	};
 
-	const std::vector<CharacterType> charactersInPlay
-	{
-			CharacterType::IMP,
-			CharacterType::POISONER,
-			CharacterType::SPY
-	};
-
-	CharacterTypeTraitsMap characterTypeTraitsMap {GetCharacterTypeTraitMapTemplate<
-			Washerwoman,
-			Librarian,
-			Investigator,
-			Chef,
-			Empath,
-			FortuneTeller,
-			Undertaker,
-			Monk,
-			Ravenkeeper,
-			Virgin,
-			Slayer,
-			Soldier,
-			Mayor,
-			Butler,
-			Drunk,
-			Recluse,
-			Saint,
-			Poisoner,
-			Spy,
-			Baron,
-			Imp
-	>()};
-
-
 	// Voting system
 	std::map<Player*, bool> votes{};
 	Player* choppingBlock{};
@@ -138,7 +106,7 @@ class Storyteller : public GameState, Voting, DayActions
 	bool ManageVotes(std::map<Player*, bool> votes, Player* nominee, Player* nominator);
 
 public:
-	Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>> playerDatas);
+	Storyteller(const std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>>& playerDatas);
 
 	void StartGame();
 
@@ -146,8 +114,6 @@ public:
 	void InformVote(Player* sourcePlayer, bool vote) override;
 
 	void InformSlayerAttempt(Player* target, Player* sourcePlayer);
-
-	const CharacterTypeTraitsMap* GetCharacterTypeTraitsMap() override;
 };
 
 }

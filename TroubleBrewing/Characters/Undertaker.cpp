@@ -1,5 +1,6 @@
 #include "Undertaker.hpp"
 #include "../Random.hpp"
+#include "CharacterMap.hpp"
 
 namespace TroubleBrewing
 {
@@ -18,7 +19,7 @@ void Undertaker::NightAction(bool zerothNight, GameState *gameState)
 
 		if (gameState->AbilityMalfunctions(player))
 		{
-			auto map = gameState->GetCharacterTypeTraitsMap();
+			auto map = CharacterMap::GetCharacterTypeTraitsMap();
 
 			// Get character types that aren't our own character
 			auto ourCharacter = GetCharacterType();

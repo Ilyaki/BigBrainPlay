@@ -36,8 +36,6 @@ public:
 
 	int NumberOfPlayers();
 
-	virtual const CharacterTypeTraitsMap* GetCharacterTypeTraitsMap() = 0;
-
 	std::pair<Player*, Player*> GetNeighbours(Player* player, bool allowDead);
 
 	bool AbilityMalfunctions(Player* player);

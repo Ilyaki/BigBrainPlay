@@ -29,6 +29,8 @@ class Character
 	const bool isDrunk { false };
 	const Time creationTime{};
 
+	void ShowDemonBluff(GameState* gameState);
+
 protected:
 	Player* player{};
 
@@ -41,7 +43,7 @@ public:
 	constexpr virtual CharacterType GetCharacterType() = 0;
 	constexpr virtual CharacterTraits GetCharacterTraits() = 0;
 
-	void AnnounceCharacterAndAlignment(GameState* gameState);
+	void AnnounceCharacterAndAlignment(GameState* gameState, bool gameStart, bool teensyville);
 
 	virtual bool AbilityWorksWhenDead() { return false; }
 

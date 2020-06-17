@@ -10,7 +10,7 @@ bool Virgin::VirginAbility(Player *nominator, GameState* gameState)
 	else
 	{
 		usedVirginAbility = true;
-		return gameState->AbilityMalfunctions(player) && player->GetCharacter()
+		return !gameState->AbilityMalfunctions(player) && player->GetCharacter()
 				->GeneratePerceivedCharacterData(gameState).externalPerceivedCharacterTraits.isTownsfolk;
 	}
 }

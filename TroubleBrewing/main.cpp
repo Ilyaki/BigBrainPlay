@@ -7,9 +7,6 @@
 
 int main()
 {
-	//TODO: Demon bluff
-	//TODO: Tell evil players who others are (unless Teensyville?) (minion only knows demon, not other minions)
-
 	if (std::ifstream tokenFile { "token.txt" }; tokenFile.is_open())
 	{
 		std::string token;

@@ -1,6 +1,7 @@
 #include <cassert>
 #include "Spy.hpp"
 #include "../Random.hpp"
+#include "CharacterMap.hpp"
 
 namespace TroubleBrewing
 {
@@ -19,7 +20,7 @@ PerceivedCharacterData Spy::GeneratePerceivedCharacterData(GameState *gameState)
 
 		std::vector<std::tuple<CharacterType, CharacterTraits, std::string_view>> possible{};
 
-		for (auto p : *gameState->GetCharacterTypeTraitsMap())
+		for (auto p : *CharacterMap::GetCharacterTypeTraitsMap())
 		{
 			if (genTownsfolk ? p.second.first.isTownsfolk : p.second.first.isOutsider)
 				possible.push_back({p.first, p.second.first, p.second.second});

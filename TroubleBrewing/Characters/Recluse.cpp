@@ -1,6 +1,7 @@
 #include <cassert>
 #include "Recluse.hpp"
 #include "../Random.hpp"
+#include "CharacterMap.hpp"
 
 namespace TroubleBrewing
 {
@@ -19,7 +20,7 @@ PerceivedCharacterData Recluse::GeneratePerceivedCharacterData(GameState* gameSt
 
 		std::vector<std::tuple<CharacterType, CharacterTraits, std::string_view>> possible{};
 
-		for (auto p : *gameState->GetCharacterTypeTraitsMap())
+		for (auto p : *CharacterMap::GetCharacterTypeTraitsMap())
 		{
 			if (genMinion ? p.second.first.isMinion : p.second.first.isDemon)
 				possible.push_back({p.first, p.second.first, p.second.second});

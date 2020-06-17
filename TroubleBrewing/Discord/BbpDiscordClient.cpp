@@ -62,8 +62,19 @@ void BbpDiscordClient::onMessage(SleepyDiscord::Message message)
 void BbpDiscordClient::StartStorytellerThread(BbpDiscordClient* ptr, std::vector<std::pair<PlayerData,
 		std::shared_ptr<PlayerCommunication>>> playerDatas, int storytellerID)
 {
-	Storyteller storyteller{playerDatas};
-	storyteller.StartGame();
+	try
+	{
+		Storyteller storyteller{playerDatas};
+		storyteller.StartGame();
+	}
+	catch(const std::out_of_range& e)
+	{
+		for (const auto& x : playerDatas)
+		{
+			// Too many/few players
+			x.second->SendMessage(e.what());
+		}
+	}
 
 	// Game finished. Remove communication maps with our storyteller
 	std::vector<CommunicationMapType::const_iterator> iterators{};

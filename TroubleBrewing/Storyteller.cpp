@@ -7,17 +7,20 @@
 #include "Characters/Virgin.hpp"
 #include "Characters/Slayer.hpp"
 #include "Characters/Butler.hpp"
+#include "Characters/CharacterChooser.hpp"
 
 namespace TroubleBrewing
 {
 
-Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>> playerDatas)
+Storyteller::Storyteller(const std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>>& playerDatas)
 		: GameState{}
 {
-	// Will need to change charsInPlay dynamically in future.
-	assert(playerDatas.size() == charactersInPlay.size());
+	//TODO: print expected count
 
-	// Add players
+	auto [ success, charactersInPlay, expectedCount ] = CharacterChooser::GenerateCharacterTypes(playerDatas);
+	if (!success)
+		throw std::out_of_range{ "Too many or too few players" };
+
 	int playerI = 0;
 	for (auto pd : playerDatas)
 	{
@@ -33,7 +36,7 @@ Storyteller::Storyteller(std::vector<std::pair<PlayerData, std::shared_ptr<Playe
 		player->Communication()->SendMessage("Game has begun...");
 		player->GetCharacter()->InitialSetup(this);
 		player->Communication()->PrintPlayerIDs(this);
-		player->GetCharacter()->AnnounceCharacterAndAlignment(this);
+		player->GetCharacter()->AnnounceCharacterAndAlignment(this, true, GetPlayers().size() <= 6);
 	}
 }
 
@@ -518,11 +521,6 @@ Player* Storyteller::ProcessSlayAction(Player *target, Player *sourcePlayer)
 	return whoDied;
 }
 
-const CharacterTypeTraitsMap* Storyteller::GetCharacterTypeTraitsMap()
-{
-	return &characterTypeTraitsMap;
-}
-
 std::tuple<bool, bool, WinType> Storyteller::CheckGameWin(bool duringDay)
 {
 	// Sources of game ending:
@@ -559,7 +557,8 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin(bool duringDay)
 				{
 					if (!p->IsDead() &&
 						p->GetCharacter()->GetCharacterType() == CharacterType::MAYOR &&
-						!AbilityMalfunctions(p))
+						!AbilityMalfunctions(p) &&
+						NumberOfPlayers() == 3)
 					{
 						functionalMayorAlive = true;
 						break;

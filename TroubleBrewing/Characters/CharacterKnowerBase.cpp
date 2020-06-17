@@ -2,6 +2,7 @@
 #include <ranges>
 #include "CharacterKnowerBase.hpp"
 #include "../Random.hpp"
+#include "CharacterMap.hpp"
 
 namespace TroubleBrewing
 {
@@ -25,7 +26,7 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 
 		// Get character types that match the target & aren't our own character
 		std::vector<std::pair<CharacterType, std::string_view>> possibleCharacters;
-		for (charPair p : *gameState->GetCharacterTypeTraitsMap())
+		for (charPair p : *CharacterMap::GetCharacterTypeTraitsMap())
 		{
 			if (p.second.first == targetTraits && p.first != ourCharacter)
 				possibleCharacters.push_back({p.first, p.second.second});

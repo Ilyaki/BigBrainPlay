@@ -1,5 +1,6 @@
 #include "Ravenkeeper.hpp"
 #include "../Random.hpp"
+#include "CharacterMap.hpp"
 
 namespace TroubleBrewing
 {
@@ -15,7 +16,7 @@ void Ravenkeeper::PreDeath(GameState *gameState, bool isExecutionKill, bool isDe
 
 		if (gameState->AbilityMalfunctions(player))
 		{
-			auto map = gameState->GetCharacterTypeTraitsMap();
+			auto map = CharacterMap::GetCharacterTypeTraitsMap();
 
 			// Get character types that match the target & aren't our own character
 			auto possibleView = *map | std::views::transform([](auto y){ return y.second.second; });

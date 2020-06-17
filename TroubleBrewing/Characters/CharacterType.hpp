@@ -1,7 +1,7 @@
 #ifndef BBP_CONSOLE_CHARACTERTYPE_HPP
 #define BBP_CONSOLE_CHARACTERTYPE_HPP
 
-//NOTE: Remember to add to CharacterTypeGetter.hpp and Storyteller.hpp
+//NOTE: Remember to add to CharacterTypeGetter.hpp and Storyteller.hpp and CharacterMap.cpp
 
 enum class CharacterType {
 	NO_CHARACTER=0,
