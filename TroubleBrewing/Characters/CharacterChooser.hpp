@@ -2,9 +2,14 @@
 #define BBP_CHARACTERCHOOSER_HPP
 
 #include <vector>
+#include <memory>
 #include "CharacterType.hpp"
 #include "../PlayerData.hpp"
-#include "../PlayerCommunication.hpp"
+
+namespace TroubleBrewing
+{
+class PlayerCommunication;
+}
 
 namespace TroubleBrewing::CharacterChooser
 {
@@ -22,7 +27,7 @@ struct CharacterCount
 
 /// \return { success, chosen characters, expected character count }
 std::tuple<bool, std::vector<CharacterType>, CharacterCount> GenerateCharacterTypes(
-		const std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>>& playerDatas);
+		const std::vector<std::pair<PlayerData, std::shared_ptr<::TroubleBrewing::PlayerCommunication>>>& playerDatas);
 
 }
 

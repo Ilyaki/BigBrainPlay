@@ -12,41 +12,55 @@ std::tuple<bool, bool, Player*> Character::AllowCharacterDeath(
 	return { true, false, nullptr };
 }
 
-void Character::AnnounceCharacterAndAlignment(GameState* gameState, bool gameStart, bool teensyville)
+void Character::AnnounceCharacterAndAlignment(
+		GameState* gameState, bool gameStart, CharacterChooser::CharacterCount expectedCount, bool teensyville)
 {
 	auto perceived = GeneratePerceivedCharacterData(gameState);
 
 	player->Communication()->SendMessage("You are the " + std::string { perceived.selfPerceivedName } +
 				", your alignment is " + (perceived.selfPerceivedCharacterTraits.isEvil ? "Evil" : "Good"), false);
 
-	// If we add Drunk evil (ie Lunatic), this needs to change
-	if (gameStart && GetCharacterTraits().isEvil)
+
+	if (gameStart)
 	{
-		if (teensyville)
-			player->Communication()->SendMessage("Playing by Teensyville rules: you don't know the other evil players");
-		else
+		// If we add Drunk evil (ie Lunatic), this needs to change
+		if (GetCharacterTraits().isEvil)
 		{
-			if (GetCharacterTraits().isMinion)
-			{
-				// Minion gets to know the Demon
-				for (Player* p : gameState->GetPlayers())
-					if (p->GetCharacter()->GetCharacterTraits().isDemon)
-						player->Communication()->SendMessage("Your Demon is " + p->PlayerName());
-			}
+			// Communicate evil team who other evil are
+			if (teensyville)
+				player->Communication()->SendMessage(
+						"Playing by Teensyville rules: you don't know the other evil players");
 			else
 			{
-				// Demon gets to know all evil
-				for (Player* p : gameState->GetPlayers())
-					if (p != player && p->GetCharacter()->GetCharacterTraits().isEvil)
-						player->Communication()->SendMessage(
-								p->GetCharacter()->GetCharacterTraits().isDemon ?
-								"Your friendly Demon is " + p->PlayerName() :
-								"Your Minion is " + p->PlayerName());
+				if (GetCharacterTraits().isMinion)
+				{
+					// Minion gets to know the Demon
+					for (Player *p : gameState->GetPlayers())
+						if (p->GetCharacter()->GetCharacterTraits().isDemon)
+							player->Communication()->SendMessage("Your Demon is " + p->PlayerName());
+				} else
+				{
+					// Demon gets to know all evil
+					for (Player *p : gameState->GetPlayers())
+						if (p != player && p->GetCharacter()->GetCharacterTraits().isEvil)
+							player->Communication()->SendMessage(
+									p->GetCharacter()->GetCharacterTraits().isDemon ?
+									"Your friendly Demon is " + p->PlayerName() :
+									"Your Minion is " + p->PlayerName(), false);
+				}
 			}
+
+			// Demon bluff
+			if (GetCharacterTraits().isDemon)
+				ShowDemonBluff(gameState);
 		}
 
-		if (GetCharacterTraits().isEvil)
-			ShowDemonBluff(gameState);
+		// Announce the expected character count (without Baron, etc)
+		player->Communication()->SendMessage("Expected character count for this game: " +
+			std::to_string(expectedCount.townsfolk) + " Townsfolk, " +
+			std::to_string(expectedCount.outsiders) + " Outsider(s), " +
+			std::to_string(expectedCount.minions) + " Minion(s), " +
+			std::to_string(expectedCount.demons) + " Demon(s)");
 	}
 }
 

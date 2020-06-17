@@ -1,4 +1,5 @@
 #include "DiscordPlayerCommunication.hpp"
+#include "../Timings.hpp"
 
 using namespace SleepyDiscord;
 using namespace TroubleBrewing;
@@ -62,7 +63,8 @@ DiscordPlayerCommunication::InputPlayer(TroubleBrewing::GameState *gameState,
 
 			auto lock = std::unique_lock<std::mutex>{dmMessageConditionVarMutex};
 			dmMessageConditionVarWaiting = true;
-			bool wasNotified = dmMessageConditionVar.wait_for(lock, std::chrono::seconds(60),
+			bool wasNotified = dmMessageConditionVar.wait_for(lock,
+					std::chrono::seconds(Timings::enterPlayerTimeoutSeconds),
 					[this](){ return !dmMessageConditionVarWaiting; });
 			dmMessageConditionVarWaiting = false;
 

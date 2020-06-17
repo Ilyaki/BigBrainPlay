@@ -8,6 +8,7 @@
 #include "Characters/Slayer.hpp"
 #include "Characters/Butler.hpp"
 #include "Characters/CharacterChooser.hpp"
+#include "Timings.hpp"
 
 namespace TroubleBrewing
 {
@@ -15,8 +16,6 @@ namespace TroubleBrewing
 Storyteller::Storyteller(const std::vector<std::pair<PlayerData, std::shared_ptr<PlayerCommunication>>>& playerDatas)
 		: GameState{}
 {
-	//TODO: print expected count
-
 	auto [ success, charactersInPlay, expectedCount ] = CharacterChooser::GenerateCharacterTypes(playerDatas);
 	if (!success)
 		throw std::out_of_range{ "Too many or too few players" };
@@ -36,7 +35,7 @@ Storyteller::Storyteller(const std::vector<std::pair<PlayerData, std::shared_ptr
 		player->Communication()->SendMessage("Game has begun...");
 		player->GetCharacter()->InitialSetup(this);
 		player->Communication()->PrintPlayerIDs(this);
-		player->GetCharacter()->AnnounceCharacterAndAlignment(this, true, GetPlayers().size() <= 6);
+		player->GetCharacter()->AnnounceCharacterAndAlignment(this, true, expectedCount, GetPlayers().size() <= 6);
 	}
 }
 
@@ -103,7 +102,15 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 			character->NightAction(zerothNight, this);
 	}
 
-	//TODO: Add wait here so players don't know if anyone came after them
+	//Adds wait here so players don't know if anyone came after them
+	//FIXME: sleep_for returns immediately, this is a workaround
+	//std::this_thread::sleep_for(std::chrono::seconds());
+	{
+		std::condition_variable cv{};
+		std::mutex cvm{};
+		auto cvl = std::unique_lock<std::mutex>{cvm};
+		cv.wait_for(cvl, std::chrono::seconds(Timings::postNightActionDelaySeconds));
+	};
 }
 
 void Storyteller::AnnounceNightDeaths()
@@ -147,11 +154,11 @@ void Storyteller::DayPhase(int day)
 
 	AnnounceNightDeaths();
 
-	constexpr auto dayTimeLengthSeconds = 20;
-	const auto dayTimeEnd = std::chrono::steady_clock::now() + std::chrono::seconds(dayTimeLengthSeconds);
 
-	AnnounceMessage("Day " + std::to_string(day) + " has begun, ending in " + std::to_string(dayTimeLengthSeconds) +
-					" seconds. Everyone wake up");
+	const auto dayTimeEnd = std::chrono::steady_clock::now() + std::chrono::seconds(Timings::dayTimeLengthSeconds);
+
+	AnnounceMessage("Day " + std::to_string(day) + " has begun, ending in " +
+		std::to_string(Timings::dayTimeLengthSeconds) + " seconds. Everyone wake up");
 
 	OpenCloseDayActions(true);
 
@@ -194,12 +201,11 @@ void Storyteller::DayPhase(int day)
 		if (!nominationsOpen) // Prevents message spam
 			OpenCloseNominations(true);
 
-		constexpr int nominationSeconds = 15;
-		AnnounceMessage("Nominations closing in " + std::to_string(nominationSeconds) + " seconds...");
+		AnnounceMessage("Nominations closing in " + std::to_string(Timings::nominationSeconds) + " seconds...");
 
 		std::unique_lock<std::mutex> lock(informNominationCondMutex);
 		informNominationCondWaiting = true;
-		bool wasNotified = informNominationCond.wait_for(lock, std::chrono::seconds(nominationSeconds),
+		bool wasNotified = informNominationCond.wait_for(lock, std::chrono::seconds(Timings::nominationSeconds),
 				[this](){ return !informNominationCondWaiting; });
 		informNominationCondWaiting = false;
 
@@ -319,18 +325,15 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 		cv.wait_for(cvl, std::chrono::seconds(seconds));
 	};
 
-	constexpr int explainNominationTimeSeconds = 15;
-	constexpr int defendTimeSeconds = 15;
-
-	AnnounceMessage(nominator->PlayerName() + " has " + std::to_string(explainNominationTimeSeconds) +
+	AnnounceMessage(nominator->PlayerName() + " has " + std::to_string(Timings::explainNominationTimeSeconds) +
 		" seconds to explain why they nominated " + nominee->PlayerName() + ". Everyone else be silent");
 
-	sleepTime(explainNominationTimeSeconds);
+	sleepTime(Timings::explainNominationTimeSeconds);
 
-	AnnounceMessage(nominee->PlayerName() + " has " + std::to_string(defendTimeSeconds) +
+	AnnounceMessage(nominee->PlayerName() + " has " + std::to_string(Timings::defendTimeSeconds) +
 					" seconds to defend themself. Everyone else be silent");
 
-	sleepTime(defendTimeSeconds);
+	sleepTime(Timings::defendTimeSeconds);
 
 	constexpr int voteTimeSeconds = 20;
 	OpenCloseVoting(true, voteTimeSeconds);

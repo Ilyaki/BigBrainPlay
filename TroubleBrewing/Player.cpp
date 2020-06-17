@@ -134,7 +134,7 @@ Character *Player::GetCharacterOrDrunkBaseCharacter()
 void Player::SwitchCharacter(CharacterType newType, GameState* gameState)
 {
 	character = CharacterHelper::CreateCharacter(newType, gameState, this, false);
-	character->AnnounceCharacterAndAlignment(gameState, false, false); // Sends their new character message
+	character->AnnounceCharacterAndAlignment(gameState); // Sends their new character message
 }
 
 }

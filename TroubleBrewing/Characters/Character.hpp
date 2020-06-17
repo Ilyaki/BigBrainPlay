@@ -6,6 +6,7 @@
 #include "CharacterTraits.hpp"
 #include "../GameState.hpp"
 #include "../Player.hpp"
+#include "CharacterChooser.hpp"
 
 namespace TroubleBrewing
 {
@@ -43,7 +44,9 @@ public:
 	constexpr virtual CharacterType GetCharacterType() = 0;
 	constexpr virtual CharacterTraits GetCharacterTraits() = 0;
 
-	void AnnounceCharacterAndAlignment(GameState* gameState, bool gameStart, bool teensyville);
+	void AnnounceCharacterAndAlignment(GameState* gameState, bool gameStart = false,
+			CharacterChooser::CharacterCount expectedCount = CharacterChooser::CharacterCount{0,0,0,0},
+			bool teensyville = false);
 
 	virtual bool AbilityWorksWhenDead() { return false; }
 
