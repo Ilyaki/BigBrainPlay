@@ -11,6 +11,7 @@ namespace TroubleBrewing
 void Drunk::InitialSetup(GameState *gameState)
 {
 	// Do this in InitialSetup so we know what other characters are in play
+	// (Need to be careful not to check for Drunk base character before InitialSetup)
 
 	// Get possible townsfolk that aren't our own character
 	auto ourCharacter = GetCharacterType();

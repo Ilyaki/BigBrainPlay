@@ -9,7 +9,7 @@ namespace TroubleBrewing
 PerceivedCharacterData Recluse::GeneratePerceivedCharacterData(GameState* gameState)
 {
 	// Note: can generate random, even if dead
-	if (gameState->AbilityMalfunctions(player) || RandomBool())
+	if (gameState->AbilityMalfunctions(player) || RandomBetween(1, 3) == 1)
 	{
 		return Character::GeneratePerceivedCharacterData(gameState); // Default
 	}

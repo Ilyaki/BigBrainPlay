@@ -38,7 +38,7 @@ Player* Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isD
 	if (isDead)
 	{
 		// Hmm
-		return this;
+		return nullptr;
 	} else
 	{
 		auto [ allowDeath, redirectDeath, redirectTo ] =

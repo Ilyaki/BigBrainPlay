@@ -16,14 +16,11 @@ void Ravenkeeper::PreDeath(GameState *gameState, bool isExecutionKill, bool isDe
 
 		if (gameState->AbilityMalfunctions(player))
 		{
-			auto map = CharacterMap::GetCharacterTypeTraitsMap();
-
-			// Get character types that match the target & aren't our own character
-			auto possibleView = *map | std::views::transform([](auto y){ return y.second.second; });
-
 			// Copy into a vector for processing
 			std::vector<std::string_view> possibleCharacterNames;
-			std::copy(possibleView.begin(), possibleView.end(), std::back_inserter(possibleCharacterNames));
+			std::ranges::copy(*CharacterMap::GetCharacterTypeTraitsMap() |
+				std::views::transform([](auto y){ return y.second.second; }),
+				std::back_inserter(possibleCharacterNames));
 
 			if (possibleCharacterNames.empty())
 				targetCharacterName = GetCharacterNameString();

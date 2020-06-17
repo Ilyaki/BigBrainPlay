@@ -13,8 +13,7 @@ void Monk::NightAction(bool zerothNight, GameState *gameState)
 			{
 				[this](Player* selection){ return selection != this->player; },
 				"You cannot choose yourself"
-			}
-			);
+			});
 
 	// Needs to be after the input, or they'd know they were the drunk
 	if (IsDrunk()) // In case we are the Drunk, don't override the actual Monk protection

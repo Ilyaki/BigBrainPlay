@@ -31,7 +31,7 @@ void Empath::NightAction(bool zerothNight, GameState *gameState)
 
 	// Communicate to player
 	player->Communication()->SendMessage(GetCharacterNameString() + ": You have " +
-		std::to_string(evilNeighbours) + " evil neighbours");
+		std::to_string(evilNeighbours) + " evil (alive) neighbours");
 }
 
 }

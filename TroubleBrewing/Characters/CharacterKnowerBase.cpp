@@ -85,16 +85,15 @@ void CharacterKnowerBase::NightAction(bool zerothNight, GameState *gameState)
 			knownCharacter = perceivedData.externalPerceivedCharacterType;
 			knownCharacterName = std::string { perceivedData.externalPerceivedName };
 
-			// Choose a different random player (from all players except ourselves) for the second player.
+			// Choose a different random player (from all players except the first player & ourselves) for the second player.
 			auto allPlayers = gameState->GetPlayers();
-			int secondIndex;
-			while (allPlayers.at(secondIndex = RandomBetween(0, allPlayers.size() - 1)) == player);
-			secondPlayer = allPlayers.at(secondIndex);
+			while ((secondPlayer = allPlayers.at(RandomBetween(0, allPlayers.size() - 1))),
+					(secondPlayer == firstPlayer || secondPlayer == player)); // Loop again if this is true
 
 			// Shuffle the first/second player so the first one isn't always correct.
 			if (RandomBool())
 			{
-				auto tmp = firstPlayer;
+				auto tmp { firstPlayer };
 				firstPlayer = secondPlayer;
 				secondPlayer = tmp;
 			}

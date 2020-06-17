@@ -9,7 +9,7 @@ namespace TroubleBrewing
 PerceivedCharacterData Spy::GeneratePerceivedCharacterData(GameState *gameState)
 {
 	// Note: can generate random, even if dead
-	if (gameState->AbilityMalfunctions(player) || RandomBetween(1, 3) == 1)
+	if (gameState->AbilityMalfunctions(player) || RandomBetween(1, 4) == 1)
 	{
 		return Character::GeneratePerceivedCharacterData(gameState); // Default
 	}
@@ -47,15 +47,15 @@ void Spy::NightAction(bool zerothNight, GameState *gameState)
 {
 	// If Drunk/Poisoned, the Spy is allowed to see accurate info (phew)
 	auto comm = player->Communication();
-	comm->SendMessage("GRIMOIRE START:", false);
+	comm->SendMessage("Start of Grimoire:", false);
 
 	for (Player* p : gameState->GetPlayers())
 	{
 		if (p != player)
 		{
-			auto perceived = p->GetCharacter()->GeneratePerceivedCharacterData(gameState);
-			bool isEvil = perceived.externalPerceivedCharacterTraits.isEvil;
-			bool abilityMalfunction = gameState->AbilityMalfunctions(p);
+			const auto perceived = p->GetCharacter()->GeneratePerceivedCharacterData(gameState);
+			const bool isEvil = perceived.externalPerceivedCharacterTraits.isEvil;
+			const bool abilityMalfunction = gameState->AbilityMalfunctions(p);
 
 			comm->SendMessage(p->PlayerName() + " is the " + (isEvil ? "Evil " : "Good ") +
 					std::string { perceived.externalPerceivedName } +
@@ -63,7 +63,7 @@ void Spy::NightAction(bool zerothNight, GameState *gameState)
 		}
 	}
 
-	comm->SendMessage("GRIMOIRE END", true);
+	comm->SendMessage("End of Grimoire", true);
 }
 
 }

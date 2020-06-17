@@ -20,7 +20,7 @@ bool Butler::CanButlerVote(const std::map<Player *, bool> &votes, GameState* gam
 	}
 	else
 	{
-		for (auto &[player, voted] : votes)
+		for (const auto &[player, voted] : votes)
 		{
 			if (player == master && voted)
 				return true;

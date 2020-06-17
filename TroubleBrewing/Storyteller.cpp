@@ -379,10 +379,6 @@ void Storyteller::OpenCloseNominations(bool open)
 
 bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, Player *nominator)
 {
-	// Announce votes
-	for (Player* p : GetPlayers())
-		p->Communication()->AnnounceVotes(votes, nominee, nominator);
-
 	// Count votes
 	int numAlive = GetNumPlayersAlive();
 	int numVotes = 0;
@@ -414,6 +410,10 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 			}
 		}
 	}
+
+	// Announce votes
+	for (Player* p : GetPlayers())
+		p->Communication()->AnnounceVotes(votes, nominee, nominator);
 
 	// Test majority
 	if (numVotes >= minMajority)
@@ -555,25 +555,29 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin(bool duringDay)
 					return std::make_tuple(true, true, WinType::SAINT_EXECUTED); // Game ended, evil win
 			} else
 			{
-				bool functionalMayorAlive {false};
-				for (Player *p : GetPlayers())
+				if (NumberOfPlayers() == 3)
 				{
-					if (!p->IsDead() &&
-						p->GetCharacter()->GetCharacterType() == CharacterType::MAYOR &&
-						!AbilityMalfunctions(p) &&
-						NumberOfPlayers() == 3)
-					{
-						functionalMayorAlive = true;
-						break;
-					}
-				}
+					bool functionalMayorAlive {false};
 
-				if (functionalMayorAlive)
-					return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
+					for (Player *p : GetPlayers())
+					{
+						if (!p->IsDead() &&
+							p->GetCharacter()->GetCharacterType() == CharacterType::MAYOR &&
+							!AbilityMalfunctions(p))
+						{
+							functionalMayorAlive = true;
+							break;
+						}
+					}
+
+					if (functionalMayorAlive)
+						return std::make_tuple(true, false, WinType::MAYOR_NO_EXECUTION); // Game ended, good win
+				}
 			}
 		}
 	}
 
+	// Always do evil check last (good should win if we have winning conditions for both teams)
 	if (GetNumPlayersAlive() <= 2)
 	{
 		return std::make_tuple(true, true, WinType::TWO_PLAYERS_LEFT_ALIVE); // Game ended, evil win
@@ -608,6 +612,14 @@ void Storyteller::ManageWin(bool evilWin, WinType winType)
 	}
 
 	//TODO: Log game history
+	for(auto p = GetPlayers().begin(); p != GetPlayers().end(); ++p)
+	{
+		if ((*p)->GetCharacterOrDrunkBaseCharacter()->IsDrunk())
+			AnnounceMessage((*p)->PlayerName() + " was the Drunk (" +
+				(*p)->GetCharacterOrDrunkBaseCharacter()->GetCharacterNameString() + ")");
+		else
+			AnnounceMessage((*p)->PlayerName() + " was the " + (*p)->GetCharacter()->GetCharacterNameString());
+	}
 }
 
 }

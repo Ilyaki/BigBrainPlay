@@ -54,8 +54,10 @@ class Storyteller : public GameState, Voting, DayActions
 	{
 			CharacterType::POISONER,
 			CharacterType::MONK,
+			// Scarlett Woman doesn't have an ability, they just become the Demon immediately
 			CharacterType::SPY,
 			CharacterType::IMP,
+			// Ravenkeeper doesn't have a night ability, it gets triggered on death
 			CharacterType::EMPATH,
 			CharacterType::FORTUNETELLER,
 			CharacterType::UNDERTAKER,

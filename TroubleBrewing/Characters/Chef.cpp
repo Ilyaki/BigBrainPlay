@@ -50,7 +50,7 @@ void Chef::NightAction(bool zerothNight, GameState *gameState)
 	}
 
 	// Communicate to player.
-	player->Communication()->SendMessage(GetCharacterNameString() + " ability: There are " +
+	player->Communication()->SendMessage(GetCharacterNameString() + ": There are " +
 		std::to_string(totalPairs) + " evil pairs");
 }
 

@@ -20,7 +20,6 @@ void Character::AnnounceCharacterAndAlignment(
 	player->Communication()->SendMessage("You are the " + std::string { perceived.selfPerceivedName } +
 				", your alignment is " + (perceived.selfPerceivedCharacterTraits.isEvil ? "Evil" : "Good"), false);
 
-
 	if (gameStart)
 	{
 		// If we add Drunk evil (ie Lunatic), this needs to change
