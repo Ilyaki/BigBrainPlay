@@ -154,11 +154,11 @@ void Storyteller::DayPhase(int day)
 
 	AnnounceNightDeaths();
 
-
-	const auto dayTimeEnd = std::chrono::steady_clock::now() + std::chrono::seconds(Timings::dayTimeLengthSeconds);
+	const auto dayLength = (day == 1) ? Timings::firstDayTimeLengthSeconds : Timings::dayTimeLengthSeconds;
+	const auto dayTimeEnd = std::chrono::steady_clock::now() + std::chrono::seconds(dayLength);
 
 	AnnounceMessage("Day " + std::to_string(day) + " has begun, ending in " +
-		std::to_string(Timings::dayTimeLengthSeconds) + " seconds. Everyone wake up");
+		std::to_string(dayLength) + " seconds. Everyone wake up");
 
 	OpenCloseDayActions(true);
 
@@ -335,10 +335,9 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 
 	sleepTime(Timings::defendTimeSeconds);
 
-	constexpr int voteTimeSeconds = 20;
-	OpenCloseVoting(true, voteTimeSeconds);
+	OpenCloseVoting(true, nominee, Timings::voteTimeSeconds);
 
-	sleepTime(voteTimeSeconds);
+	sleepTime(Timings::voteTimeSeconds);
 
 	OpenCloseVoting(false);
 
@@ -459,7 +458,7 @@ bool Storyteller::ManageVotes(std::map<Player *, bool> votes, Player *nominee, P
 	}
 }
 
-void Storyteller::OpenCloseVoting(bool open, int voteTimeSeconds)
+void Storyteller::OpenCloseVoting(bool open, Player* nominee, int voteTimeSeconds)
 {
 	if (open)
 	{
@@ -468,7 +467,7 @@ void Storyteller::OpenCloseVoting(bool open, int voteTimeSeconds)
 		for (Player *player : GetPlayers())
 		{
 			if (!player->IsDead() || player->HasGhostVote())
-				player->Communication()->OpenCloseVoting(true, false, this, player, voteTimeSeconds);
+				player->Communication()->OpenCloseVoting(true, false, this, player, nominee, voteTimeSeconds);
 		}
 	} else
 	{

@@ -57,7 +57,8 @@ Player* Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isD
 			else
 			{
 				bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
-									  monkProtectedBy != nullptr && !gameState->AbilityMalfunctions(monkProtectedBy));
+									  monkProtectedBy != nullptr && !monkProtectedBy->IsDead() &&
+									  !gameState->AbilityMalfunctions(monkProtectedBy));
 
 				if (monkProtected)
 					return nullptr;
@@ -89,7 +90,7 @@ int Player::PlayerID() const
 bool Player::PlayerPartialCheckAbilityMalfunctions(GameState *gameState) const
 {
 	auto currentTime = gameState->GetCurrentTime();
-	return poisonedUntil >= currentTime && poisonedBy != nullptr &&
+	return poisonedUntil >= currentTime && poisonedBy != nullptr && !poisonedBy->IsDead() &&
 		(this == poisonedBy || !gameState->AbilityMalfunctions(poisonedBy));
 }
 

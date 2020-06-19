@@ -31,8 +31,8 @@ class DiscordPlayerCommunication : public TroubleBrewing::PlayerCommunication
 	// is nominations open, game state, voting interface, source player
 	std::tuple<bool, TroubleBrewing::GameState*, TroubleBrewing::Voting*, TroubleBrewing::Player*> nominationData;
 
-	// is voting open, is ghost vote, voting interface
-	std::tuple<bool, bool, TroubleBrewing::Voting*, TroubleBrewing::Player*> votingData;
+	// is voting open, is ghost vote, voting interface, our player, nominee
+	std::tuple<bool, bool, TroubleBrewing::Voting*, TroubleBrewing::Player*, TroubleBrewing::Player*> votingData;
 
 	// is day actions open, day actions interface, game state, source player
 	std::tuple<bool, TroubleBrewing::DayActions*, TroubleBrewing::GameState*, TroubleBrewing::Player*> dayActionsData;
@@ -71,7 +71,7 @@ public:
 			TroubleBrewing::Player* sourcePlayer) override;
 
 	virtual void OpenCloseVoting(bool open, bool ghostVote,TroubleBrewing::Voting* voting,
-			TroubleBrewing::Player* sourcePlayer, int voteTimeSeconds) override;
+			TroubleBrewing::Player* sourcePlayer, TroubleBrewing::Player* nominee, int voteTimeSeconds) override;
 
 	void OpenCloseDayActions(bool open, TroubleBrewing::DayActions* dayActions,
 			TroubleBrewing::GameState* gameState, TroubleBrewing::Player* sourcePlayer) override;

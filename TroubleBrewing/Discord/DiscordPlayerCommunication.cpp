@@ -210,12 +210,17 @@ void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message messag
 
 void DiscordPlayerCommunication::PrintPlayerIDs(GameState* gameState)
 {
+	// Don't show dead status at night or good players would know who was just killed by demon
+	const bool showDeadStatus = gameState->GetCurrentTime().IsDay();
+
 	std::string msg = R"(```yaml\nIDs:\n)";
 	for (Player* player : gameState->GetPlayers())
 	{
 		msg += "- " + player->PlayerName() + ": " +
 				std::to_string(player->PlayerID()) +
-				(player->IsDead() ? " (Dead)\\n" : "\\n");
+				(showDeadStatus && player->IsDead() ?
+				 	(!player->HasGhostVote() ? " (Dead, used ghost vote)\\n" : " (Dead)\\n") :
+					"\\n");
 	}
 	msg += R"(```)";
 
@@ -239,7 +244,8 @@ void DiscordPlayerCommunication::ProcessVote(SleepyDiscord::Message message)
 }
 
 void DiscordPlayerCommunication::OpenCloseVoting(
-		bool open, bool ghostVote,TroubleBrewing::Voting* voting, Player* sourcePlayer, int voteTimeSeconds)
+		bool open, bool ghostVote,TroubleBrewing::Voting* voting,
+		Player* sourcePlayer, Player* nominee, int voteTimeSeconds)
 {
 	if (!open && std::get<0>(votingData)) // Closing voting before player casted a vote.
 	{
@@ -248,11 +254,11 @@ void DiscordPlayerCommunication::OpenCloseVoting(
 		std::get<2>(votingData)->InformVote(std::get<3>(votingData), false);
 	}
 
-	votingData = std::tuple(open, ghostVote, voting, sourcePlayer);
+	votingData = std::tuple(open, ghostVote, voting, sourcePlayer, nominee);
 
 	if (open)
 	{
-		SendMessage("Vote for " + sourcePlayer->PlayerName() + " by writing `vote` or `yes`." +
+		SendMessage("Vote for " + nominee->PlayerName() + " by writing `vote` or `yes`." +
 					(ghostVote ? " This will use your ghost vote." : "") +
 					" You have " + std::to_string(voteTimeSeconds) + " seconds to vote");
 	}

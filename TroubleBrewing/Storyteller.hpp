@@ -95,7 +95,7 @@ class Storyteller : public GameState, Voting, DayActions
 	void ManageWin(bool evilWin, WinType winType);
 
 	void OpenCloseNominations(bool open);
-	void OpenCloseVoting(bool open, int voteTimeSeconds = 0);
+	void OpenCloseVoting(bool open, Player* nominee = nullptr, int voteTimeSeconds = 0);
 	void OpenCloseDayActions(bool open);
 
 	/// \return true if the nomination phase should end abruptly (e.g. because Virgin was nominated)
