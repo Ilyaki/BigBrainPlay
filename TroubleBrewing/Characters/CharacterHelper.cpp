@@ -29,7 +29,7 @@ std::shared_ptr<Character> CharacterHelper::CreateCharacter(CharacterType charac
 		Player* player, bool isDrunk)
 {
 	std::shared_ptr<Character> character;
-	Time creationTime = gameState->GetCurrentTime();
+	Time creationTime = gameState->GameStateGetCurrentTime();
 
 	switch (characterType)
 	{

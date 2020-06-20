@@ -21,7 +21,7 @@ void Monk::NightAction(bool zerothNight, GameState *gameState)
 
 	// Monk protection only lasts the current night
 	// Note: This *will* set the monk protection if poisoned, which is important when poison wears off
-	target->SetMonkProtection(gameState->GetCurrentTime(), player);
+	target->SetMonkProtection(gameState->GameStateGetCurrentTime(), player);
 }
 
 }

@@ -69,12 +69,12 @@ bool GameState::PlayersAreNeighbours(Player* first, Player* second, bool allowDe
 	return second == neighbours.first || second == neighbours.second;
 }
 
-Time GameState::GetCurrentTime()
+Time GameState::GameStateGetCurrentTime()
 {
 	return currentTime;
 }
 
-void GameState::SetCurrentTime(Time newTime)
+void GameState::GameStateSetCurrentTime(Time newTime)
 {
 	currentTime = newTime;
 }

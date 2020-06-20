@@ -211,7 +211,7 @@ void DiscordPlayerCommunication::ProcessNomination(SleepyDiscord::Message messag
 void DiscordPlayerCommunication::PrintPlayerIDs(GameState* gameState)
 {
 	// Don't show dead status at night or good players would know who was just killed by demon
-	const bool showDeadStatus = gameState->GetCurrentTime().IsDay();
+	const bool showDeadStatus = gameState->GameStateGetCurrentTime().IsDay();
 
 	std::string msg = R"(```yaml\nIDs:\n)";
 	for (Player* player : gameState->GetPlayers())

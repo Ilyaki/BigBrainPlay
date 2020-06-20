@@ -25,12 +25,13 @@ class GameState : public GameLogging
 	Time currentTime{};
 
 protected:
-	void SetCurrentTime(Time newTime);
+	void GameStateSetCurrentTime(Time newTime);
 
 public:
 	GameState();
 
-	Time GetCurrentTime();
+	// The name GetCurrentTime conflicts with a Windows macro
+	Time GameStateGetCurrentTime();
 
 	const std::vector<Player*>& GetPlayers();
 

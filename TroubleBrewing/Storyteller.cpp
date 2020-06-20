@@ -42,14 +42,14 @@ Storyteller::Storyteller(const std::vector<std::pair<PlayerData, std::shared_ptr
 void Storyteller::StartGame()
 {
 	// Zeroth night
-	SetCurrentTime(Time{false, 0});
+	GameStateSetCurrentTime(Time {false, 0});
 	NightPhase(zerothNightOrder, 0);
 
 	for (int dayNight = 1;; dayNight++)
 	{
 		const auto& players = GetPlayers();
 
-		SetCurrentTime(Time{true, dayNight});
+		GameStateSetCurrentTime(Time {true, dayNight});
 		DayPhase(dayNight);
 		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
 		if (auto [gameEnded, evilWin, winType] = CheckGameWin(false); gameEnded)
@@ -58,7 +58,7 @@ void Storyteller::StartGame()
 			break;
 		}
 
-		SetCurrentTime(Time{false, dayNight});
+		GameStateSetCurrentTime(Time {false, dayNight});
 		NightPhase(nightOrder, dayNight);
 		std::for_each(players.begin(), players.end(), [](Player* p){ p->Communication()->NewParagraph(); });
 		if (auto [gameEnded, evilWin, winType] = CheckGameWin(false); gameEnded)
@@ -96,7 +96,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 
 		// Don't let a new character perform a night action (unless its the zeroth night)
 		auto creationTime = character->GetCreationTime();
-		auto currentTime = GetCurrentTime();
+		auto currentTime = GameStateGetCurrentTime();
 
 		if (creationTime != currentTime || currentTime == Time { false, 0 })
 			character->NightAction(zerothNight, this);
@@ -115,7 +115,7 @@ void Storyteller::NightPhase(const std::vector<CharacterType> order, int night)
 
 void Storyteller::AnnounceNightDeaths()
 {
-	Time lastNight = Time {false, GetCurrentTime().DayOrNightCount() - 1};
+	Time lastNight = Time {false, GameStateGetCurrentTime().DayOrNightCount() - 1};
 	std::vector<Player *> deathsLastNight {};
 	for (auto &[player, deathTime] : *GetDeaths())
 	{
@@ -235,7 +235,7 @@ void Storyteller::ExecuteChoppingBlock()
 	if (choppingBlock == nullptr)
 	{
 		AnnounceMessage("Nobody was executed");
-		SetLastExecutionDeath(nullptr, GetCurrentTime());
+		SetLastExecutionDeath(nullptr, GameStateGetCurrentTime());
 	} else
 	{
 		Player* whoDied = choppingBlock->AttemptKill(this, true, false);
@@ -244,11 +244,11 @@ void Storyteller::ExecuteChoppingBlock()
 		{
 			//POLISH: spectacular execution messages?
 			AnnounceMessage(whoDied->PlayerName() + " was executed and killed");
-			SetLastExecutionDeath(whoDied, GetCurrentTime());
+			SetLastExecutionDeath(whoDied, GameStateGetCurrentTime());
 		} else
 		{
 			AnnounceMessage(choppingBlock->PlayerName() + " was executed but did not die");
-			SetLastExecutionDeath(nullptr, GetCurrentTime());
+			SetLastExecutionDeath(nullptr, GameStateGetCurrentTime());
 		}
 	}
 }
@@ -281,13 +281,13 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 			+ nominator->PlayerName() + " is dead");
 		return false;
 	}
-	else if (HasBeenNominator(nominator, GetCurrentTime()))
+	else if (HasBeenNominator(nominator, GameStateGetCurrentTime()))
 	{
 		AnnounceMessage(nominator->PlayerName() + " tried to nominate " + nominee->PlayerName() + ", but "
 						+ nominator->PlayerName() + " has already nominated someone today");
 		return false;
 	}
-	else if (HasBeenNominee(nominee, GetCurrentTime()))
+	else if (HasBeenNominee(nominee, GameStateGetCurrentTime()))
 	{
 		AnnounceMessage(nominator->PlayerName() + " tried to nominate " + nominee->PlayerName() + ", but "
 						+ nominee->PlayerName() + " has already been nominated today");
@@ -296,7 +296,7 @@ bool Storyteller::ProcessNomination(Player *nominee, Player *nominator)
 	else
 	{
 		// Allow the nomination to pass
-		AddNomination(nominee, nominator, GetCurrentTime());
+		AddNomination(nominee, nominator, GameStateGetCurrentTime());
 	}
 
 
@@ -545,7 +545,7 @@ std::tuple<bool, bool, WinType> Storyteller::CheckGameWin(bool duringDay)
 
 	if (!duringDay && HasAnyExecutionPhaseTakenPlace())
 	{
-		if (auto [ lastExecution, executionTime ] = GetLastExecutionDeath(); executionTime == GetCurrentTime())
+		if (auto [ lastExecution, executionTime ] = GetLastExecutionDeath(); executionTime == GameStateGetCurrentTime())
 		{
 			if (lastExecution != nullptr)
 			{

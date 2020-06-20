@@ -56,7 +56,7 @@ Player* Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isD
 			}
 			else
 			{
-				bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GetCurrentTime() &&
+				bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GameStateGetCurrentTime() &&
 									  monkProtectedBy != nullptr && !monkProtectedBy->IsDead() &&
 									  !gameState->AbilityMalfunctions(monkProtectedBy));
 
@@ -89,7 +89,7 @@ int Player::PlayerID() const
 
 bool Player::PlayerPartialCheckAbilityMalfunctions(GameState *gameState) const
 {
-	auto currentTime = gameState->GetCurrentTime();
+	auto currentTime = gameState->GameStateGetCurrentTime();
 	return poisonedUntil >= currentTime && poisonedBy != nullptr && !poisonedBy->IsDead() &&
 		(this == poisonedBy || !gameState->AbilityMalfunctions(poisonedBy));
 }
@@ -110,7 +110,7 @@ void Player::Kill(GameState *gameState, bool isExecutionKill, bool isDemonKill, 
 {
 	GetCharacterOrDrunkBaseCharacter()->PreDeath(gameState, isExecutionKill, isDemonKill, sourcePlayer);
 	isDead = true;
-	gameState->LogDeath(this, gameState->GetCurrentTime());
+	gameState->LogDeath(this, gameState->GameStateGetCurrentTime());
 }
 
 bool Player::HasGhostVote()

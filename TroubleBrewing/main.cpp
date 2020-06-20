@@ -17,6 +17,7 @@ int main()
 	else
 	{
 		std::cerr << "Couldn't open token.txt" << std::endl;
+		std::cin.ignore();
 	}
 
 	return 0;

@@ -7,7 +7,7 @@ namespace TroubleBrewing
 
 void Ravenkeeper::PreDeath(GameState *gameState, bool isExecutionKill, bool isDemonKill, Player *sourcePlayer)
 {
-	if (!gameState->GetCurrentTime().IsDay() && !player->IsDead()) // Don't give info if they have already died
+	if (!gameState->GameStateGetCurrentTime().IsDay() && !player->IsDead()) // Don't give info if they have already died
 	{
 		Player *target = player->Communication()->InputPlayer(gameState, player,
 			GetCharacterNameString() + ": You have died. Choose a player to learn their character");
