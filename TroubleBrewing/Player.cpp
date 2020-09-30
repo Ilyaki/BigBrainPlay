@@ -56,9 +56,17 @@ Player* Player::AttemptKill(GameState *gameState, bool isExecutionKill, bool isD
 			}
 			else
 			{
-				bool monkProtected = (isDemonKill && monkProtectedUntil >= gameState->GameStateGetCurrentTime() &&
-									  monkProtectedBy != nullptr && !monkProtectedBy->IsDead() &&
-									  !gameState->AbilityMalfunctions(monkProtectedBy));
+				bool monkProtected = (
+								isDemonKill &&
+								monkProtectedUntil >= gameState->GameStateGetCurrentTime() &&
+								monkProtectedBy != nullptr &&
+								!monkProtectedBy->IsDead() &&
+
+								// If the Monk changes character they'd lose the ability (Can't actually happen in TB)
+								poisonedBy->GetCharacter()->GetCharacterType() == CharacterType::MONK &&
+
+								!gameState->AbilityMalfunctions(monkProtectedBy)
+									  );
 
 				if (monkProtected)
 					return nullptr;
@@ -90,8 +98,14 @@ int Player::PlayerID() const
 bool Player::PlayerPartialCheckAbilityMalfunctions(GameState *gameState) const
 {
 	auto currentTime = gameState->GameStateGetCurrentTime();
-	return poisonedUntil >= currentTime && poisonedBy != nullptr && !poisonedBy->IsDead() &&
-		(this == poisonedBy || !gameState->AbilityMalfunctions(poisonedBy));
+	return	poisonedUntil >= currentTime &&
+			poisonedBy != nullptr &&
+			!poisonedBy->IsDead() &&
+
+			// If the original Imp suicides then the poisoner would lose the poison ability since they are now the Imp
+			poisonedBy->GetCharacter()->GetCharacterType() == CharacterType::POISONER &&
+
+			(this == poisonedBy || !gameState->AbilityMalfunctions(poisonedBy));
 }
 
 void Player::SetPoisoned(Time until, Player *fromWho)
